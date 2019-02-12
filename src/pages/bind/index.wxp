@@ -25,6 +25,7 @@
 				           require="{{true}}"
 				           disabled="{{bindInProcess}}"
 				           validate="eqpassword"
+				           excludeOnSubmit="{{true}}"
 				></wui-field>
 		</wui-panel>
 		<view style="text-align: center">
@@ -177,7 +178,7 @@
 				// 提交绑定请求
 				Player.current = new Player(await $.Http.request('POST /user/bind',
 					params, {
-						header: {
+						header: { // TODO 移到welib的Http模块里
 							'content-type': 'application/x-www-form-urlencoded',
 						}
 					}));

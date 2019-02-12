@@ -137,6 +137,10 @@
 			validateOnBlur: { // 控件是否在失去焦点时验证数据有效性
 				type: Boolean,
 				value: true
+			},
+			excludeOnSubmit: { // 控件字段是否在提交表单时排除
+				type: Boolean,
+				value: false
 			}
 		},
 		data: {
