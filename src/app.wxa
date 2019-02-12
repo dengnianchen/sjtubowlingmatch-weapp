@@ -1,45 +1,92 @@
 <template>
-  <view>
-    <layout-head></layout-head>
-
-    <!-- wxp template -->
-    <page></page>
-
-    <layout-foot></layout-foot>
-  </view>
+	<view>
+		<layout-loading wx:if="{{loading}}"></layout-loading>
+		<layout-error wx:if="{{loadingError}}" error="{{loadingError}}" bindclick="reloadPage"></layout-error>
+		<page></page>
+	</view>
 </template>
 
 <script>
-  export default {
-    config: {
-      usingComponents: {
-        'layout-head': 'layout/head',
-        'layout-foot': 'layout/foot'
-      },
-      pages: [],
-      window: {
-        backgroundTextStyle: 'dark',
-        backgroundColor: '#efefef',
-        navigationBarBackgroundColor: '#ffffff',
-        navigationBarTitleText: '上海交通大学保龄赛事中心',
-        navigationBarTextStyle: 'black'
-      },
-      networkTimeout: {
-        request: 10000
-      }
-    },
-    globalData: { },
-    onLaunch () { },
-    onShow () { },
-    onHide () { }
-  }
+	require('welib');
+	require('./error');
+	const style = require('./style');
+	const config = require('./config');
+	const Player = require('./models/Player');
+	
+	export default {
+		config: {
+			usingComponents: {
+				'layout-loading': 'layout/loading',
+				'layout-error': 'layout/error',
+			},
+			pages: [],
+			window: {
+				backgroundTextStyle: 'dark',
+				backgroundColor: '#efefef',
+				navigationBarBackgroundColor: '#ffffff',
+				navigationBarTitleText: '上海交通大学保龄赛事中心',
+				navigationBarTextStyle: 'black',
+			},
+			networkTimeout: {
+				request: 10000,
+			},
+		},
+		globalData: {
+			style, config
+		},
+		onLaunch() {
+			let isAppInitialized = false;
+			// 定制页面加载过程，在页面加载前载入全局配置信息、检查登陆状态及用户信息完善状态
+			let pageLoading = async function() {
+				let _this = this;
+				let redirectToBind = () => wx.redirectTo({
+					url: `../bind/index?from=${_this.getPathEncoded()}`,
+				});
+				
+				// 1. 若当前不存在全局配置信息，则先加载之
+				//    全局配置信息存在app对象中，因此仅在小程序运行后的第一个页面加载时需要从服务器获取
+				if (!isAppInitialized) {
+					//$($.App.config).extend(await $.Http.request("/common/config"));
+					isAppInitialized = true;
+				}
+				
+				// 2. 尝试获取当前登陆用户
+				let me = Player.current;
+				
+				// 3. 尝试登陆并获取绑定的用户信息
+				//    前提条件：当前页面需要登录才能访问，且当前用户不存在
+				//    若登陆失败或当前微信账号没有绑定赛事中心账号，则跳转到登陆绑定页面
+				if (this.auth && !me) {
+					try {
+						await $.Http.login();
+					} catch (ex) {
+						return redirectToBind();
+					}
+					me = Player.current;
+					if (!me)
+						return redirectToBind();
+				}
+				this.setData({ me });
+				
+			};
+			
+			// 初始化Welib库
+			$.initial($.extend(config.welib, { pageBeforeLoad: pageLoading }));
+		},
+		onShow() { },
+		onHide() { },
+	};
 </script>
 
-<style>
-page {
-  background-color: #F8F8F8;
-  height: 100%;
-  font-size: 32rpx;
-  line-height: 1.5;
-}
+<style lang="less">
+	@import "style";
+	
+	page {
+		background-color: @backgroundColor;
+		height: 100%;
+		font-size: @fontSize__text;
+		line-height: 1.5;
+		font-family: -apple-system-font,Helvetica Neue,Helvetica,sans-serif;
+	}
+	
 </style>

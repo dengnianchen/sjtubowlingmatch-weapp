@@ -1,0 +1,46 @@
+<template>
+	<view class="app-error">
+		<view class="app-error__content">
+			<wui-abnor error="{{error}}" bindabnortap="onClick" showButton="{{true}}"></wui-abnor>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		config: {
+			usingComponents: {
+				'wui-abnor': '@yapple/wui-abnor'
+			}
+		},
+		properties: {
+			error: {
+				type: Object,
+				value: null
+			}
+		},
+		methods: {
+			onClick(event) {
+				let detail = event.detail;
+				let option = {};
+				this.triggerEvent('click', detail, option);
+			}
+		}
+	}
+</script>
+
+<style lang="less">
+	.app-error {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 1000;
+		background: white;
+	}
+	.app-error__content {
+		width: 100%;
+		height: 90%
+	}
+</style>

@@ -1,0 +1,269 @@
+<template>
+	<view class="bind-title">欢迎来到上海交通大学保龄赛事中心</view>
+	<wui-form wx:if="{{register}}" id="form-register" bindsubmit="doRegister">
+		<view class="bind-subtitle">首次使用需注册赛事中心账号</view>
+		<wui-panel>
+				<wui-field id="field-name" name="name" type="text"
+				           label="真实姓名"
+				           placeholder="请输入真实姓名，长度不超过20个字符"
+				           maxlength="20"
+				           require="{{true}}"
+				           disabled="{{bindInProcess}}"
+				></wui-field>
+				<wui-field id="field-password" name="password" type="password"
+				           label="密码"
+				           placeholder="密码长度应介于6至20个字符之间"
+				           maxlength="20"
+				           require="{{true}}"
+				           disabled="{{bindInProcess}}"
+				           validate="{{[ 'btlength', 6, 20 ]}}"
+				></wui-field>
+				<wui-field id="field-repassword" name="repassword" type="password"
+				           label="确认密码"
+				           placeholder="请再次输入密码"
+				           maxlength="20"
+				           require="{{true}}"
+				           disabled="{{bindInProcess}}"
+				           validate="eqpassword"
+				></wui-field>
+		</wui-panel>
+		<view style="text-align: center">
+			<wxc-button size="large" value="注册账号" loading="{{bindInProcess}}"
+			            type="{{bindInProcess?'disabled':'primary'}}"
+			            open-type='getUserInfo'
+			            bindgetuserinfo='doLoginAndRegister'
+			
+			></wxc-button>
+		</view>
+	</wui-form>
+	<wui-form wx:else id="form-bind" bindsubmit="doBind">
+		<view class="bind-subtitle">登陆并绑定赛事中心账号</view>
+		<wui-panel>
+			<wui-field id="field-name" name="name" type="text"
+			           label="姓名"
+			           placeholder="请输入账号姓名"
+			           require="{{true}}"
+			           disabled="{{bindInProcess}}"
+			           validateOnBlur="{{false}}"
+			></wui-field>
+			<wui-field id="field-password" name="password" type="password"
+			           label="密码"
+			           placeholder="请输入账号密码"
+			           maxlength="20"
+			           require="{{true}}"
+			           disabled="{{bindInProcess}}"
+			           validateOnBlur="{{false}}"
+			></wui-field>
+		</wui-panel>
+		<view style="text-align: center">
+			<wxc-button size="large" value="绑定账号" loading="{{bindInProcess}}"
+			            type="{{bindInProcess?'disabled':'primary'}}"
+			            open-type='getUserInfo'
+			            bindgetuserinfo='doLoginAndBind'
+			
+			></wxc-button>
+		</view>
+	</wui-form>
+	<view class="bind-foot" bindtap="switchRegisterOrBind">
+		{{register ? '绑定现有账号' : '注册新账号' }}
+	</view>
+</template>
+
+<script>
+	const md5 = require('md5');
+	const Player = require('../../models/Player');
+	
+	const customValidators = {
+		eqpassword: function(value) {
+			const password = Page.current().selectComponent('#field-password').data.value;
+			if (password === value)
+				return '';
+			return '两次输入的密码不同';
+		},
+	};
+	
+	export default {
+		
+		config: {
+			usingComponents: {
+				'wxc-button': '@minui/wxc-button',
+				'wui-panel': '@yapple/wui-panel',
+				"wui-field": "../../common/component/field",
+				"wui-form": "../../common/component/form",
+				"wui-submit": "../../common/component/submit",
+			},
+		},
+		
+		data: {
+			skipTemplate: true,
+			wxAuth: false,
+			bindInProcess: false,
+			register: true
+		},
+		
+		async onLoad(options) {
+			this.setData(options);
+			try {
+				await $.Http.login();
+				if (Player.current) // 若当前微信已绑定用户，则直接回到来源页面
+					this._redirectBack();
+				else
+					this.setData({ wxAuth: true });
+			} catch (ex) {
+				// 登录微信账号失败，后续将使用授权登录方式
+				console.error(ex);
+				this.setData({ wxAuth: false });
+			}
+			this.selectComponent('#form-register').setCustomValidators(customValidators);
+		},
+		
+		/**
+		 * 尝试授权登录，然后执行微信与球馆用户的绑定操作
+		 */
+		async doLoginAndRegister() {
+			this.setData({ bindInProcess: true });
+			
+			if (this.data.wxAuth) {
+				// 已经成功登录，仅执行绑定操作
+				this.selectComponent('#form-register').submit();
+			} else {
+				// 进行授权方式登录（若未曾收授权，用户会收到授权提示）
+				try {
+					await $.Http.login(true);
+					this.setData({ wxAuth: true });
+					// 执行绑定操作
+					this.selectComponent('#form-register').submit();
+				} catch (ex) {
+					$.Modal.showError('登录错误', ex);
+					this.setData({ bindInProcess: false });
+				}
+			}
+			
+		},
+		
+		/**
+		 * 尝试授权登录，然后执行微信与球馆用户的绑定操作
+		 */
+		async doLoginAndBind() {
+			this.setData({ bindInProcess: true });
+			
+			if (this.data.wxAuth) {
+				// 已经成功登录，仅执行绑定操作
+				this.selectComponent('#form-bind').submit();
+			} else {
+				// 进行授权方式登录（若未曾收授权，用户会收到授权提示）
+				try {
+					await $.Http.login(true);
+					this.setData({ wxAuth: true });
+					// 执行绑定操作
+					this.selectComponent('#form-bind').submit();
+				} catch (ex) {
+					$.Modal.showError('登录错误', ex);
+					this.setData({ bindInProcess: false });
+				}
+			}
+			
+		},
+		
+		/**
+		 * 执行微信与赛事中心账号的绑定操作，绑定成功后在会话中添加当前账号信息并跳转至来源页面
+		 */
+		async doBind() {
+			// 获取提交参数，对密码字段进行加密
+			let params = e.detail.params;
+			params.password = md5(params.password);
+			
+			try {
+				// 提交绑定请求
+				Player.current = new Player(await $.Http.request('POST /user/bind',
+					params, {
+						header: {
+							'content-type': 'application/x-www-form-urlencoded',
+						}
+					}));
+				$.Modal.showSuccess('绑定成功！');
+				this._redirectBack();
+			} catch (ex) {
+				$.Modal.showError('绑定失败', ex);
+				this.setData({ bindInProcess: false });
+			}
+		},
+		
+		/**
+		 * 注册选手账号并与当前微信账号绑定，绑定成功后在会话中添加当前账号信息并跳转至来源页面
+		 */
+		async doRegister(e) {
+			// 获取提交参数，对密码字段进行加密
+			let params = e.detail.params;
+			params.password = md5(params.password);
+			
+			try {
+				// 提交绑定请求
+				Player.current = new Player(await $.Http.request('POST /user',
+					params, {
+						header: {
+							'content-type': 'application/x-www-form-urlencoded',
+						}
+					}));
+				$.Modal.showSuccess('注册成功！');
+				this._redirectBack();
+			} catch (ex) {
+				$.Modal.showError('注册失败', ex);
+				this.setData({ bindInProcess: false });
+			}
+		},
+		
+		/**
+		 * 切换登陆表单或注册表单
+		 */
+		switchRegisterOrBind() {
+			this.setData({ register: !this.data.register });
+		},
+		
+		/**
+		 * 跳转至来源页面（由data.from指定）
+		 */
+		_redirectBack() {
+			wx.reLaunch({
+				url: decodeURIComponent(this.data.from),
+			});
+		}
+		
+	};
+</script>
+
+<style lang="less">
+	@import "../../style";
+	
+	.bind-title {
+		font-size: 36px;
+		text-align: center;
+		margin-top: 36px;
+		margin-bottom: 0.5em;
+		color: @mainHeadingColor;
+	}
+	
+	.bind-subtitle {
+		font-size: 28px;
+		margin-bottom: 36px;
+		text-align: center;
+		color: @subHeadingColor;
+	}
+	
+	.bind-form {
+		padding: 15px 30px 30px 30px;
+		
+		#bind-password::after {
+			display: block;
+			content: "";
+			height: 15px;
+		}
+	}
+	
+	.bind-foot {
+		font-size: @fontSize__subDesc;
+		text-align: center;
+		color: @subHeadingColor;
+		margin: 20px 0;
+	}
+</style>
