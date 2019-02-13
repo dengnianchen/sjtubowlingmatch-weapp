@@ -19,59 +19,104 @@
 		},
 		behaviors: [],
 		properties: {
+			disabled: {
+				type: Boolean,
+				value: false,
+				observer(val) {
+					const fieldNodes = this.getRelationNodes('./field');
+					for (let fieldNode of fieldNodes)
+						fieldNode.setData({ _formDisabled: val });
+				}
+			},
+			validateOnBlur: {
+				type: Boolean,
+				value: true,
+				observer(val) {
+					const fieldNodes = this.getRelationNodes('./field');
+					for (let fieldNode of fieldNodes)
+						fieldNode.setData({ _formValidateOnBlur: val });
+				}
+			}
 		},
 		data: {
 			validators: defaultValidators
 		},
 		methods: {
+			
+			/// Public Functions ///
+			
+			/**
+			 * 设置自定义验证函数
+			 *
+			 * 自定义验证函数范例：
+			 *
+			 *     const customValidators = {
+			 *       yourValidator: function(value) {
+			 *         if (valid) return '';
+			 *         else return 'error message';
+			 *       }
+			 *     }
+			 *
+			 * @param customValidators 包含自定义验证函数名称和函数体的键值对
+			 */
 			setCustomValidators(customValidators) {
 				this.setData({
 					validators: $.extend(defaultValidators, customValidators)
 				});
 			},
+			
+			setErrors(errors) {
+				let nodes = this.getRelationNodes('./field');
+				for (let node of nodes) {
+					if (errors[node.name()])
+						node.error(errors[node.name()]);
+					else
+						node.error(false);
+				}
+			},
+			
+			field(name) {
+				let nodes = this.getRelationNodes('./field');
+				for (let node of nodes)
+					if (node.name() === name)
+						return node;
+				return null;
+			},
+			
 			submit(e = null) {
 				// 提交时，收集所有field组件的value值，然后触发submit事件
 				let nodes = this.getRelationNodes('./field');
 				
 				// 验证所有控件的数据合法性
-				let errorNodes = [];
+				let isAllValid = true;
 				for (let node of nodes) {
-					let result = node._validate(node.data.value);
-					if (result)
-						errorNodes.push({
-							node: node,
-							message: result
-						});
+					let result = node.validate();
+					if (result) {
+						node.error(result);
+						isAllValid = false;
+					} else
+						node.error(false);
 				}
-				if (errorNodes.length) {
+				if (!isAllValid) {
 					// 存在非法数据，显示错误信息，中止提交
-					let messages = '';
-					for (let i = 0; i < errorNodes.length; ++i) {
-						const node = errorNodes[i].node;
-						const message = errorNodes[i].message;
-						node.setData({ _error: true });
-						if (i === errorNodes.length - 1)
-							messages += `${node.data.label}：${message}`;
-						else
-							messages += `${node.data.label}：${message}\n`;
-					}
-					$.Modal.show('表单填写错误', messages);
-					return;
+					$.Modal.show('表单填写错误', '请更正错误后重试');
+					return false;
 				}
 				
 				let params = {};
 				let changedParams = {};
 				for (let node of nodes) {
-					if (!node.data.name)
+					if (!node.name() || node.data.excludeOnSubmit)
 						continue;
-					params[node.data.name] = node.data.value;
+					params[node.name()] = node.value();
 					if (node.data._changed)
-						changedParams[node.data.name] = node.data.value;
+						changedParams[node.name()] = node.value();
 				}
 				this.triggerEvent("submit", $.extend(e ? e.detail : null, {
 					params: params,
 					changedParams: changedParams
 				}, {}));
+				return true;
 			}
 		}
 	}

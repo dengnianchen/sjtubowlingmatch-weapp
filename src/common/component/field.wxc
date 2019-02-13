@@ -1,48 +1,49 @@
 <template xmlns:wx="http://www.w3.org/1999/XSL/Transform">
 	<view class="field__body {{_error?'error':''}}">
-		<view class="field__label" bindtap="bindLabelClicked">{{label}}<text wx:if="{{require}}">*</text></view>
+		<view class="field__label" bindtap="_bindLabelClicked">{{label}}<text wx:if="{{require}}">*</text></view>
 		<input wx:if="{{type==='password'}}" class="field__input"
 		       type="text" password="{{true}}" value="{{value}}"
 		       placeholder="{{placeholder}}"
 		       placeholder-class="field__placeholder"
 		       focus="{{focus}}"
 		       maxlength="{{maxlength}}"
-		       disabled="{{disabled}}"
-		       bindinput="bindInputEdit"
-		       bindblur="bindInputBlur"
-		       bindfocus="bindInputFocus"/>
+		       disabled="{{_formDisabled || disabled}}"
+		       bindinput="_bindInputEdit"
+		       bindblur="_bindInputBlur"
+		       bindfocus="_bindInputFocus"/>
 		<input wx:elif="{{type==='text'||type==='number'}}" class="field__input"
 		       type="{{type}}" value="{{value}}"
 		       placeholder="{{placeholder}}"
 		       placeholder-class="field__placeholder"
 		       focus="{{focus}}"
 		       maxlength="{{maxlength}}"
-		       disabled="{{disabled}}"
-		       bindinput="bindInputEdit"
-		       bindblur="bindInputBlur"
-		       bindfocus="bindInputFocus"/>
+		       disabled="{{_formDisabled || disabled}}"
+		       bindinput="_bindInputEdit"
+		       bindblur="_bindInputBlur"
+		       bindfocus="_bindInputFocus"/>
 		<textarea wx:elif="{{type==='textarea'}}" class="field__area"
 		          value="{{value}}"
 		          placeholder="{{placeholder}}"
 		          placeholder-class="field__placeholder"
 		          focus="{{focus}}"
 		          maxlength="{{maxlength}}"
-		          disabled="{{disabled}}"
-		          bindinput="bindInputEdit"
-		          bindblur="bindInputBlur"
-		          bindfocus="bindInputFocus"></textarea>
+		          disabled="{{_formDisabled || disabled}}"
+		          bindinput="_bindInputEdit"
+		          bindblur="_bindInputBlur"
+		          bindfocus="_bindInputFocus"></textarea>
 		<picker wx:elif="{{type==='picker'}}" class="field__input"
 		        value="{{skipfirst?(value===0?null:(value-1)):value}}"
 		        range="{{skipfirst?_range:range}}"
-		        disabled="{{disabled}}"
-		        bindchange="bindPickerChange">
+		        disabled="{{_formDisabled || disabled}}"
+		        bindchange="_bindPickerChange">
 			<view wx:if="{{value===null||(skipfirst&&value===0)}}" class="field__placeholder">{{placeholder}}</view>
 			<view wx:else>{{range[value]}}</view>
 		</picker>
 		<picker wx:elif="{{type==='date'}}" class="field__input"
 		        mode="date" value="{{value}}"
 		        start="{{_startDate}}" end="{{_endDate}}"
-		        bindchange="bindDateChange">
+		        disabled="{{_formDisabled || disabled}}"
+		        bindchange="_bindDateChange">
 			<view wx:if="{{!value}}" class="field__placeholder">{{placeholder}}</view>
 			<view wx:else>{{value}}</view>
 		</picker>
@@ -58,7 +59,19 @@
 		},
 		relations: {
 			'./form': {
-				type: 'ancestor'
+				type: 'ancestor',
+				linked(target) {
+					this.setData({
+						_formDisabled: target.data.disabled,
+						_formValidateOnBlur: target.data.validateOnBlur
+					});
+				},
+				linkChanged(target) {
+					this.setData({
+						_formDisabled: target.data.disabled,
+						_formValidateOnBlur: target.data.validateOnBlur
+					});
+				},
 			}
 		},
 		behaviors: [],
@@ -109,10 +122,7 @@
 			},
 			focus: { // 是否获得焦点（仅type为text, number, textarea时有效）
 				type: Boolean,
-				value: false,
-				observer(val) {
-					console.log(this.id + " focus = " + val);
-				}
+				value: false
 			},
 			maxlength: { // 值的最大字符长度（仅type为text, number, textarea时有效）
 				type: Number,
@@ -137,9 +147,14 @@
 			validateOnBlur: { // 控件是否在失去焦点时验证数据有效性
 				type: Boolean,
 				value: true
+			},
+			excludeOnSubmit: { // 是否在表单提交时排除该控件字段
+				type: Boolean,
+				value: false
 			}
 		},
 		data: {
+			_formDisabled: false,
 			_startDate: `${new Date ().getFullYear() - 30}-01-01`,
 			_endDate: `${new Date ().getFullYear() - 15}-12-31`,
 			_range: [],
@@ -147,62 +162,40 @@
 			_error: false
 		},
 		methods: {
-			bindInputFocus(e) {
-				console.log(this.id + " focus");
-				this.setData({ focus: true });
+			
+			/// Public Functions ///
+			
+			/**
+			 * 获取该控件的字段名
+			 *
+			 * @returns {string}
+			 */
+			name() {
+				return this.data.name;
 			},
-			bindInputEdit(e) {
-				console.log(this.id + " input");
-				this.setData({ value: e.detail.value });
+			
+			/**
+			 * 获取该控件当前的值
+			 *
+			 * @returns {*}
+			 */
+			value() {
+				return this.data.value;
 			},
-			bindInputBlur(e) {
-				console.log(this.id + " blur");
-				this.setData({ focus: false });
-				this._confirm(e.detail.value);
+			
+			error(value) {
+				if (value === undefined)
+					return this.data._error;
+				this.setData({ _error: value });
 			},
-			bindPickerChange(e) {
-				let value = e.detail.value;
-				if (this.data.skipfirst)
-					value++;
-				this._confirm(value);
-			},
-			bindDateChange(e) {
-				this._confirm(e.detail.value);
-			},
-			bindLabelClicked() {
-				console.log(this.id + " label clicked");
-				this.setData({ focus: true });
-			},
-			async _confirm(value) {
-				if (!this.data.validateOnBlur)
-					return;
-				let msg = this._validate(value);
-				if (msg) {
-					this.setData({ _error: msg });
-					console.log(this.id + " " + msg);
-					//$.Modal.show("表单填写错误", `${this.data.label}：${msg}`);
-					//this.setData({ focus: true });
-					return;
-				}
-				this.setData({ value: value });
-				this.triggerEvent('confirm', { value: value }, {});
-			},
-			_validateRequire(value) {
-				// 对于所有控件，值为null或undefined视为空
-				if (value === null || value === undefined)
-					return false;
-				if (this.data.type === 'picker') {
-					// 对于选择器，若指定了skipfirst（跳过第一个选项），则值0视为空
-					if (this.data.skipfirst && value === 0)
-						return false;
-				} else {
-					// 对于其他控件，空字串视为空
-					if (value === '')
-						return false;
-				}
-				return true;
-			},
-			_validate(value) {
+			
+			/**
+			 * 验证该控件当前的值是否符合验证规则
+			 *
+			 * @returns {string} 验证结果，若不符合某条验证规则，则返回错误说明，否则返回空字串
+			 */
+			validate() {
+				let value = this.value();
 				if (this.data.require && !this._validateRequire(value))
 					return '必填项不能为空';
 				const validate = this.data.validate;
@@ -234,7 +227,67 @@
 					});
 				}
 				return result;
+			},
+			
+			/// Private Functions ///
+			
+			_bindInputFocus(e) {
+				this.setData({ focus: true });
+			},
+			
+			_bindInputEdit(e) {
+				this.setData({ value: e.detail.value });
+			},
+			
+			_bindInputBlur(e) {
+				this.setData({ focus: false, value: e.detail.value });
+				this._confirm();
+			},
+			
+			_bindPickerChange(e) {
+				let value = e.detail.value;
+				if (this.data.skipfirst)
+					value++;
+				this.setData({ value });
+				this._confirm();
+			},
+			
+			_bindDateChange(e) {
+				this.setData({ value: e.detail.value });
+				this._confirm();
+			},
+			
+			_bindLabelClicked() {
+				this.setData({ focus: true });
+			},
+			
+			_confirm() {
+				if (!this.data.validateOnBlur || !this.data._formValidateOnBlur)
+					return;
+				let msg = this.validate();
+				if (msg) {
+					this.setData({ _error: msg });
+					return;
+				}
+				this.triggerEvent('confirm', { value: this.value() }, {});
+			},
+			
+			_validateRequire(value) {
+				// 对于所有控件，值为null或undefined视为空
+				if (value === null || value === undefined)
+					return false;
+				if (this.data.type === 'picker') {
+					// 对于选择器，若指定了skipfirst（跳过第一个选项），则值0视为空
+					if (this.data.skipfirst && value === 0)
+						return false;
+				} else {
+					// 对于其他控件，空字串视为空
+					if (value === '')
+						return false;
+				}
+				return true;
 			}
+			
 		},
 	}
 </script>
