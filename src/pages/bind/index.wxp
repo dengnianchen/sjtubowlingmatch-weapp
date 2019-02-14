@@ -69,7 +69,6 @@
 </template>
 
 <script>
-	const md5 = require('md5');
 	const Player = require('../../models/Player');
 	
 	const customValidators = {
@@ -169,14 +168,15 @@
 		/**
 		 * 执行微信与赛事中心账号的绑定操作，绑定成功后在会话中添加当前账号信息并跳转至来源页面
 		 */
-		async doBind(e) {
+		doBind(e) {
 			// 获取提交参数，对密码字段进行加密
 			let params = e.detail.params;
 			params.password = md5(params.password);
 			
 			try {
 				// 提交绑定请求
-				Player.current = new Player(await $.Http.request('PUT /user/bind', params));
+				Player.bind(params.name, params.password);
+				//Player.current = await $.Http.request('PUT /player/bind', params, {}, Player);
 				$.Modal.showSuccess('绑定成功！');
 				this._redirectBack();
 			} catch (ex) {
@@ -195,7 +195,7 @@
 			
 			try {
 				// 提交绑定请求
-				Player.current = new Player(await $.Http.request('POST /user', params));
+				Player.current = new Player(await $.Http.request('POST /player', params));
 				$.Modal.showSuccess('注册成功！');
 				this._redirectBack();
 			} catch (ex) {
