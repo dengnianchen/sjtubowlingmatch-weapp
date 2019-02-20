@@ -62,13 +62,15 @@ class Player {
 	 *
 	 * @param {string}  name        选手姓名
 	 * @param {string}  password    密码
+	 * @param {number}  gender      性别
 	 * @returns {Promise<void>}
 	 * @author Deng Nianchen
 	 */
-	static async register(name, password) {
+	static async register(name, password, gender) {
 		Player.current = await $.Http.request('POST /player', {
 			name,
-			password: md5(password)
+			password: md5(password),
+			gender
 		}, {}, Player);
 	}
 	

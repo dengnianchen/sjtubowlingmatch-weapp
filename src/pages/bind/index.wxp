@@ -5,27 +5,34 @@
 	          bindsubmit="doRegister">
 		<view class="bind-subtitle">首次使用需注册赛事中心账号</view>
 		<wui-panel>
-				<wui-field name="name" type="text"
-				           label="真实姓名"
-				           placeholder="请输入真实姓名，长度不超过20个字符"
-				           maxlength="20"
-				           require="{{true}}"
-				></wui-field>
-				<wui-field name="password" type="password"
-				           label="密码"
-				           placeholder="密码长度应介于6至20个字符之间"
-				           maxlength="20"
-				           require="{{true}}"
-				           disabled="{{bindInProcess}}"
-				></wui-field>
-				<wui-field name="repassword" type="password"
-				           label="确认密码"
-				           placeholder="请再次输入密码"
-				           maxlength="20"
-				           require="{{true}}"
-				           validate="eqpassword"
-				           exclude-on-submit="{{true}}"
-				></wui-field>
+			<wui-field name="name" type="text"
+			           label="真实姓名"
+			           placeholder="请输入真实姓名，长度不超过20个字符"
+			           maxlength="20"
+			           require="{{true}}"
+			></wui-field>
+			<wui-field name="password" type="password"
+			           label="密码"
+			           placeholder="密码长度应介于6至20个字符之间"
+			           maxlength="20"
+			           require="{{true}}"
+			           disabled="{{bindInProcess}}"
+			></wui-field>
+			<wui-field name="repassword" type="password"
+			           label="确认密码"
+			           placeholder="请再次输入密码"
+			           maxlength="20"
+			           require="{{true}}"
+			           validate="eqpassword"
+			           exclude-on-submit="{{true}}"
+			></wui-field>
+			<wui-field name="gender" type="picker"
+			           label="性别"
+			           placeholder="请选择性别"
+			           require="{{true}}"
+			           range="{{ [ '未知', '男', '女' ] }}"
+			           skipfirst="{{true}}"
+			></wui-field>
 		</wui-panel>
 		<view style="text-align: center">
 			<wxc-button size="large" value="注册账号" loading="{{bindInProcess}}"
@@ -190,7 +197,7 @@
 				// 获取提交参数，对密码字段进行加密
 				let params = e.detail.params;
 				// 注册选手账号并绑定
-				await Player.register(params.name, params.password);
+				await Player.register(params.name, params.password, params.gender);
 				$.Modal.showSuccess('注册成功！');
 				this._redirectBack();
 			} catch (ex) {
