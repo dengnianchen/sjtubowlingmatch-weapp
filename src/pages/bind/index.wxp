@@ -76,7 +76,7 @@
 </template>
 
 <script>
-	const Player = require('../../models/Player');
+	const User = require('../../models/User');
 	
 	const customValidators = {
 		eqpassword: function(value) {
@@ -110,7 +110,7 @@
 			this.setData(options);
 			try {
 				await $.Http.login();
-				if (Player.current) // 若当前微信已绑定用户，则直接回到来源页面
+				if (User.current) // 若当前微信已绑定用户，则直接回到来源页面
 					this._redirectBack();
 				else
 					this.setData({ wxAuth: true });
@@ -180,7 +180,7 @@
 				// 获取提交参数，对密码字段进行加密
 				let params = e.detail.params;
 				// 绑定选手账号
-				await Player.bind(params.name, params.password);
+				await User.bind(params.name, params.password);
 				$.Modal.showSuccess('绑定成功！');
 				this._redirectBack();
 			} catch (ex) {
@@ -197,7 +197,7 @@
 				// 获取提交参数，对密码字段进行加密
 				let params = e.detail.params;
 				// 注册选手账号并绑定
-				await Player.register(params.name, params.password, params.gender);
+				await User.register(params.name, params.password, params.gender);
 				$.Modal.showSuccess('注册成功！');
 				this._redirectBack();
 			} catch (ex) {

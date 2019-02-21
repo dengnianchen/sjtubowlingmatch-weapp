@@ -1,7 +1,7 @@
 const md5 = require('md5');
 
 /**
- * Player类用以表示一名选手（也可以认为是本系统的用户）
+ * User类用以表示一名用户
  *
  * @property {number}       id
  * @property {string}       name            选手姓名
@@ -12,7 +12,7 @@ const md5 = require('md5');
  * @property {wx.UserInfo}  wx_info         （来自wx_session）微信号相关信息
  * @author Deng Nianchen
  */
-class Player {
+class User {
 	
 	constructor(data) {
 		$(this).extend(data);
@@ -21,25 +21,25 @@ class Player {
 	/**
 	 * 获取当前登陆的选手信息
 	 *
-	 * @returns {Player}
+	 * @returns {User}
 	 * @author Deng Nianchen
 	 */
 	static get current() {
-		let data = $.Session.get('player');
-		if (!data || data instanceof Player)
+		let data = $.Session.get('user');
+		if (!data || data instanceof User)
 			return data;
-		Player.current = data = new Player(data);
+		User.current = data = new User(data);
 		return data;
 	}
 	
 	/**
 	 * 设置当前登陆的选手信息
 	 *
-	 * @param {Player} player 选手信息
+	 * @param {User} user 选手信息
 	 * @author Deng Nianchen
 	 */
-	static set current(player) {
-		$.Session.set('player', player);
+	static set current(user) {
+		$.Session.set('user', user);
 	}
 	
 	/**
@@ -51,10 +51,10 @@ class Player {
 	 * @author Deng Nianchen
 	 */
 	static async bind(name, password) {
-		Player.current = await $.Http.request('PUT /player/bind', {
+		User.current = await $.Http.request('PUT /user/bind', {
 			name,
 			password: md5(password)
-		}, {}, Player);
+		}, {}, User);
 	}
 	
 	/**
@@ -67,13 +67,13 @@ class Player {
 	 * @author Deng Nianchen
 	 */
 	static async register(name, password, gender) {
-		Player.current = await $.Http.request('POST /player', {
+		User.current = await $.Http.request('POST /user', {
 			name,
 			password: md5(password),
 			gender
-		}, {}, Player);
+		}, {}, User);
 	}
 	
 }
 
-module.exports = Player;
+module.exports = User;

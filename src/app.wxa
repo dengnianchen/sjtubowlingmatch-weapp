@@ -11,7 +11,7 @@
 	require('./error');
 	const style = require('./style');
 	const config = require('./config');
-	const Player = require('./models/Player');
+	const User = require('./models/User');
 	
 	export default {
 		config: {
@@ -51,7 +51,7 @@
 				}
 				
 				// 2. 尝试获取当前登陆用户
-				let me = Player.current;
+				let me = User.current;
 				
 				// 3. 尝试登陆并获取绑定的用户信息
 				//    前提条件：当前页面需要登录才能访问，且当前用户不存在
@@ -62,7 +62,7 @@
 					} catch (ex) {
 						return redirectToBind();
 					}
-					me = Player.current;
+					me = User.current;
 					if (!me)
 						return redirectToBind();
 				}

@@ -1,0 +1,108 @@
+<template>
+	<view>Game Page</view>
+	<wui-panel title="第一局：张三先手，当前比分 100:110" wui-style="right-padding:true">
+		<view class="game-container">
+			<view wx:for="{{frames}}"
+			      class="game__frame {{index===9?'game__frame--last-col':''}}">
+				{{index + 1}}
+			</view>
+			<view wx:for="{{frames}}"
+			      class="game__frame {{index===9?'game__frame--last-col':''}}">
+				{{item}}
+			</view>
+			<view wx:for="{{frames}}"
+			      class="game__frame game__frame--last-row {{index===9?'game__frame--last-col':''}}">
+				{{item}}
+			</view>
+		</view>
+	</wui-panel>
+	
+	<wui-panel title="第二局：王老五先手，当前比分 15(+15):0" wui-style="right-padding:true">
+		<view class="game-container">
+			<view wx:for="{{frames}}"
+			      class="game__frame {{index===9?'game__frame--last-col':''}}">
+				{{index + 1}}
+			</view>
+			<view wx:for="{{frames}}"
+			      class="game__frame {{index===9?'game__frame--last-col':''}}">
+				{{item}}
+			</view>
+			<view wx:for="{{frames}}"
+			      class="game__frame game__frame--last-row {{index===9?'game__frame--last-col':''}}">
+				{{item}}
+			</view>
+		</view>
+	</wui-panel>
+	
+	<view class="game-keyboard">
+		<view class="game-keyboard__head">Head</view>
+		<view wx:for="{{keys}}" class="game-keyboard__key">{{item}}</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		config: {
+			navigationBarTitleText: '比赛登记',
+			usingComponents: {
+				'wui-panel': '@yapple/wui-panel'
+			},
+		},
+		data: {
+			frames: [ '1/', 'S2-', '3', '4', '5', '6', '7', '8', 'X', 'XXX' ],
+			keys: [
+				'-', 'X', '/', '分屏',
+				'1', '2', '3', '上一格',
+				'4', '5', '6', '下一格',
+				'7', '8', '9', '隐藏'
+			]
+		},
+	};
+</script>
+
+<style lang="less">
+	@import "../../style";
+	
+	.game-container {
+		display: grid;
+		grid-template-columns: repeat(9, 1fr) 1.5fr;
+		grid-template-rows: repeat(3, 1fr);
+		//border-top: solid 1px black;
+	}
+	.game__frame {
+		border-bottom: solid 1px black;
+		border-right: solid 1px @splitLineColor;
+		text-align: center;
+	}
+	.game__frame--last-row {
+		border-bottom: none;
+	}
+	.game__frame--last-col {
+		border-right: none;
+	}
+	.game-keyboard {
+		position: fixed;
+		display: grid;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 500px;
+		grid-template-columns: repeat(4, 1fr);
+		grid-template-rows: repeat(5, 1fr);
+		background: white;
+		box-shadow: 0 0 15px black;
+	}
+	.game-keyboard__head {
+		display: flex;
+		align-items: center;
+		grid-column-start: 1;
+		grid-column-end: 5;
+		grid-row-start: 1;
+		grid-row-end: 2;
+	}
+	.game-keyboard__key {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+</style>
