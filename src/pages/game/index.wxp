@@ -1,55 +1,73 @@
 <template>
 	<view>Game Page</view>
-	<wui-panel title="第一局：张三先手，当前比分 100:110" wui-style="right-padding:true">
+	<wui-panel title="第一局：张三先手，当前比分 100:110">
 		<view class="game-container">
-			<view wx:for="1234567890"
+			<view wx:for="1234567890" wx:key="index"
 			      class="game__frame {{index===9?'game__frame--last-col':''}}">
 				{{index + 1}}
 			</view>
-			<view wx:for="{{playerA.games[0].frames}}"
-			      id="frame.playerA.0.{{index}}"
-			      class="game__frame {{index===9?'game__frame--last-col':''}} {{activeFrame==='frame.playerA.0.'+index?'game__frame--active':''}}"
+			<view wx:for="{{players[0].games[0].frames}}" wx:key="index"
+			      id="frame.0.0.{{index}}"
+			      class="game__frame {{index===9?'game__frame--last-col':''}} {{activeFrame.id==='frame.0.0.'+index?'game__frame--active':''}}"
 				  bindtap="onFrameClicked">
-				{{item}}
+				{{item.data}}
 			</view>
-			<view wx:for="{{playerB.games[0].frames}}"
-			      id="frame.playerB.0.{{index}}"
-			      class="game__frame game__frame--last-row {{index===9?'game__frame--last-col':''}} {{activeFrame==='frame.playerB.0.'+index?'game__frame--active':''}}"
+			<view wx:for="{{players[1].games[0].frames}}" wx:key="index"
+			      id="frame.1.0.{{index}}"
+			      class="game__frame game__frame--last-row {{index===9?'game__frame--last-col':''}} {{activeFrame.id==='frame.1.0.'+index?'game__frame--active':''}}"
 			      bindtap="onFrameClicked">
-				{{item}}
+				{{item.data}}
 			</view>
 		</view>
 	</wui-panel>
 	
-	<wui-panel title="第二局：王老五先手，当前比分 15(+15):0" wui-style="right-padding:true">
+	<wui-panel title="第二局：王老五先手，当前比分 15(+15):0">
 		<view class="game-container">
-			<view wx:for="1234567890"
+			<view wx:for="1234567890" wx:key="index"
 			      class="game__frame {{index===9?'game__frame--last-col':''}}">
 				{{index + 1}}
 			</view>
-			<view wx:for="{{playerB.games[1].frames}}"
-			      id="frame.playerB.1.{{index}}"
-			      class="game__frame {{index===9?'game__frame--last-col':''}} {{activeFrame==='frame.playerB.1.'+index?'game__frame--active':''}}"
+			<view wx:for="{{players[1].games[1].frames}}" wx:key="index"
+			      id="frame.1.1.{{index}}"
+			      class="game__frame {{index===9?'game__frame--last-col':''}} {{activeFrame.id==='frame.1.1.'+index?'game__frame--active':''}}"
 			      bindtap="onFrameClicked">
-				{{item}}
+				{{item.data}}
 			</view>
-			<view wx:for="{{playerA.games[1].frames}}"
-			      id="frame.playerA.1.{{index}}"
-			      class="game__frame game__frame--last-row {{index===9?'game__frame--last-col':''}} {{activeFrame==='frame.playerA.1.'+index?'game__frame--active':''}}"
+			<view wx:for="{{players[0].games[1].frames}}" wx:key="index"
+			      id="frame.0.1.{{index}}"
+			      class="game__frame game__frame--last-row {{index===9?'game__frame--last-col':''}} {{activeFrame.id==='frame.0.1.'+index?'game__frame--active':''}}"
 			      bindtap="onFrameClicked">
-				{{item}}
+				{{item.data}}
 			</view>
 		</view>
 	</wui-panel>
 	
 	<view class="game-keyboard {{!showKeyboard?'game-keyboard--hide':''}}">
-		<view class="game-keyboard__bg" bindtap="hideKeyboard"></view>
-		<view class="game-keyboard__head">Head</view>
-		<button wx:for="{{keys}}" class="game-keyboard__key" bindtap="onGameKeyboardClicked" data-key="{{item}}" disabled="{{!keyProperties[item]}}">{{item}}</button>
+		<view class="game-keyboard__mask" bindtap="onKeyboardMaskClicked"></view>
+		<view class="game-keyboard__head">选手：{{players[activeFrame.player].name}}（第{{activeFrame.gameIndex+1}}局第{{activeFrame.frameIndex+1}}格）</view>
+		<button wx:for="{{keys}}" wx:key="item"
+		        class="game-keyboard__key {{keyboardSplitMode&&keyProperties[item].splitStyle?'game-keyboard__key--split':''}} {{keyProperties[item].style}}"
+		        bindtap="onGameKeyClicked"
+		        data-key="{{item}}"
+		        disabled="{{!keyProperties[item].enable}}">
+			{{keyProperties[item].label}}
+		</button>
 	</view>
 </template>
 
 <script>
+	const Game = require('../../models/Game');
+	
+	let match = {
+		players: [{
+			name: '张三',
+			games: [ new Game (), new Game () ]
+		}, {
+			name: '王老五',
+			games: [ new Game (), new Game () ]
+		}]
+	};
+	
 	export default {
 		config: {
 			navigationBarTitleText: '比赛登记',
@@ -58,153 +76,133 @@
 			},
 		},
 		data: {
-			playerA: {
-				games: [
-					{ frames: ['', '', '', '', '', '', '', '', '', ''] },
-					{ frames: ['', '', '', '', '', '', '', '', '', ''] }
-				]
-			},
-			playerB: {
-				games: [
-					{ frames: ['', '', '', '', '', '', '', '', '', ''] },
-					{ frames: ['', '', '', '', '', '', '', '', '', ''] }
-				]
-			},
 			keys: [
-				'-', 'X', '/', '分屏',
-				'1', '2', '3', '清除',
-				'4', '5', '6', '下一格',
-				'7', '8', '9', '隐藏'
+				'-', 'X', '/', 'H',
+				'1', '2', '3', 'S',
+				'4', '5', '6', 'C',
+				'7', '8', '9', 'N'
 			],
 			keyProperties: {
-				'-': true, 'X': true, '/': true, '分屏': true,
-				'1': true, '2': true, '3': true, '清除': true,
-				'4': true, '5': true, '6': true, '下一格': true,
-				'7': true, '8': true, '9': true, '隐藏': true
+				'X': { label: 'X', enable: true },
+				'/': { label: '/', enable: true },
+				'S': { label: '分屏', enable: true, style: 'game-keyboard__key--split' },
+				'-': { label: '-', enable: true },
+				'1': { label: '1', enable: true },
+				'2': { label: '2', enable: true, splitStyle: true },
+				'3': { label: '3', enable: true, splitStyle: true },
+				'4': { label: '4', enable: true, splitStyle: true },
+				'5': { label: '5', enable: true, splitStyle: true },
+				'6': { label: '6', enable: true, splitStyle: true },
+				'7': { label: '7', enable: true, splitStyle: true },
+				'8': { label: '8', enable: true, splitStyle: true },
+				'9': { label: '9', enable: true },
+				'C': { label: '清除', enable: true },
+				'N': { label: '下一格', enable: true },
+				'H': { label: '隐藏', enable: true }
 			},
-			showKeyboard: false
+			showKeyboard: false,
+			keyboardSplitMode: false,
+			activeFrame: null
 		},
-		onGameKeyboardClicked (e) {
+		
+		onLoad() {
+			this.setData(match);
+		},
+		
+		onGameKeyClicked (e) {
 			let key = e.target.dataset.key;
-			if (key === '隐藏') {
+			
+			if (key === 'H') { // 隐藏键盘
 				this.setData({ showKeyboard: false });
 				return;
 			}
-			if (!this.data.activeFrame)
+			if (!this.data.activeFrame) // 当前没有选中任何一格
 				return;
-			if (key === '下一格') {
-				this.switchToNextFrame();
-				return;
-			}
 			
-			let frameRefInfo = this.getFrameRefInfo(this.data.activeFrame);
-			let frameContent = this.getFrameContent(frameRefInfo);
-			if (key === '清除') {
-				frameContent = '';
-			} else if (key === '分屏') {
-				frameContent = 'S' + frameContent;
-			} else {
-				frameContent = frameContent + key;
-				if (key === '-') {
-				
-				} else if (key === '/') {
-				
-				} else if (key === 'X') {
-				
-				} else {
-					let num = parseInt(key);
-					
-				}
+			let frameRef = this._getFrame(this.data.activeFrame);
+			let frameContent = frameRef.data;
+			
+			switch (key) {
+				case 'N': this.switchToNextFrame(); return; // 切换到下一格
+				case 'C': frameContent = ''; break; // 清除当前格
+				default: frameContent = frameContent + key;
 			}
-			this.setFrameContent(frameRefInfo, frameContent);
-			if (this.isFrameComplete(frameContent))
+			this._updateFrame(this.data.activeFrame, frameContent);
+			if (frameRef.isComplete())
 				this.switchToNextFrame();
 			else
 				this.updateKeyboardStatus();
 		},
 		onFrameClicked(e) {
+			let activeFrameIdSplited = e.target.id.split('.');
 			this.setData({
-				activeFrame: e.target.id,
+				activeFrame: {
+					id: e.target.id,
+					player: parseInt(activeFrameIdSplited[1]),
+					gameIndex: parseInt(activeFrameIdSplited[2]),
+					frameIndex: parseInt(activeFrameIdSplited[3])
+				},
 				showKeyboard: true
 			});
 			this.updateKeyboardStatus();
 		},
-		updateKeyboardStatus() {
-			if (!this.data.activeFrame)
-				return;
-			let frameRefInfo = this.getFrameRefInfo(this.data.activeFrame);
-			let frameContent = this.getFrameContent(frameRefInfo);
-			let keyProperties = {
-				'-': true, 'X': true, '/': true, '分屏': true,
-				'1': true, '2': true, '3': true, '清除': true,
-				'4': true, '5': true, '6': true, '下一格': true,
-				'7': true, '8': true, '9': true, '隐藏': true
-			};
-			if (frameContent.length === 0) {
-				keyProperties['/'] = false;
-				keyProperties['清除'] = false;
-			} else {
-				keyProperties['分屏'] = false;
-				keyProperties['X'] = false;
-				if (frameContent === 'S')
-					keyProperties['/'] = false;
-			}
-			this.setData({ keyProperties });
-		},
-		hideKeyboard() {
+		onKeyboardMaskClicked() {
 			this.setData({ showKeyboard: false });
 		},
-		getFrameRefInfo(frameId) {
-			let activeFrameIdSplited = frameId.split('.');
-			return {
-				player: activeFrameIdSplited[1],
-				gameIndex: parseInt(activeFrameIdSplited[2]),
-				frameIndex: parseInt(activeFrameIdSplited[3])
-			};
+		updateKeyStatus(acceptableKeys, keyboardSplitMode) {
+			let keyProperties = this.data.keyProperties;
+			for (let key of this.data.keys)
+				this.data.keyProperties[key].enable = acceptableKeys.indexOf(key) >= 0;
+			this.setData({ keyProperties, keyboardSplitMode });
 		},
-		getFrameContent(frameRefInfo) {
-			return this.data[frameRefInfo.player].games[frameRefInfo.gameIndex].frames[frameRefInfo.frameIndex];
-		},
-		setFrameContent(frameRefInfo, frameContent) {
-			let dataToSet = {};
-			dataToSet[frameRefInfo.player] = this.data[frameRefInfo.player];
-			dataToSet[frameRefInfo.player].games[frameRefInfo.gameIndex].frames[frameRefInfo.frameIndex] = frameContent;
-			this.setData(dataToSet);
-		},
-		getFrameId(frameRefInfo) {
-			return `frame.${frameRefInfo.player}.${frameRefInfo.gameIndex}.${frameRefInfo.frameIndex}`;
+		updateKeyboardStatus() {
+			if (!this.data.activeFrame) {
+				this.setData({ showKeyboard: false });
+				return;
+			}
+			let frame = this._getFrame(this.data.activeFrame);
+			let acceptable = frame.getAcceptable() + 'HN';
+			if (frame.data.length !== 0)
+				acceptable += 'C';
+			this.updateKeyStatus(acceptable, frame.data.endsWith('S'));
 		},
 		switchToNextFrame() {
-			if (!this.data.activeFrame)
-				return false;
-			let frameRefInfo = this.getFrameRefInfo(this.data.activeFrame);
-			if (frameRefInfo.gameIndex === 0) {
-				if (frameRefInfo.player === 'playerA')
-					frameRefInfo.player = 'playerB';
-				else if (frameRefInfo.frameIndex === 9) {
-					frameRefInfo.gameIndex = 1;
-					frameRefInfo.frameIndex = 0;
+			if (this.data.activeFrame) {
+				let frameRef = this.data.activeFrame;
+				if (frameRef.gameIndex === 0) {
+					if (frameRef.player === 0)
+						frameRef.player = 1;
+					else if (frameRef.frameIndex === 9) {
+						frameRef.gameIndex = 1;
+						frameRef.frameIndex = 0;
+					} else {
+						frameRef.player = 0;
+						frameRef.frameIndex++;
+					}
 				} else {
-					frameRefInfo.player = 'playerA';
-					frameRefInfo.frameIndex++;
+					if (frameRef.player === 1)
+						frameRef.player = 0;
+					else if (frameRef.frameIndex === 9)
+						frameRef = null;
+					else {
+						frameRef.player = 1;
+						frameRef.frameIndex++;
+					}
 				}
-			} else {
-				if (frameRefInfo.player === 'playerB')
-					frameRefInfo.player = 'playerA';
-				else if (frameRefInfo.frameIndex === 9) {
-					this.data.activeFrame = null;
-					return false;
-				} else {
-					frameRefInfo.player = 'playerB';
-					frameRefInfo.frameIndex++;
-				}
+				if (frameRef)
+					frameRef.id = `frame.${frameRef.player}.${frameRef.gameIndex}.${frameRef.frameIndex}`;
+				this.setData({ activeFrame: frameRef });
 			}
-			this.setData({ activeFrame: this.getFrameId(frameRefInfo) });
 			this.updateKeyboardStatus();
-			return true;
 		},
-		isFrameComplete(content) {
-			return content === 'X' || content[0] === 'S' && content.length === 3 || content[0] !== 'S' && content.length === 2;
+		
+		_getFrame(fr) {
+			return this.data.players[fr.player].games[fr.gameIndex].frames[fr.frameIndex];
+		},
+		
+		_updateFrame(fr, frameContent) {
+			this.data.players[fr.player].games[fr.gameIndex].updateFrame(fr.frameIndex, frameContent);
+			this.setData({ players: this.data.players });
 		}
 	};
 </script>
@@ -249,7 +247,7 @@
 	.game-keyboard--hide {
 		display: none;
 	}
-	.game-keyboard__bg {
+	.game-keyboard__mask {
 		position: fixed;
 		left: 0;
 		top: 0;
@@ -264,6 +262,7 @@
 		grid-column-end: 5;
 		grid-row-start: 1;
 		grid-row-end: 2;
+		padding-left: 10px;
 	}
 	.game-keyboard__key {
 		display: flex;
@@ -273,7 +272,17 @@
 		padding: 0;
 		border-bottom: solid 4px #AAA;
 	}
+	.game-keyboard__key:not([disabled]) {
+		border-bottom-color: #6ac2ff;
+	}
 	.game-keyboard__key.button-hover {
 		border-bottom: none;
+	}
+	.game-keyboard__key--split:not([disabled]) {
+		background: #fff5f5;
+		border-bottom-color: #d9534f;
+	}
+	.game-keyboard__key--split.button-hover {
+		background: #e6dada;
 	}
 </style>

@@ -1,118 +1,134 @@
+const F_STRIKE = 1;
+const F_SPARE = 2;
+const F_SPLIT = 4;
+const smStates = {
+	start: {
+		trans: [ 'SXN', 's', 'x', 'n' ]
+	},
+	invalid: null,
+	's': {
+		flag: F_SPLIT,
+		trans: [ 'P', 'n' ]
+	},
+	'x': {
+		flag: F_STRIKE,
+		end: 1,
+		trans: [ 'SXN', 'xs', 'xx', 'xn' ]
+	},
+	'n': {
+		trans: [ '/M', 'n/', 'nm' ]
+	},
+	'n/': {
+		flag: F_SPARE,
+		end: 1,
+		trans: [ 'XN', 'n/x', 'n/n' ]
+	},
+	'nm': {
+		end: 1
+	},
+	'xs': {
+		flag: F_SPLIT,
+		trans: [ 'P', 'xn' ]
+	},
+	'xx': {
+		flag: F_STRIKE,
+		end: 2,
+		trans: [ 'XN', 'xxx', 'xxn' ]
+	},
+	'xn': {
+		trans: [ '/M', 'xn/', 'xnm' ]
+	},
+	'xn/': {
+		flag: F_SPARE,
+		end: 2
+	},
+	'xnm': {
+		end: 2
+	},
+	'xxx': {
+		flag: F_STRIKE,
+		end: 3
+	},
+	'xxn': {
+		end: 2
+	},
+	'n/x': {
+		flag: F_STRIKE,
+		end: 2
+	},
+	'n/n': {
+		end: 1
+	}
+};
+
 /**
  * @property {string} data
+ * @property {number} frameIdx
  * @property {number[]} flags
- * @property {number} state
  * @property {number[]} pins
+ * @property {object} smState
  */
 class Frame {
-	
-	static F_STRIKE = 1;
-	static F_SPARE = 2;
-	static F_SPLIT = 4;
-	static S_INVALID = -1;
-	static S_UNCOMPLETED = 0;
-	static S_COMPLETED = 1;
 	
 	/**
 	 *
 	 * @param {string} data
-	 * @param {boolean} isLastFrame
+	 * @param {number} frameIdx
 	 * @returns {*}
 	 */
-	constructor(data, isLastFrame = false) {
-		this.state = Frame.S_UNCOMPLETED;
-		if (!isLastFrame) { // 不是最后一格的时候
-			this.flags = [ 0 ];
-			this.pins = [ 0, 0 ];
-			// 首先判断是否为全中
-			if (data === 'X') {
-				this.flags[0] = Frame.F_STRIKE;
-				this.pins[0] = 10;
-				this.state = Frame.S_COMPLETED;
-				return;
-			}
-			// 判断data开头是否有分屏标记，如果有，记录标记并从data的开头移除
-			if (data.startsWith('S')) {
-				this.flags[0] = Frame.F_SPLIT;
-				data = data.replace(/^S/, '');
-			}
-			if (data.length === 0)
-				return;
-			// data不可能超过2个字符长度
-			if (data.length >= 3) {
-				this.state = Frame.S_INVALID;
-				return;
-			}
-			// 识别data中的第一个字符（第一球情况）
-			switch (data[0]) {
-				case '-': // 0个瓶的标记
-					this.pins[0] = 0;
-					break;
-				default: // 其他字符只接受1-9
-					this.pins[0] = parseInt(data[0]);
-					if (isNaN(this.pins[0]) || this.pins[0] === 0) {
-						this.state = Frame.S_INVALID;
-						return;
-					}
-			}
-			// 如果data存在两个字符，则识别第二球情况
-			if (data.length >= 2) {
-				switch (data[1]) {
-					case '-': // 0个瓶的标记
-						this.pins[1] = 0;
-						break;
-					case '/': // 补中标记
-						this.pins[1] = 10 - this.pins[0];
-						this.flags[0] |= Frame.F_SPARE;
-						break;
-					default: // 其他字符只接受1-9，且与第一球相加不能超过9
-						this.pins[0] = parseInt(data[0]);
-						if (isNaN(this.pins[0]) || this.pins[1] === 0 || this.pins[0] + this.pins[1] > 9) {
-							this.state = Frame.S_INVALID;
-							return;
-						}
-				}
-				this.state = Frame.S_COMPLETED;
-			}
-			return;
-		}
-		this.pins = [ 0, 0, 0 ];
-		this.flags = [];
-		if (data.length === 0)
-			return;
-		
-		for (let chars = 1; chars <= data.length; ++chars) {
-			let f = new Frame(data.substr(0, chars));
-			if (f.state === Frame.S_INVALID) {
-				this.state = Frame.S_INVALID;
-				return;
-			} else if (f.state === Frame.S_COMPLETED) {
-				this.pins[0] = f.pins[0];
-				this.pins[1] = f.pins[1];
-				this.flags.push(f.flags[0]);
-				data = data.substr(chars);
+	constructor(data, frameIdx) {
+		this.frameIdx = frameIdx;
+		this.update(data);
+	}
+	
+	update(data) {
+		this.data = data;
+		this.smState = smStates.start;
+		this.flags = [ 0 ];
+		this.pins = [];
+		for (let i = 0; i < data.length; ++i) {
+			let trans = this.smState.trans;
+			if (this.isComplete()) {
+				this.smState = smStates.invalid;
 				break;
 			}
+			if (this.isLastFrame() && this.smState.end)
+				this.flags.push(0);
+			
+			let r = this.analysisChar(data[i]);
+			let match = trans[0].match(r[0]);
+			if (!match || (match[0] === 'M' && this.getPins(-1) + r[1] > 9)) {
+				this.smState = smStates.invalid;
+				break;
+			}
+			if (r[1] >= 0)
+				this.pins.push(r[1]);
+			this.smState = smStates[trans[match.index + 1]];
+			if (this.smState.flag !== undefined)
+				this.flags[this.flags.length - 1] |= this.smState.flag;
 		}
-		
-		if ($frame === 'XXX')
-			return array_fill(0, 3, Frame.F_STRIKE);
-		if (substr($frame, 0, 2) === 'XX')
-			return array_fill(0, 2, Frame.F_STRIKE);
-		if (substr($frame, 0, 1) === 'X')
-			return [ Frame.F_STRIKE, $this->getFrameFlag(substr($frame, 1)) ];
-		if (substr($frame, -1) === 'X')
-			return [ $this->getFrameFlag(substr($frame, 0, -1)), Frame.F_STRIKE ];
-		return [ $this->getFrameFlag($frame) ];
-		
+	}
+	
+	isComplete() {
+		if (this.smState === null)
+			return false;
+		return this.smState.trans === undefined || (!this.isLastFrame() && this.smState.end)
+	}
+	
+	isValid() {
+		return this.smState !== null;
+	}
+	
+	isLastFrame() {
+		return this.frameIdx === 9;
 	}
 	
 	isStrike(index = 0) {
-		return this.flags[index] & Frame.F_STRIKE;
+		return this.flags[index] & F_STRIKE;
 	}
 	
 	isSpare(index = 0) {
-		return this.flags[index] & Frame.F_SPARE;
+		return this.flags[index] & F_SPARE;
 	}
 	
 	isOpen(index = 0) {
@@ -120,11 +136,54 @@ class Frame {
 	}
 	
 	isSplit(index = 0) {
-		return this.flags[index] & Frame.F_SPLIT;
+		return this.flags[index] & F_SPLIT;
 	}
 	
 	isKiller(index = 0) {
 		return this.isSpare(index) && this.isSplit(index);
 	}
 	
+	getAcceptable() {
+		if (!this.isValid() || this.isComplete())
+			return '';
+		return this.smState.trans[0]
+			.replace(/N/, '-123456789')
+			.replace(/P/, '2345678')
+			.replace(/M/, '-123456789'.substr(0, 10 - this.getPins(-1)));
+	}
+	
+	getPins(index) {
+		if (index < 0) index = this.pins.length + index;
+		if (index < 0 || index >= this.pins.length)
+			return NaN;
+		return this.pins[index];
+	}
+	
+	/**
+	 *
+	 * @param {string} c
+	 * @returns {*[]}
+	 */
+	analysisChar(c) {
+		switch (c) {
+			case 'X': return [ /X/, 10 ];
+			case 'S': return [ /S/, -1 ];
+			case '/': return [ /\//, 10 - this.getPins(-1) ];
+			case '-': return [ /[NM]/, 0 ];
+			default:
+				let n = parseInt(c);
+				if (isNaN(n) || n === 0)
+					return [ /E/, 0 ];
+				if (n >= 2 && n <= 8)
+					return [ /[NMP]/, n ];
+				return [ /[NM]/, n ];
+		}
+	}
+	
+	toString() {
+		return data;
+	}
+	
 }
+
+module.exports = Frame;
