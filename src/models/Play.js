@@ -1,4 +1,8 @@
-class Play {
+class Play extends $.Model {
+	
+	constructor(data = null) {
+		super(data);
+	}
 
 }
 

@@ -22,9 +22,11 @@
   "compilers": {
     "babel": {
       "sourceMaps": "inline",
-      "presets": [
-        "es2015"
-      ]
+      "presets": [[ "env", {
+        "targets": {
+          "node": "current"
+        }
+      }]]
     }
   }
 }

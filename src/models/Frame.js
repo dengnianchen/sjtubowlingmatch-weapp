@@ -68,7 +68,7 @@ const smStates = {
  * @property {number[]} pins
  * @property {object} smState
  */
-class Frame {
+class Frame extends $.Model {
 	
 	/**
 	 *
@@ -77,6 +77,7 @@ class Frame {
 	 * @returns {*}
 	 */
 	constructor(data, frameIdx) {
+		super();
 		this.frameIdx = frameIdx;
 		this.update(data);
 	}
@@ -155,7 +156,7 @@ class Frame {
 	getPins(index) {
 		if (index < 0) index = this.pins.length + index;
 		if (index < 0 || index >= this.pins.length)
-			return NaN;
+			return 0;
 		return this.pins[index];
 	}
 	
@@ -181,7 +182,11 @@ class Frame {
 	}
 	
 	toString() {
-		return data;
+		return this.data;
+	}
+	
+	toPlainObject() {
+		return this.data;
 	}
 	
 }

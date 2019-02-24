@@ -12,12 +12,12 @@ const md5 = require('md5');
  * @property {wx.UserInfo}  wx_info         （来自wx_session）微信号相关信息
  * @author Deng Nianchen
  */
-class User {
+class User extends $.Model {
 	
-	constructor(data) {
-		$(this).extend(data);
+	constructor(data = null) {
+		super(data);
 	}
-	
+
 	/**
 	 * 获取当前登陆的选手信息
 	 *

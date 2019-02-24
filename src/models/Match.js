@@ -9,10 +9,10 @@
  * @property {string}   create_time    创建时间
  * @property {string}   update_time    更新时间
  */
-class Match {
+class Match extends $.Model {
 	
 	constructor(data) {
-		$(this).extend(data);
+		super(data);
 	}
 	
 	static async getAll(category) {

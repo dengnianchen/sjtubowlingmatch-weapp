@@ -20,6 +20,8 @@
 </template>
 
 <script>
+	import PkPlay from '../../models/PkPlay';
+	
 	const Match = require('../../models/Match');
 	const Player = require('../../models/Player');
 	const pkrule = require('../../pkrules');
@@ -33,6 +35,8 @@
 			},
 		},
 		data: {
+			match: null,
+			player: null,
 			engageLastSeason: true
 		},
 		async onLoad() {
@@ -41,6 +45,8 @@
 				Player.getInMatch('pk', this.data.me),
 				Player.getInMatch('pk_2018autumn', this.data.me)
 			]);
+			if (!match)
+				throw $.Err.NO_RESOURCE('当前没有正在进行的赛季');
 			this.setData({ match, player, engageLastSeason: playerLastSeason !== null });
 			wx.setNavigationBarTitle({
 				title: this.data.match ? this.data.match.detail.name : 'PK赛关闭中'
@@ -52,7 +58,12 @@
 				{ showCancel: true, confirmText: '确认继承' });
 			if (!res.confirm)
 				return;
-			console.log('start inherit');
+			$.Modal.showBusy('正在处理');
+			let player = await PkPlay.joinByInherit();
+			this.setData({ player });
+			$.Modal.show('段位继承',
+				`成功继承段位，当前段位：${PkPlay.rankTable[player.detail['rank']].name}，${player.detail['stars']}⭐，${player.detail['coins']}积分`,
+				{ showCancel: false });
 		},
 		async onPlayInitButtonClicked(e) {
 			let res = await $.Modal.show('定级赛',
@@ -60,7 +71,7 @@
 				{ showCancel: true, confirmText: '开始' });
 			if (!res.confirm)
 				return;
-			console.log('start play init');
+			wx.navigateTo({ url: '../pkinit/index' });
 		}
 	};
 </script>

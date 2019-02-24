@@ -1,16 +1,303 @@
 <template>
-  <view>Pkinit Page</view>
+	<view class="page__hd">PK赛定级赛</view>
+	<wui-panel title="第一局：当前局分 {{players[0].games[0].score - players[0].games[0].bonus}}{{players[0].games[0].bonus===0?'':'(+'+players[0].games[0].bonus+')'}}">
+		<view class="game-container" style="grid-template-rows: repeat({{players.length+1}}, 1fr)">
+			<view wx:for="1234567890" wx:key="index"
+			      class="game__frame {{index===9?'game__frame--last-col':''}}">
+				{{index + 1}}
+			</view>
+			<view wx:for="{{players[0].games[0].frames}}" wx:key="index"
+			      id="frame.0.0.{{index}}"
+			      class="game__frame {{index===9?'game__frame--last-col':''}} {{activeFrame.id==='frame.0.0.'+index?'game__frame--active':''}}"
+			      bindtap="onFrameClicked">
+				{{item.data}}
+			</view>
+		</view>
+	</wui-panel>
+	
+	<wui-panel title="第二局：当前局分 {{players[0].games[1].score - players[0].games[1].bonus}}{{players[0].games[1].bonus===0?'':'(+'+players[0].games[1].bonus+')'}}">
+		<view class="game-container" style="grid-template-rows: repeat({{players.length+1}}, 1fr)">
+			<view wx:for="1234567890" wx:key="index"
+			      class="game__frame {{index===9?'game__frame--last-col':''}}">
+				{{index + 1}}
+			</view>
+			<view wx:for="{{players[0].games[1].frames}}" wx:key="index"
+			      id="frame.0.1.{{index}}"
+			      class="game__frame {{index===9?'game__frame--last-col':''}} {{activeFrame.id==='frame.0.1.'+index?'game__frame--active':''}}"
+			      bindtap="onFrameClicked">
+				{{item.data}}
+			</view>
+		</view>
+	</wui-panel>
+	
+	<view class="game-keyboard {{!showKeyboard?'game-keyboard--hide':''}}">
+		<view class="game-keyboard__mask" bindtap="onKeyboardMaskClicked"></view>
+		<view class="game-keyboard__head">
+			选手：{{players[activeFrame.player].user.name}}（第{{activeFrame.gameIndex+1}}局第{{activeFrame.frameIndex+1}}格）
+		</view>
+		<button wx:for="{{keys}}" wx:key="item"
+		        class="game-keyboard__key {{keyboardSplitMode&&keyProperties[item].splitStyle?'game-keyboard__key--split':''}} {{keyProperties[item].style}}"
+		        bindtap="onGameKeyClicked"
+		        data-key="{{item}}"
+		        disabled="{{!keyProperties[item].enable}}">
+			{{keyProperties[item].label}}
+		</button>
+	</view>
+	<wui-panel>
+		<wui-list-item title="裁判：{{judge?judge.name:'请选择裁判'}}"
+		          mode="none" bind:click="onTopMenuItemClick"
+		></wui-list-item>
+	</wui-panel>
+	<view class="pkinit-menu">
+		<wxc-button size="large" type="primary" bind:submit="onSubmitButtonClicked">提交</wxc-button>
+	</view>
 </template>
 
 <script>
-export default {
-  config: {
-    navigationBarTitleText: 'PK赛-定级赛',
-    usingComponents: {}
-  },
-  data: {}
-}
+	import PkPlay from '../../models/PkPlay';
+	import Game from '../../models/Game';
+	
+	export default {
+		auth: true,
+		config: {
+			navigationBarTitleText: 'PK赛 - 定级赛',
+			usingComponents: {
+				'wui-panel': '@yapple/wui-panel',
+				'wui-list-item': '@yapple/wui-list-item',
+				'wxc-button': '@minui/wxc-button'
+			},
+		},
+		data: {
+			keys: [
+				'-', 'X', '/', 'H',
+				'1', '2', '3', 'S',
+				'4', '5', '6', 'C',
+				'7', '8', '9', 'N',
+			],
+			keyProperties: {
+				'X': { label: 'X', enable: true },
+				'/': { label: '/', enable: true },
+				'S': { label: '分屏', enable: true, style: 'game-keyboard__key--split' },
+				'-': { label: '-', enable: true },
+				'1': { label: '1', enable: true },
+				'2': { label: '2', enable: true, splitStyle: true },
+				'3': { label: '3', enable: true, splitStyle: true },
+				'4': { label: '4', enable: true, splitStyle: true },
+				'5': { label: '5', enable: true, splitStyle: true },
+				'6': { label: '6', enable: true, splitStyle: true },
+				'7': { label: '7', enable: true, splitStyle: true },
+				'8': { label: '8', enable: true, splitStyle: true },
+				'9': { label: '9', enable: true },
+				'C': { label: '清除', enable: true },
+				'N': { label: '下一格', enable: true },
+				'H': { label: '隐藏', enable: true },
+			},
+			showKeyboard: false,
+			keyboardSplitMode: false,
+			activeFrame: null,
+		},
+		
+		onLoad() {
+			let bonus = this.data.me.gender === 2 ? PkPlay.bonus : 0;
+			let match = {
+				players: [{
+					user: this.data.me,
+					games: [ new Game({ bonus: bonus }), new Game({ bonus: bonus }) ],
+				}],
+			};
+			this.setData(match);
+		},
+		
+		onGameKeyClicked(e) {
+			let key = e.target.dataset.key;
+			
+			if (key === 'H') { // 隐藏键盘
+				this.setData({ showKeyboard: false });
+				return;
+			}
+			if (!this.data.activeFrame) // 当前没有选中任何一格
+				return;
+			
+			let frameRef = this._getFrame(this.data.activeFrame);
+			let frameContent = frameRef.data;
+			
+			switch (key) {
+				case 'N':
+					this.switchToNextFrame();
+					return; // 切换到下一格
+				case 'C':
+					frameContent = '';
+					break; // 清除当前格
+				default:
+					frameContent = frameContent + key;
+			}
+			this._updateFrame(this.data.activeFrame, frameContent);
+			if (frameRef.isComplete())
+				this.switchToNextFrame();
+			else
+				this.updateKeyboardStatus();
+		},
+		onFrameClicked(e) {
+			let activeFrameIdSplited = e.target.id.split('.');
+			this.setData({
+				activeFrame: {
+					id: e.target.id,
+					player: parseInt(activeFrameIdSplited[1]),
+					gameIndex: parseInt(activeFrameIdSplited[2]),
+					frameIndex: parseInt(activeFrameIdSplited[3]),
+				},
+				showKeyboard: true,
+			});
+			this.updateKeyboardStatus();
+		},
+		onKeyboardMaskClicked() {
+			this.setData({ showKeyboard: false });
+		},
+		updateKeyStatus(acceptableKeys, keyboardSplitMode) {
+			let keyProperties = this.data.keyProperties;
+			for (let key of this.data.keys)
+				this.data.keyProperties[key].enable = acceptableKeys.indexOf(key) >= 0;
+			this.setData({ keyProperties, keyboardSplitMode });
+		},
+		updateKeyboardStatus() {
+			if (!this.data.activeFrame) {
+				this.setData({ showKeyboard: false });
+				return;
+			}
+			let frame = this._getFrame(this.data.activeFrame);
+			let acceptable = frame.getAcceptable() + 'HN';
+			if (frame.data.length !== 0)
+				acceptable += 'C';
+			this.updateKeyStatus(acceptable, frame.data.endsWith('S'));
+		},
+		switchToNextFrame() {
+			if (this.data.activeFrame) {
+				let frameRef = this.data.activeFrame;
+				if (frameRef.gameIndex === 0) {
+					if (frameRef.frameIndex === 9) {
+						frameRef.gameIndex = 1;
+						frameRef.frameIndex = 0;
+					} else
+						frameRef.frameIndex++;
+				} else {
+					if (frameRef.frameIndex === 9)
+						frameRef = null;
+					else
+						frameRef.frameIndex++;
+				}
+				if (frameRef)
+					frameRef.id = `frame.${frameRef.player}.${frameRef.gameIndex}.${frameRef.frameIndex}`;
+				this.setData({ activeFrame: frameRef });
+			}
+			this.updateKeyboardStatus();
+		},
+		
+		_getFrame(fr) {
+			return this.data.players[fr.player].games[fr.gameIndex].frames[fr.frameIndex];
+		},
+		
+		_updateFrame(fr, frameContent) {
+			this.data.players[fr.player].games[fr.gameIndex].updateFrame(fr.frameIndex, frameContent);
+			this.setData({ players: this.data.players });
+		},
+	};
 </script>
 
-<style>
+<style lang="less">
+	@import "../../style";
+	
+	.game-container {
+		display: grid;
+		grid-template-columns: repeat(9, 1fr) 1.5fr;
+		//border-top: solid 1px black;
+	}
+	
+	.game__frame {
+		border-bottom: solid 1px black;
+		border-right: solid 1px @splitLineColor;
+		text-align: center;
+	}
+	
+	.game__frame--active {
+		background: #CCC;
+	}
+	
+	.game__frame--last-row {
+		border-bottom: none;
+	}
+	
+	.game__frame--last-col {
+		border-right: none;
+	}
+	
+	.game-keyboard {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 500px;
+		padding: 15px;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr) 1.2fr;
+		grid-template-rows: repeat(5, 1fr);
+		grid-gap: 15px;
+		background: white;
+		box-shadow: 0 0 20px 10px #888;
+	}
+	
+	.game-keyboard--hide {
+		display: none;
+	}
+	
+	.game-keyboard__mask {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background: none;
+	}
+	
+	.game-keyboard__head {
+		display: flex;
+		align-items: center;
+		grid-column-start: 1;
+		grid-column-end: 5;
+		grid-row-start: 1;
+		grid-row-end: 2;
+		padding-left: 10px;
+	}
+	
+	.game-keyboard__key {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0;
+		padding: 0;
+		border-bottom: solid 4px #AAA;
+	}
+	
+	.game-keyboard__key:not([disabled]) {
+		border-bottom-color: #6ac2ff;
+	}
+	
+	.game-keyboard__key.button-hover {
+		border-bottom: none;
+	}
+	
+	.game-keyboard__key--split:not([disabled]) {
+		background: #fff5f5;
+		border-bottom-color: #d9534f;
+	}
+	
+	.game-keyboard__key--split.button-hover {
+		background: #e6dada;
+	}
+	
+	.pkinit-menu {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
 </style>
