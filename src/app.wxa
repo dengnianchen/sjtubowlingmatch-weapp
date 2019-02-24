@@ -90,4 +90,34 @@
 		font-family: -apple-system-font,Helvetica Neue,Helvetica,sans-serif;
 	}
 	
+	.page__hd {
+		padding: 80px;
+	}
+	.page__bd {
+		padding-bottom: 80px;
+	}
+	.page__bd_spacing {
+		padding-left: 30px;
+		padding-right: 30px;
+	}
+	
+	.page__ft{
+		padding-bottom: 20px;
+		text-align: center;
+	}
+	
+	.page__title {
+		text-align: left;
+		font-size: @fontSize__title;
+		font-weight: 400;
+		color: @mainHeadingColor;
+	}
+	
+	.page__desc {
+		margin-top: 10px;
+		font-size: @fontSize__desc;
+		color: @subHeadingColor;
+		text-align: left;
+	}
+	
 </style>

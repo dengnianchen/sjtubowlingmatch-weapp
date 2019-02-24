@@ -1,0 +1,75 @@
+<template>
+	<view class="page__bd page__bd_spacing">
+		<view wx:if="{{!player}}">
+			你尚未加入本赛季PK赛。
+			<view wx:if="{{engageLastSeason}}" class="pkhome-menu">
+				由于你参加过上一赛季的比赛，你可以选择
+				<wxc-button size="large" type="primary" bind:submit="onInheritButtonClicked">继承上一赛季的段位</wxc-button>
+				或
+				<wxc-button size="large" type="primary" plain="{{true}}" bind:submit="onPlayInitButtonClicked">重新进行定级赛</wxc-button>
+			</view>
+			<view wx:else class="pkhome-menu">
+				要加入PK赛，你可以选择
+				<wxc-button size="large" type="primary" bind:submit="onPlayInitButtonClicked">开始定级赛</wxc-button>
+			</view>
+		</view>
+		<view wx:else>
+		
+		</view>
+	</view>
+</template>
+
+<script>
+	const Match = require('../../models/Match');
+	const Player = require('../../models/Player');
+	const pkrule = require('../../pkrules');
+	
+	export default {
+		auth: true,
+		config: {
+			navigationBarTitleText: 'PK赛首页 - 加载中',
+			usingComponents: {
+				'wxc-button': '@minui/wxc-button'
+			},
+		},
+		data: {
+			engageLastSeason: true
+		},
+		async onLoad() {
+			let [ match, player, playerLastSeason ] = await Promise.all([
+				Match.get('pk'),
+				Player.getInMatch('pk', this.data.me),
+				Player.getInMatch('pk_2018autumn', this.data.me)
+			]);
+			this.setData({ match, player, engageLastSeason: playerLastSeason !== null });
+			wx.setNavigationBarTitle({
+				title: this.data.match ? this.data.match.detail.name : 'PK赛关闭中'
+			});
+		},
+		async onInheritButtonClicked(e) {
+			let res = await $.Modal.show('段位继承',
+				pkrule['赛初排位']['段位继承'].rule,
+				{ showCancel: true, confirmText: '确认继承' });
+			if (!res.confirm)
+				return;
+			console.log('start inherit');
+		},
+		async onPlayInitButtonClicked(e) {
+			let res = await $.Modal.show('定级赛',
+				pkrule['赛初排位']['定级赛'].rule,
+				{ showCancel: true, confirmText: '开始' });
+			if (!res.confirm)
+				return;
+			console.log('start play init');
+		}
+	};
+</script>
+
+<style>
+	.pkhome-menu {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+</style>
