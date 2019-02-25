@@ -48,17 +48,8 @@ class Game extends $.Model {
 		this.score += this.frames[9].getPins(0) + this.frames[9].getPins(1) + this.frames[9].getPins(2);
 	}
 	
-	/**
-	 * 将模型对象转换为可传递给服务器的一般数据对象
-	 *
-	 * @return {object}
-	 * @author Deng Nianchen
-	 */
-	toPlainObject() {
-		let plainObject = super.toPlainObject();
-		plainObject.frames = Array.apply(null, Array(10)).map(
-			(val, i) => this.frames[i].data, this);
-		return plainObject;
+	get isComplete() {
+		return this.frames.every(value => value.isComplete());
 	}
 	
 	/**
@@ -74,6 +65,19 @@ class Game extends $.Model {
 	 */
 	get player() {
 	
+	}
+	
+	/**
+	 * 将模型对象转换为可传递给服务器的一般数据对象
+	 *
+	 * @return {object}
+	 * @author Deng Nianchen
+	 */
+	toPlainObject() {
+		let plainObject = super.toPlainObject();
+		plainObject.frames = Array.apply(null, Array(10)).map(
+			(val, i) => this.frames[i].data, this);
+		return plainObject;
 	}
 	
 }

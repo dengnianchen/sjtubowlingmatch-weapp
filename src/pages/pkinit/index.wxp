@@ -33,7 +33,13 @@
 		</view>
 	</wui-panel>
 	<wui-panel>
-		<wxc-list class="item" title="裁判：{{judge?judge.name:'请选择裁判'}}" mode="none"></wxc-list>
+		<wui-field type="custom" label="裁判">
+			<view class="pkinit__judge-picker" bindtap="onSelectJudgeClicked">
+				<text class="pkinit__judge-picker__label" style="{{judge?'':'color:#999'}}">{{judge?judge.name:'请选择裁判'}}</text>
+				<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
+			</view>
+		</wui-field>
+		<wui-field type="date" label="比赛日期：" value="{{playDate}}"></wui-field>
 	</wui-panel>
 	<view class="cc">
 		<wxc-button size="large" type="primary" bind:submit="onSubmitButtonClicked">提交</wxc-button>
@@ -51,7 +57,7 @@
 			{{keyProperties[item].label}}
 		</button>
 	</view>
-	<app-user-selector></app-user-selector>
+	<app-user-selector id="user-selector" bindselect="onUserSelect"></app-user-selector>
 </template>
 
 <script>
@@ -64,6 +70,8 @@
 			navigationBarTitleText: 'PK赛 - 定级赛',
 			usingComponents: {
 				'wui-panel': '@yapple/wui-panel',
+				'wui-field': '@yapple/wui-field',
+				'wui-icon': '@yapple/wui-icon',
 				'wxc-list': '@minui/wxc-list',
 				'wxc-button': '@minui/wxc-button',
 				'app-user-selector': '../../common/component/user-selector'
@@ -101,15 +109,35 @@
 		
 		onLoad() {
 			let bonus = this.data.me.gender === 2 ? PkPlay.bonus : 0;
-			let match = {
+			let data = {
 				players: [{
 					user: this.data.me,
 					games: [ new Game({ bonus: bonus }), new Game({ bonus: bonus }) ],
 				}],
+				playDate: new Date().format('yyyy-MM-dd')
 			};
-			this.setData(match);
+			this.setData(data);
 		},
-		
+		onSelectJudgeClicked() {
+			this.selectComponent('#user-selector').show();
+		},
+		onUserSelect(e) {
+			this.setData({ judge: e.detail.user });
+		},
+		async onSubmitButtonClicked(e) {
+			//if (!this.data.players[0].games.every(value => value.isComplete)) {
+			//	$.Modal.showError('提交成绩', '球局尚未完成录入，请完成录入后重试');
+			//	return;
+			//}
+			if (!this.data.judge) {
+				$.Modal.showError('提交成绩', '请选择裁判后重试');
+				return;
+			}
+			$.Modal.showBusy('正在提交…');
+			await PkPlay.joinByInitPlay(this.data.players[0].games, this.data.playDate, this.data.judge);
+			await $.Modal.show('提交成绩', '提交成功，请联系裁判确认比赛结果');
+			wx.navigateBack();
+		},
 		onGameKeyClicked(e) {
 			let key = e.target.dataset.key;
 			
@@ -214,6 +242,15 @@
 	}
 	
 	.pkinit__hd__player {
+		flex-grow: 1;
+	}
+	
+	.pkinit__judge-picker {
+		flex-grow: 1;
+		display: flex;
+	}
+	
+	.pkinit__judge-picker__label {
 		flex-grow: 1;
 	}
 	

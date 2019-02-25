@@ -14,7 +14,11 @@
 			</view>
 		</view>
 		<view wx:else>
-		
+			<wui-abnor wx:if="{{player.status==='new'}}" error="定级赛尚未被确认"></wui-abnor>
+			<wui-abnor wx:elif="{{player.status==='quit'}}" error="你已退赛"></wui-abnor>
+			<view wx:else class="pkhome-menu">
+				<wxc-button size="large" type="primary" bind:submit="onNormalPlayButtonClicked">开启常规赛</wxc-button>
+			</view>
 		</view>
 	</view>
 </template>
@@ -31,7 +35,8 @@
 		config: {
 			navigationBarTitleText: 'PK赛首页 - 加载中',
 			usingComponents: {
-				'wxc-button': '@minui/wxc-button'
+				'wxc-button': '@minui/wxc-button',
+				'wui-abnor': '@yapple/wui-abnor'
 			},
 		},
 		data: {
@@ -39,7 +44,7 @@
 			player: null,
 			engageLastSeason: true
 		},
-		async onLoad() {
+		async onShow() {
 			let [ match, player, playerLastSeason ] = await Promise.all([
 				Match.get('pk'),
 				Player.getInMatch('pk', this.data.me),

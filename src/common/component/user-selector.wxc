@@ -1,41 +1,106 @@
 <template>
-	<view class="user-selector">
-		<wxc-search class="search"
-		            showClear="{{true}}"
-		            bg-color="rgba(255, 255, 255, 0.18)"
-		            color="#fff"
-		            icon-color="#cacff1"
-		            ph-color="#cacff1"
-		            placeholder="查找用户"></wxc-search>
-		<scroll-view scroll-y="{{true}}" class="user-selector__userlist">
-			<wxc-list title="姓名A" arrow="{{false}}"></wxc-list>
-			<wxc-list title="姓名B" arrow="{{false}}"></wxc-list>
-			<wxc-list title="姓名C" arrow="{{false}}"></wxc-list>
-			<wxc-list title="姓名D" arrow="{{false}}"></wxc-list>
-		</scroll-view>
+	<view class="user-selector" style="{{show?'':'display: none'}}">
+		<view class="user-selector__top">
+			<view class="user-selector__search">
+				<wxc-search showClear="{{true}}"
+				            bg-color="transparent"
+				            icon-color="#AAA"
+				            ph-color="#AAA"
+				            placeholder="查找用户"
+				            bind:input="_onSearchInput"
+				></wxc-search>
+			</view>
+			<wxc-button value="隐藏" type="secondary" bindclick="hide" btn-style="width:150rpx;height:80rpx"></wxc-button>
+		</view>
+		<wui-content id="content-selector-userlist" class="user-selector__userlist">
+			<scroll-view wx:if="{{users.length}}" class="user-selector__userlist__content" scroll-y="{{true}}">
+				<wxc-list wx:for="{{users}}" wx:key="index" wx:for-item="user"
+				          title="{{user.name}}"
+				          arrow="{{false}}"
+				          data-user="{{user}}"
+				          bindclick="_onUserClicked"
+				></wxc-list>
+			</scroll-view>
+			<view wx:else class="user-selector__userlist__empty">找不到符合条件的用户</view>
+		</wui-content>
 	</view>
 </template>
 
 <script>
 	
+	import User from '../../models/User';
+	const pinyin = require('../../vendor/pinyin/pinyinUtil');
+	
+	let allUsers = null;
+	
 	export default {
 		config: {
 			usingComponents: {
 				'wxc-search': '@minui/wxc-search',
-				'wxc-list': '@minui/wxc-list'
+				'wxc-list': '@minui/wxc-list',
+				'wxc-button': '@minui/wxc-button',
+				'wui-content': '@yapple/wui-content',
+				'wui-icon': '@yapple/wui-icon'
 			},
 		},
 		behaviors: [],
 		properties: {
-		
+			show: {
+				type: Boolean,
+				value: false,
+				observer(show) {
+					if (show)
+						$.Wui.content('content-selector-userlist').load();
+				}
+			}
 		},
 		data: {},
-		methods: {},
+		lifetimes: {
+			ready() {
+				let _this = this;
+				$.Wui.content('content-selector-userlist').bindLoad(async function(wui) {
+					allUsers = await User.getAll();
+					for (let user of allUsers)
+						user.pinying = pinyin.getFirstLetter(user.name);
+					try {
+						allUsers.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN'));
+					} catch (ex) {
+						console.log(ex);
+					}
+					_this.setData({ users: allUsers });
+				});
+			}
+		},
+		methods: {
+			show() {
+				this.setData({ show: true });
+			},
+			hide() {
+				this.setData({ show: false });
+			},
+			_onSearchInput(e) {
+				if (!allUsers)
+					return;
+				let value = e.detail.value;
+				let users = [];
+				for (let user of allUsers) {
+					if (user.name.indexOf(value) >= 0 || user.pinying.indexOf(value.toUpperCase()) >= 0)
+						users.push(user);
+				}
+				this.setData({ users });
+			},
+			_onUserClicked(e) {
+				this.triggerEvent ('select', { user: e.target.dataset['user'] });
+				this.hide();
+			}
+		},
 	}
 
 </script>
 <style lang="less">
 
+	@import "../../style";
+	
 	.user-selector {
 		position: fixed;
 		left: 0;
@@ -48,7 +113,34 @@
 		z-index: 1000;
 	}
 	
-	.user-selector__userlist {
+	.user-selector__top {
+		display: flex;
+		align-items: stretch;
+	}
+	
+	.user-selector__search {
 		flex-grow: 1;
+		padding: 10px 5px;
+		border-bottom: solid 1px @splitLineColor;
+	}
+	
+	.user-selector__userlist {
+		position: relative;
+		flex-grow: 1;
+	}
+	
+	.user-selector__userlist__content {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+	}
+	
+	.user-selector__userlist__empty {
+		text-align: center;
+		padding: 20px;
+		color: @subHeadingColor;
+		font-size: @fontSize__subDesc;
 	}
 </style>

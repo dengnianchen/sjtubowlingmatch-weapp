@@ -1,7 +1,8 @@
-const User = require('./User');
-const Player = require('./Player');
-const Play = require('./Play');
-const Game = require('./Game');
+import User from './User';
+import UserBrief from './UserBrief';
+import Player from './Player';
+import Play from './Play';
+import Game from './Game';
 
 class PkPlay extends $.Model {
 	
@@ -41,14 +42,14 @@ class PkPlay extends $.Model {
 	/**
 	 *
 	 * @param {Game[]}      games
-	 * @param {string}      play_date
-	 * @param {User|number} judge
+	 * @param {string}      playDate
+	 * @param {User|UserBrief|number} judge
 	 * @returns {Promise<Player, Play>}
 	 */
 	static async joinByInitPlay(games, playDate, judge) {
-		if (judge instanceof User)
+		if (!(judge instanceof Number))
 			judge = judge.id;
-		return await $.Http.request(`POST /pk/join`, {
+		return await $.Http.request(`POST /pk/join-init`, {
 			games,
 			play_date: playDate,
 			judge_id: judge

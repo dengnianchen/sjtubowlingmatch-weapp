@@ -1,3 +1,5 @@
+import UserBrief from './UserBrief';
+
 const md5 = require('md5');
 
 /**
@@ -72,6 +74,10 @@ class User extends $.Model {
 			password: md5(password),
 			gender
 		}, {}, User);
+	}
+	
+	static async getAll() {
+		return await $.Http.request('/user', {}, {}, UserBrief);
 	}
 	
 }

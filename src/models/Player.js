@@ -24,9 +24,9 @@ class Player extends $.Model {
 	 * @returns {Promise<Player>}   选手信息
 	 */
 	static async getInMatch(match, user) {
-		if (match instanceof Match)
+		if (typeof(match) !== 'string')
 			match = match.season;
-		if (user instanceof User)
+		if (!(user instanceof Number))
 			user = user.id;
 		return await $.Http.request(`/${match}/player/${user}`, {}, {}, Player);
 	}
