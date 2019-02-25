@@ -1,0 +1,54 @@
+<template>
+	<view class="user-selector">
+		<wxc-search class="search"
+		            showClear="{{true}}"
+		            bg-color="rgba(255, 255, 255, 0.18)"
+		            color="#fff"
+		            icon-color="#cacff1"
+		            ph-color="#cacff1"
+		            placeholder="查找用户"></wxc-search>
+		<scroll-view scroll-y="{{true}}" class="user-selector__userlist">
+			<wxc-list title="姓名A" arrow="{{false}}"></wxc-list>
+			<wxc-list title="姓名B" arrow="{{false}}"></wxc-list>
+			<wxc-list title="姓名C" arrow="{{false}}"></wxc-list>
+			<wxc-list title="姓名D" arrow="{{false}}"></wxc-list>
+		</scroll-view>
+	</view>
+</template>
+
+<script>
+	
+	export default {
+		config: {
+			usingComponents: {
+				'wxc-search': '@minui/wxc-search',
+				'wxc-list': '@minui/wxc-list'
+			},
+		},
+		behaviors: [],
+		properties: {
+		
+		},
+		data: {},
+		methods: {},
+	}
+
+</script>
+<style lang="less">
+
+	.user-selector {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		flex-direction: column;
+		background: white;
+		z-index: 1000;
+	}
+	
+	.user-selector__userlist {
+		flex-grow: 1;
+	}
+</style>
