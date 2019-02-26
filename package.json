@@ -15,9 +15,9 @@
 		"@minui/wxc-search": "^1.0.1",
 		"@yapple/wui-abnor": "^1.0.3",
 		"@yapple/wui-cc": "^1.0.5",
-		"@yapple/wui-field": "^1.0.1",
+		"@yapple/wui-field": "^1.0.2",
 		"@yapple/wui-list": "^1.0.4",
-		"@yapple/wui-panel": "^1.0.3",
+		"@yapple/wui-panel": "^1.0.4",
 		"@yapple/wui-submit": "^1.0.1",
 		"md5": "^2.2.1",
 		"welib": "git+https://github.com/dengnianchen/welib.git"

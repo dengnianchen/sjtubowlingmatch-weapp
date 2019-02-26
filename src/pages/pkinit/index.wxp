@@ -57,7 +57,7 @@
 			{{keyProperties[item].label}}
 		</button>
 	</view>
-	<app-user-selector id="user-selector" bindselect="onUserSelect"></app-user-selector>
+	<app-user-selector id="user-selector" exclude-id="{{me.id}}" bindselect="onUserSelect"></app-user-selector>
 </template>
 
 <script>
@@ -126,17 +126,21 @@
 		},
 		async onSubmitButtonClicked(e) {
 			//if (!this.data.players[0].games.every(value => value.isComplete)) {
-			//	$.Modal.showError('提交成绩', '球局尚未完成录入，请完成录入后重试');
+			//	$.Modal.showError('提交成绩失败', '球局尚未完成录入，请完成录入后重试');
 			//	return;
 			//}
 			if (!this.data.judge) {
-				$.Modal.showError('提交成绩', '请选择裁判后重试');
+				$.Modal.showError('提交成绩失败', '请选择裁判后重试');
 				return;
 			}
 			$.Modal.showBusy('正在提交…');
-			await PkPlay.joinByInitPlay(this.data.players[0].games, this.data.playDate, this.data.judge);
-			await $.Modal.show('提交成绩', '提交成功，请联系裁判确认比赛结果');
-			wx.navigateBack();
+			try {
+				await PkPlay.joinByInitPlay(this.data.players[0].games, this.data.playDate, this.data.judge);
+				await $.Modal.show('提交成绩', '提交成功，请联系裁判确认比赛结果');
+				wx.navigateBack();
+			} catch (ex) {
+				$.Modal.showError('提交成绩失败', ex);
+			}
 		},
 		onGameKeyClicked(e) {
 			let key = e.target.dataset.key;
