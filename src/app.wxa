@@ -57,12 +57,9 @@
 			// 定制页面加载过程，在页面加载前载入全局配置信息、检查登陆状态及用户信息完善状态
 			let pageLoading = async function() {
 				let _this = this;
-				let redirectToBind = async () => new Promise((resolve, reject) => {
-					wx.redirectTo({
-						url: `../bind/index?from=${_this.getPathEncoded()}`,
-						success: resolve,
-						fail: reject
-					});
+				let redirectToBind = async () => await Page.redirectTo({
+					url: '../bind/index',
+					data: { from: _this.getPath() }
 				});
 				
 				// 1. 若当前不存在全局配置信息，则先加载之
@@ -82,7 +79,8 @@
 					try {
 						await $.Http.login();
 					} catch (ex) {
-						await redirectToBind();
+						if (ex.is($.Err.LOGIN_FAIL))
+							await redirectToBind();
 						return false;
 					}
 					me = User.current;

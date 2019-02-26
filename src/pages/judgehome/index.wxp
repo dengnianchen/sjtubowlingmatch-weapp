@@ -1,0 +1,58 @@
+<template>
+	<wui-panel title="待确认的比赛" wui-style="left-padding:false">
+		<block wx:for="{{playsTodo}}" wx:key="index" wx:for-item="play">
+			<wxc-list wx:if="{{play.participants.length===1}}"
+			          title="PK | {{play.type}} | {{play.participants[0].player_name}} {{play.participants[0].detail.score}}分"
+			          detail="比赛日期：{{play.play_date}}"
+			          arrow="{{false}}">
+				<wxc-button size="small" type="info" value="确认" bindsubmit="onConfirmClicked" data-play="{{play.id}}"></wxc-button>
+			</wxc-list>
+		</block>
+		<wui-abnor wx:if="{{!playsTodo.length}}" error="无比赛"></wui-abnor>
+	</wui-panel>
+	<wui-panel title="已确认的比赛" wui-style="padding-left:false">
+		<block wx:for="{{playsDone}}" wx:key="index" wx:for-item="play">
+			<wxc-list wx:if="{{play.participants.length===1}}"
+			          title="PK | {{play.type}} | {{play.participants[0].player_name}} {{play.participants[0].detail.score}}分"
+			          detail="比赛日期：{{play.play_date}}"
+			></wxc-list>
+		</block>
+		<wui-abnor wx:if="{{!playsDone.length}}" error="无比赛"></wui-abnor>
+	</wui-panel>
+</template>
+
+<script>
+	import Play from '../../models/Play';
+	
+	export default {
+		config: {
+			navigationBarTitleText: '裁判页面',
+			usingComponents: {
+				'wui-panel': '@yapple/wui-panel',
+				'wui-abnor': '@yapple/wui-abnor',
+				'wxc-list': '@minui/wxc-list',
+				'wxc-button': '@minui/wxc-button'
+			},
+		},
+		data: {},
+		async onShow() {
+			let plays = await Play.judgeByMe();
+			let playsTodo = [];
+			let playsDone = [];
+			for (let play of plays) {
+				if (play.status === 'player_confirmed')
+					playsTodo.push(play);
+				else if (play.status === 'confirmed')
+					playsDone.push(play);
+			}
+			this.setData({ playsTodo, playsDone });
+		},
+		async onConfirmClicked(e) {
+			await Play.judgeConfirm(e, e.target.dataset['play']);
+			this.reloadPage();
+		}
+	};
+</script>
+
+<style>
+</style>

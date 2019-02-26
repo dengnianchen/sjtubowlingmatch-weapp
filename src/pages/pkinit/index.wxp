@@ -118,8 +118,17 @@
 			};
 			this.setData(data);
 		},
-		onSelectJudgeClicked() {
-			this.selectComponent('#user-selector').show();
+		async onSelectJudgeClicked() {
+			//this.selectComponent('#user-selector').show();
+			let judge = await Page.navigateToDialogPage({
+				url: '../userselector/index',
+				data: {
+					title: '选择裁判',
+					excludeId: this.data.me.id
+				}
+			});
+			if (judge)
+				this.setData({ judge });
 		},
 		onUserSelect(e) {
 			this.setData({ judge: e.detail.user });

@@ -1,5 +1,5 @@
 <template>
-	<view class="user-selector" style="{{show?'':'display: none'}}">
+	<view class="user-selector">
 		<view class="user-selector__top">
 			<view class="user-selector__search">
 				<wxc-search showClear="{{true}}"
@@ -10,9 +10,9 @@
 				            bind:input="_onSearchInput"
 				></wxc-search>
 			</view>
-			<wxc-button value="隐藏" type="secondary" bindclick="hide" btn-style="width:150rpx;height:80rpx"></wxc-button>
+			<wxc-button value="刷新" type="secondary" bindclick="_refresh" btn-style="width:150rpx;height:80rpx"></wxc-button>
 		</view>
-		<wui-content id="content-selector-userlist" class="user-selector__userlist" wui-style="stretch:true">
+		<view class="user-selector__userlist">
 			<scroll-view wx:if="{{users.length}}" class="user-selector__userlist__content" scroll-y="{{true}}">
 				<wxc-list wx:for="{{users}}" wx:key="index" wx:for-item="user"
 				          title="{{user.name}}"
@@ -22,13 +22,14 @@
 				></wxc-list>
 			</scroll-view>
 			<view wx:else class="user-selector__userlist__empty">找不到符合条件的用户</view>
-		</wui-content>
+		</view>
 	</view>
 </template>
 
 <script>
 	
 	import User from '../../models/User';
+	
 	const pinyin = require('../../vendor/pinyin/pinyinUtil');
 	
 	let allUsers = null;
@@ -40,75 +41,57 @@
 				'wxc-list': '@minui/wxc-list',
 				'wxc-button': '@minui/wxc-button',
 				'wui-content': '@yapple/wui-content',
-				'wui-icon': '@yapple/wui-icon'
+				'wui-icon': '@yapple/wui-icon',
 			},
 		},
-		behaviors: [],
-		properties: {
-			show: {
-				type: Boolean,
-				value: false,
-				observer(show) {
-					if (show)
-						$.Wui.content('content-selector-userlist').load();
-				}
-			},
-			excludeId: {
-				type: Number,
-				value: null
-			}
+		data: {
+			excludeId: null,
 		},
-		data: {},
-		lifetimes: {
-			ready() {
-				let _this = this;
-				$.Wui.content('content-selector-userlist').bindLoad(async function(wui) {
-					allUsers = await User.getAll();
-					for (let i = 0; i < allUsers.length; ++i) {
-						if (allUsers[i].id === _this.data.excludeId) {
-							allUsers.splice(i, 1);
-							break;
-						}
+		async onLoad(options) {
+			if (options.title)
+				wx.setNavigationBarTitle({ title: options.title });
+			allUsers = await User.getAll();
+			
+			// 去掉排除项
+			let excludeIdArr = typeof(options.excludeId) === 'number' ?
+				[ options.excludeId ] : options.excludeId;
+			for (let excludeId of excludeIdArr) {
+				for (let i = 0; i < allUsers.length; ++i) {
+					if (allUsers[i].id === excludeId) {
+						allUsers.splice(i, 1);
+						break;
 					}
-					for (let user of allUsers)
-						user.pinying = pinyin.getFirstLetter(user.name);
-					try {
-						allUsers.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN'));
-					} catch (ex) {
-						console.log(ex);
-					}
-					_this.setData({ users: allUsers });
-				});
-			}
-		},
-		methods: {
-			show() {
-				this.setData({ show: true });
-			},
-			hide() {
-				this.setData({ show: false });
-			},
-			_onSearchInput(e) {
-				if (!allUsers)
-					return;
-				let value = e.detail.value;
-				let users = [];
-				for (let user of allUsers) {
-					if (user.name.indexOf(value) >= 0 || user.pinying.indexOf(value.toUpperCase()) >= 0)
-						users.push(user);
 				}
-				this.setData({ users });
-			},
-			_onUserClicked(e) {
-				this.triggerEvent ('select', { user: e.target.dataset['user'] });
-				this.hide();
 			}
+			for (let user of allUsers)
+				user.pinying = pinyin.getFirstLetter(user.name);
+			allUsers.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN'));
+			this.setData({ users: allUsers });
 		},
-	}
+		_refresh() {
+			this.reloadPage();
+		},
+		_onSearchInput(e) {
+			if (!allUsers)
+				return;
+			let value = e.detail.value;
+			let users = [];
+			for (let user of allUsers) {
+				if (user.name.indexOf(value) >= 0 || user.pinying.indexOf(value.toUpperCase()) >= 0)
+					users.push(user);
+			}
+			this.setData({ users });
+		},
+		_onUserClicked(e) {
+			Page.navigateReturn({
+				data: e.target.dataset['user']
+			});
+		}
+	};
 
 </script>
 <style lang="less">
-
+	
 	@import "../../style";
 	
 	.user-selector {
@@ -119,8 +102,6 @@
 		bottom: 0;
 		display: flex;
 		flex-direction: column;
-		background: white;
-		z-index: 1000;
 	}
 	
 	.user-selector__top {
@@ -141,10 +122,10 @@
 	
 	.user-selector__userlist__content {
 		position: absolute;
+		left: 0;
 		top: 0;
 		right: 0;
 		bottom: 0;
-		left: 0;
 	}
 	
 	.user-selector__userlist__empty {

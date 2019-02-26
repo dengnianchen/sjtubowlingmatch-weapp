@@ -20,6 +20,9 @@
 				<wxc-button size="large" type="primary" bind:submit="onNormalPlayButtonClicked">开启常规赛</wxc-button>
 			</view>
 		</view>
+		<view class="pkhome-menu">
+			<wxc-button size="large" type="info" bind:submit="onJudgePageClicked">进入裁判页面</wxc-button>
+		</view>
 	</view>
 </template>
 
@@ -77,6 +80,9 @@
 			if (!res.confirm)
 				return;
 			wx.navigateTo({ url: '../pkinit/index' });
+		},
+		onJudgePageClicked() {
+			Page.navigateTo({ url: '../judgehome/index'});
 		}
 	};
 </script>
