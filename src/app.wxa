@@ -35,10 +35,10 @@
 				selectedColor: '#00B26A',
 				list: [
 					{
-						pagePath: 'pages/pkhome/index',
-						text: 'PK赛',
-						iconPath: '/images/family.png',
-						selectedIconPath: '/images/family-active.png'
+						pagePath: 'pages/judgehome/index',
+						text: '裁判',
+						iconPath: '/images/user.png',
+						selectedIconPath: '/images/user-active.png'
 					},
 					{
 						pagePath: 'pages/home/index',
