@@ -30,6 +30,10 @@ class PkPlay extends $.Model {
 		return 15;
 	}
 	
+	static async calcInherit() {
+		return await $.Http.request('/pk/calc-inherit');
+	}
+	
 	/**
 	 * 通过继承段位加入PK赛
 	 

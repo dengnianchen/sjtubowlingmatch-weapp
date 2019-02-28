@@ -113,6 +113,20 @@
 		font-family: -apple-system-font,Helvetica Neue,Helvetica,sans-serif;
 	}
 	
+	.page__banner {
+		display: flex;
+		align-items: center;
+		background: white;
+		border-bottom: 1px solid @splitLineColor;
+		padding: 10px;
+	}
+	.page__banner__elem {
+		margin-right: 10px;
+	}
+	.page__banner__elem__last {
+		flex-grow: 1;
+	}
+	
 	.page__hd {
 		padding: 80px;
 	}

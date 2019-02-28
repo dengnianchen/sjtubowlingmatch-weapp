@@ -1,23 +1,11 @@
 <template>
-	<view>
-		<image class="index-logo" src="{{me.wx_info.avatarUrl}}"></image>
-
+	<view class="page__banner">
+		<image class="page__banner__elem __avatar" src="{{me.wx_info.avatarUrl}}"></image>
+		<text class="page__banner__elem__last __title">{{me.name}}，欢迎光临！</text>
 	</view>
-	<view>
-		<view class="index-hd">
-			<view class="index-desc">MinUI-小程序</view>
-		</view>
-		
-		<view class="index-bd">
-			Hello {{me.name}}!
-		</view>
-		<view class="cc" style="margin: 20rpx 0;">
-			<wxc-button size="large" type="success" bind:submit="onPkEntryClicked"
-			            style="margin: auto" value="2019年春季PK赛"></wxc-button>
-		</view>
-		<view class="index-ft">
-			<view class="provider">Created by Min</view>
-		</view>
+	<view class="cc" style="margin: 20rpx 0;">
+		<wxc-button size="large" type="success" bind:submit="onPkEntryClicked"
+		            style="margin: auto" value="2019年春季PK赛"></wxc-button>
 	</view>
 
 </template>
@@ -39,39 +27,11 @@
 </script>
 
 <style lang="less">
-	.index-hd {
-		padding: 70px;
-		text-align: center;
+	.page__banner .__avatar {
+		width: 60px;
+		height: 60px;
+		
 	}
-	
-	.index-bd {
-		padding: 20px 30px;
-		background-color: cadetblue;
-		color: #fff;
-		text-align: center;
-	}
-	
-	.index-ft {
-		padding-bottom: 20px;
-		text-align: center;
-	}
-	
-	.index-logo {
-		width: 100px;
-		height: 100px;
-	}
-	
-	.index-desc {
-		margin-top: 20px;
-		color: #888888;
-		font-size: 28px;
-	}
-	
-	.provider {
-		position: fixed;
-		width: 100%;
-		bottom: 120px;
-		color: #a9a9a9;
-		text-align: center;
+	.page__banner .__title {
 	}
 </style>
