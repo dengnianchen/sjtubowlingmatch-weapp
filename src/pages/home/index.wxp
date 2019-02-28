@@ -1,15 +1,20 @@
 <template>
 	<view>
+		<image class="index-logo" src="{{me.wx_info.avatarUrl}}"></image>
+
+	</view>
+	<view>
 		<view class="index-hd">
-			<image class="index-logo"
-			       src="{{me.wx_info.avatarUrl}}"></image>
 			<view class="index-desc">MinUI-小程序</view>
 		</view>
 		
 		<view class="index-bd">
 			Hello {{me.name}}!
 		</view>
-		
+		<view class="cc" style="margin: 20rpx 0;">
+			<wxc-button size="large" type="success" bind:submit="onPkEntryClicked"
+			            style="margin: auto" value="2019年春季PK赛"></wxc-button>
+		</view>
 		<view class="index-ft">
 			<view class="provider">Created by Min</view>
 		</view>
@@ -20,6 +25,16 @@
 <script>
 	export default {
 		auth: true,
+		config: {
+			usingComponents: {
+				'wxc-button': '@minui/wxc-button'
+			}
+		},
+		onPkEntryClicked() {
+			Page.navigateTo({
+				url: '../pkhome/index'
+			});
+		}
 	};
 </script>
 
