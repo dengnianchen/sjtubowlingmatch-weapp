@@ -30,7 +30,7 @@
 			</block>
 		</block>
 	</view>
-	<wxc-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="取消" bindconfirm="onConfirm" bindcancel="onCancel">
+	<wxc-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="取消" bindconfirm="onDialogInheritPromoteConfirm" bindcancel="onDialogInheritPromoteCancel">
 		<view class="cc dialog-inherit-promote__content">
 			<view>
 				{{playerLastSeason?rankTable[playerLastSeason.detail.rank].name:'-'}} |
@@ -42,6 +42,15 @@
 				{{inheritCalc?rankTable[inheritCalc.rank].name:'-'}} |
 				<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{inheritCalc?inheritCalc.stars:'-'}} |
 				<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{inheritCalc?inheritCalc.coins:'-'}}
+			</view>
+		</view>
+	</wxc-dialog>
+	<wxc-dialog id="dialog-inherit-success" title="成功继承段位" confirm-text="确定" bindconfirm="onDialogInheritSuccessConfirm">
+		<view class="cc dialog-inherit-success__content">
+			<view>
+				当前段位：{{player?rankTable[player.detail.rank].name:'-'}} |
+				<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{player?player.detail.stars:'-'}} |
+				<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{player?player.detail.coins:'-'}}
 			</view>
 		</view>
 	</wxc-dialog>
@@ -58,6 +67,7 @@
 		auth: true,
 		config: {
 			navigationBarTitleText: 'PK赛首页 - 加载中',
+			enablePullDownRefresh: true,
 			usingComponents: {
 				'wxc-button': '@minui/wxc-button',
 				'wxc-dialog': '@minui/wxc-dialog',
@@ -110,6 +120,18 @@
 		},
 		onJudgePageClicked() {
 			Page.navigateTo({ url: '../judgehome/index'});
+		},
+		async onDialogInheritPromoteConfirm() {
+			this.selectComponent('#dialog-inherit-promote').hide();
+			$.Modal.showBusy('正在处理');
+			let player = await PkPlay.joinByInherit();
+			this.setData({ player });
+			$.Modal.show('段位继承',
+				`成功继承段位，当前段位：${PkPlay.rankTable[player.detail['rank']].name}，${player.detail['stars']}⭐，${player.detail['coins']}积分`,
+				{ showCancel: false });
+		},
+		onDialogInheritPromoteCancel() {
+			this.selectComponent('#dialog-inherit-promote').hide();
 		}
 	};
 </script>

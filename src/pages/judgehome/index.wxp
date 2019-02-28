@@ -25,8 +25,10 @@
 	import Play from '../../models/Play';
 	
 	export default {
+		auth: true,
 		config: {
 			navigationBarTitleText: '裁判页面',
+			enablePullDownRefresh: true,
 			usingComponents: {
 				'wui-panel': '@yapple/wui-panel',
 				'wui-abnor': '@yapple/wui-abnor',
