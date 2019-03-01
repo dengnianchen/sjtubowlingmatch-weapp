@@ -3,9 +3,23 @@
 		<image class="page__banner__elem __avatar" src="{{me.wx_info.avatarUrl}}"></image>
 		<text class="page__banner__elem__last __title">{{me.name}}，欢迎光临！</text>
 	</view>
-	<view class="cc" style="margin: 20rpx 0;">
-		<wxc-button size="large" type="success" bind:submit="onPkEntryClicked"
-		            style="margin: auto" value="2019年春季PK赛"></wxc-button>
+	<view class="cc home-menu">
+		<text class="__item __desc">———— 正在进行 ————</text>
+		<block wx:for="{{$.data.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
+			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
+					wx:if="{{match.status==='active'}}"
+					class="__item" size="large" type="success"
+					value="{{match.name}}" data-entry="active-{{match.category}}"
+					bind:submit="onMenuEntryClicked"></wxc-button>
+		</block>
+		<text class="__item __desc">———— 已结束 ————</text>
+		<block wx:for="{{$.data.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
+			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
+			            wx:if="{{match.status==='finished'}}"
+			            class="__item" size="large" type="disabled"
+			            value="{{match.name}}" data-entry="finished-{{match.season}}"
+			            bind:submit="onMenuEntryClicked"></wxc-button>
+		</block>
 	</view>
 
 </template>
@@ -18,20 +32,38 @@
 				'wxc-button': '@minui/wxc-button'
 			}
 		},
-		onPkEntryClicked() {
-			Page.navigateTo({
-				url: '../pkhome/index'
-			});
+		onMenuEntryClicked(e) {
+			$.Http.submit(e);
+			let entry = e.target.dataset['entry'];
+			if (entry.startsWith('active-')) {
+				let match = entry.substr(7);
+				Page.navigateTo({
+					url: `../${match}home/index`
+				});
+			}
 		}
 	};
 </script>
 
 <style lang="less">
+	@import "../../style";
+	
 	.page__banner .__avatar {
 		width: 60px;
 		height: 60px;
 		
 	}
 	.page__banner .__title {
+	}
+	.home-menu {
+	
+	}
+	.home-menu .__item {
+		margin-top: 20px;
+	}
+	.home-menu .__desc {
+		font-size: @fontSize__desc;
+		color: @color__desc;
+		margin-top: 60px;
 	}
 </style>

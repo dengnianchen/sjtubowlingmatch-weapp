@@ -1,0 +1,100 @@
+<template>
+	<wxc-dialog id="wxc-dialog"
+	            title="{{title}}"
+	            confirm-text="{{confirmText}}" bindconfirm="_onConfirm"
+	            cancel-text="{{cancelText}}" bindcancel="_onCancel">
+		<view class="dialog__content">
+			<text wx:if="{{content}}" decode="{{true}}">{{content}}</text>
+			<slot></slot>
+		</view>
+	</wxc-dialog>
+</template>
+
+<script>
+	
+	if (!$.Wui.Dialog) {
+		$.Wui.Dialog = class {
+			static async show(selectorOrOption) {
+				let selector = !(selectorOrOption instanceof Object) ? selectorOrOption : '#dialog-common';
+				let wuiDialog = Page.current().selectComponent(selector);
+				if (!wuiDialog)
+					throw $.Err.FAIL(`找不到指定的对话框组件：${selector}`);
+				if (selectorOrOption instanceof Object) {
+					wuiDialog.setData(selectorOrOption);
+				}
+				return wuiDialog.show();
+			}
+			
+			static hide(selector = null) {
+				selector = selector || '#dialog-common';
+				let wuiDialog = Page.current().selectComponent(selector);
+				if (!wuiDialog)
+					throw $.Err.FAIL(`找不到指定的对话框组件：${selector}`);
+				wuiDialog.hide();
+			}
+		}
+	}
+	
+	export default {
+		config: {
+			usingComponents: {
+				'wxc-dialog': '@minui/wxc-dialog'
+			}
+		},
+		behaviors: [],
+		properties: {
+			title: {
+				type: String
+			},
+			content: {
+				type: String
+			},
+			confirmText: {
+				type: String,
+				value: '确定'
+			},
+			cancelText: {
+				type: String,
+				value: '取消'
+			}
+		},
+		data: {},
+		methods: {
+			async show() {
+				let _this = this;
+				this.selectComponent('#wxc-dialog').show();
+				return new Promise((resolve, reject) => {
+					_this._resolve = resolve;
+					_this._reject = reject;
+				});
+			},
+			hide(confirmed = false) {
+				if (this._resolve)
+					this._resolve(confirmed);
+				this._resolve = null;
+				this.selectComponent('#wxc-dialog').hide();
+			},
+			_onConfirm() {
+				this.hide(true);
+			},
+			_onCancel() {
+				this.hide(false);
+			}
+		}
+	};
+</script>
+
+<style lang="less">
+	@import "../../style";
+	
+	.dialog__content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 10px 20px 30px 20px;
+		font-size: @fontSize__desc;
+		color: @color__desc;
+	}
+	
+</style>

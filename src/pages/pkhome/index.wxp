@@ -30,30 +30,26 @@
 			</block>
 		</block>
 	</view>
-	<wxc-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="取消" bindconfirm="onDialogInheritPromoteConfirm" bindcancel="onDialogInheritPromoteCancel">
-		<view class="cc dialog-inherit-promote__content">
-			<view>
-				{{playerLastSeason?rankTable[playerLastSeason.detail.rank].name:'-'}} |
-				<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{playerLastSeason?playerLastSeason.detail.stars:'-'}} |
-				<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{playerLastSeason?playerLastSeason.detail.coins:'-'}}
-			</view>
-			<text>↓</text>
-			<view>
-				{{inheritCalc?rankTable[inheritCalc.rank].name:'-'}} |
-				<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{inheritCalc?inheritCalc.stars:'-'}} |
-				<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{inheritCalc?inheritCalc.coins:'-'}}
-			</view>
+	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="再想想">
+		<view>
+			{{playerLastSeason?rankTable[playerLastSeason.detail.rank].name:'-'}} |
+			<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{playerLastSeason?playerLastSeason.detail.stars:'-'}} |
+			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{playerLastSeason?playerLastSeason.detail.coins:'-'}}
 		</view>
-	</wxc-dialog>
-	<wxc-dialog id="dialog-inherit-success" title="成功继承段位" confirm-text="确定" bindconfirm="onDialogInheritSuccessConfirm">
-		<view class="cc dialog-inherit-success__content">
-			<view>
-				当前段位：{{player?rankTable[player.detail.rank].name:'-'}} |
-				<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{player?player.detail.stars:'-'}} |
-				<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{player?player.detail.coins:'-'}}
-			</view>
+		<text>↓</text>
+		<view>
+			{{inheritCalc?rankTable[inheritCalc.rank].name:'-'}} |
+			<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{inheritCalc?inheritCalc.stars:'-'}} |
+			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{inheritCalc?inheritCalc.coins:'-'}}
 		</view>
-	</wxc-dialog>
+	</wui-dialog>
+	<wui-dialog id="dialog-inherit-success" title="成功继承段位">
+		<view>
+			当前段位：{{player?rankTable[player.detail.rank].name:'-'}} |
+			<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{player?player.detail.stars:'-'}} |
+			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{player?player.detail.coins:'-'}}
+		</view>
+	</wui-dialog>
 </template>
 
 <script>
@@ -70,7 +66,7 @@
 			enablePullDownRefresh: true,
 			usingComponents: {
 				'wxc-button': '@minui/wxc-button',
-				'wxc-dialog': '@minui/wxc-dialog',
+				'wui-dialog': '../../common/component/dialog',
 				'wui-abnor': '@yapple/wui-abnor',
 				'wui-icon': '@yapple/wui-icon'
 			},
@@ -78,60 +74,52 @@
 		data: {
 			match: null,
 			player: null,
-			engageLastSeason: true,
-			rankTable: PkPlay.rankTable
+			playerLastSeason: null,
+			rankTable: PkPlay.rankTable,
+			pkrule: pkrule
 		},
+		
 		async onShow() {
-			let [ match, player, playerLastSeason ] = await Promise.all([
-				Match.get('pk'),
-				Player.getInMatch('pk', this.data.me),
-				Player.getInMatch('pk_2018autumn', this.data.me)
-			]);
-			if (!match)
+			let match = $.App.data.matches.pk[0];
+			if (!match || match.status !== 'active') {
+				wx.setNavigationBarTitle({ title: 'PK赛关闭中' });
 				throw $.Err.NO_RESOURCE('当前没有正在进行的赛季');
+			}
+			wx.setNavigationBarTitle({ title: match.name });
+			let player = await Player.getInMatch(match, this.data.me);
+			let playerLastSeason = player ? null :
+				await Player.getInMatch($.App.data.matches.pk[1], this.data.me);
 			this.setData({ match, player, playerLastSeason });
-			wx.setNavigationBarTitle({
-				title: this.data.match ? this.data.match.detail.name : 'PK赛关闭中'
-			});
 		},
+		
 		async onInheritButtonClicked(e) {
-			this.setData({ 'inheritCalc': await PkPlay.calcInherit() });
-			this.selectComponent('#dialog-inherit-promote').show();
-			return;
-			let res = await $.Modal.show('段位继承',
-				pkrule['赛初排位']['段位继承'].rule,
-				{ showCancel: true, confirmText: '确认继承' });
-			if (!res.confirm)
-				return;
-			$.Modal.showBusy('正在处理');
-			let player = await PkPlay.joinByInherit();
-			this.setData({ player });
-			$.Modal.show('段位继承',
-				`成功继承段位，当前段位：${PkPlay.rankTable[player.detail['rank']].name}，${player.detail['stars']}⭐，${player.detail['coins']}积分`,
-				{ showCancel: false });
+			try {
+				$.Modal.showBusy('正在加载');
+				this.setData({ 'inheritCalc': await PkPlay.calcInherit() });
+				$.Modal.hideToast();
+				let r = await $.Wui.Dialog.show("#dialog-inherit-promote");
+				if (!r)
+					return;
+				
+				$.Modal.showBusy('正在处理');
+				let player = await PkPlay.joinByInherit();
+				this.setData({ player });
+				$.Modal.hideToast();
+				$.Wui.Dialog.show("#dialog-inherit-success");
+			} catch (ex) {
+				$.Modal.showError('继承段位', ex);
+			}
 		},
 		async onPlayInitButtonClicked(e) {
-			let res = await $.Modal.show('定级赛',
-				pkrule['赛初排位']['定级赛'].rule,
-				{ showCancel: true, confirmText: '开始' });
-			if (!res.confirm)
+			let r = await $.Wui.Dialog.show({
+				title: '开始定级赛',
+				content: '两局制单人定级赛，按两局均分决定初始段位。开始比赛后不可取消，不可重打。',
+				confirmText: '开始',
+				cancelText: '再想想'
+			});
+			if (!r)
 				return;
 			wx.navigateTo({ url: '../pkinit/index' });
-		},
-		onJudgePageClicked() {
-			Page.navigateTo({ url: '../judgehome/index'});
-		},
-		async onDialogInheritPromoteConfirm() {
-			this.selectComponent('#dialog-inherit-promote').hide();
-			$.Modal.showBusy('正在处理');
-			let player = await PkPlay.joinByInherit();
-			this.setData({ player });
-			$.Modal.show('段位继承',
-				`成功继承段位，当前段位：${PkPlay.rankTable[player.detail['rank']].name}，${player.detail['stars']}⭐，${player.detail['coins']}积分`,
-				{ showCancel: false });
-		},
-		onDialogInheritPromoteCancel() {
-			this.selectComponent('#dialog-inherit-promote').hide();
 		}
 	};
 </script>
@@ -153,10 +141,5 @@
 	}
 	.pkhome__menu .__item {
 		margin-bottom: 20px;
-	}
-	.dialog-inherit-promote__content {
-		padding: 20px;
-		font-size: @fontSize__desc;
-		color: @color__desc;
 	}
 </style>

@@ -4,20 +4,26 @@
 		<layout-error wx:if="{{loadingError}}" error="{{loadingError}}" bindclick="reloadPage"></layout-error>
 		<page></page>
 	</view>
+	<wui-dialog id="dialog-common"></wui-dialog>
 </template>
 
 <script>
+	
 	require('welib');
 	require('./error');
+	
+	const MatchList = require('./models/MatchList');
+	const User = require('./models/User');
+	
 	const style = require('./style');
 	const config = require('./config');
-	const User = require('./models/User');
 	
 	export default {
 		config: {
 			usingComponents: {
 				'layout-loading': 'layout/loading',
 				'layout-error': 'layout/error',
+				'wui-dialog': 'common/component/dialog'
 			},
 			pages: [],
 			window: {
@@ -66,6 +72,7 @@
 				//    全局配置信息存在app对象中，因此仅在小程序运行后的第一个页面加载时需要从服务器获取
 				if (!isAppInitialized) {
 					//$($.App.config).extend(await $.Http.request("/common/config"));
+					$.App.data.matches = await MatchList.getList();
 					isAppInitialized = true;
 				}
 				
@@ -162,6 +169,16 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+	}
+	
+	.wxc-dialog-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 0 20px 20px 20px;
+		font-size: @fontSize__desc;
+		color: @color__desc;
 	}
 
 </style>
