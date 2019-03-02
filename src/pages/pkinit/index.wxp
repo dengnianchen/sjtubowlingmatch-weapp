@@ -146,8 +146,10 @@
 			}
 			$.Modal.showBusy('正在提交…');
 			try {
-				await PkPlay.joinByInitPlay(this.data.match.players[0].games, this.data.match.playDate, this.data.match.judge);
+				await PkPlay.play('init', this.data.match.players[0].games,
+					this.data.match.playDate, this.data.match.judge);
 				await $.Modal.show('提交成绩', '提交成功，请联系裁判确认比赛结果');
+				wx.removeStorageSync('matchTemp');
 				wx.navigateBack();
 			} catch (ex) {
 				$.Modal.showError('提交成绩失败', ex);

@@ -17,7 +17,7 @@
 			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
 			            wx:if="{{match.status==='finished'}}"
 			            class="__item" size="large" type="disabled"
-			            value="{{match.name}}" data-entry="finished-{{match.season}}"
+			            value="{{match.name}}" data-entry="finished-{{match.id}}"
 			            bind:submit="onMenuEntryClicked"></wxc-button>
 		</block>
 	</view>

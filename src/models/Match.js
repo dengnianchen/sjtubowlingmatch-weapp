@@ -1,7 +1,6 @@
 /**
- * @property {number}   id
+ * @property {string}   id
  * @property {string}   category        赛事大类
- * @property {string}   season          赛季
  * @property {string}   name            名称
  * @property {string}   start_time      开始时间
  * @property {string}   end_time        结束时间

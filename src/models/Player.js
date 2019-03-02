@@ -27,46 +27,10 @@ class Player extends $.Model {
 		if (!match || !user)
 			return null;
 		if (match instanceof Match)
-			match = match.season;
+			match = match.id;
 		if (user instanceof User)
 			user = user.id;
 		return await $.Http.request(`/${match}/player/${user}`, {}, {}, Player);
-	}
-	
-	/**
-	 * [关联]所属用户信息
-	 *
-	 * @return {User}
-	 */
-	get user() {
-	
-	}
-	
-	/**
-	 * [关联]选手的操作信息
-	 *
-	 * @return {PlayerOperation[]}
-	 */
-	get operations() {
-	
-	}
-	
-	/**
-	 * [关联]选手的参与信息
-	 *
-	 * @return {PlayerParticipate[]}
-	 */
-	get participates() {
-	
-	}
-	
-	/**
-	 * [关联]选手打过的球局信息
-	 *
-	 * @return {Game[]}
-	 */
-	get games() {
-	
 	}
 	
 }

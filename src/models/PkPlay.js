@@ -25,6 +25,7 @@ class PkPlay extends $.Model {
 	 * 加分信息
 	 *
 	 * @return {number}
+	 * @author Deng Nianchen
 	 */
 	static get bonus() {
 		return 15;
@@ -37,27 +38,42 @@ class PkPlay extends $.Model {
 	/**
 	 * 通过继承段位加入PK赛
 	 
-	 * @returns {Promise<Player>}
+	 * @returns {Promise<number>}
+	 * @author Deng Nianchen
 	 */
 	static async joinByInherit() {
-		return await $.Http.request(`POST /pk/join-inherit`, {}, {}, Player);
+		return await $.Http.request(`POST /pk/join-inherit`);
 	}
 	
 	/**
+	 * 全新加入赛事，不包含任何状态
 	 *
-	 * @param {Game[]}      games
-	 * @param {string}      playDate
-	 * @param {User|UserBrief|number} judge
-	 * @returns {Promise<Player, Play>}
+	 * @returns {Promise<number>}
+	 * @author Deng Nianchen
 	 */
-	static async joinByInitPlay(games, playDate, judge) {
-		if (!(judge instanceof Number))
-			judge = judge.id;
-		return await $.Http.request(`POST /pk/join-init`, {
+	static async joinNew() {
+		return await $.Http.request('POST /pk/join-new');
+	}
+	
+	/**
+	 * 登记一场比赛
+	 *
+	 * @param {string}                  type
+	 * @param {Game[]}                  games
+	 * @param {string}                  playDate
+	 * @param {User|UserBrief|number}   judge
+	 * @param {Player[]|number[]}       players
+	 * @returns {Promise<number>}
+	 * @author Deng Nianchen
+	 */
+	static async play(type, games, playDate, judge, players = []) {
+		return await $.Http.request(`POST /pk/play-${type}`, {
+			type,
 			games,
 			play_date: playDate,
-			judge_id: judge
-		}, {}, [ Player, Play ]);
+			judge_id: $.Model.id(judge),
+			player_ids: $.Model.id(players)
+		});
 	}
 }
 

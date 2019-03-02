@@ -1,6 +1,4 @@
-const Frame = require('./Frame');
-const Player = require('./Player');
-const Play = require('./Play');
+import Frame from './Frame';
 
 /**
  * Game类用于表示一局球局，包含球局相关的局况、分数等信息
@@ -50,21 +48,6 @@ class Game extends $.Model {
 	
 	get isComplete() {
 		return this.frames.every(value => value.isComplete());
-	}
-	
-	/**
-	 *
-	 * @returns {Play}
-	 */
-	get play() {
-		return null;
-	}
-	
-	/**
-	 * @return {Player}
-	 */
-	get player() {
-	
 	}
 	
 	/**
