@@ -11,7 +11,7 @@ class Play extends $.Model {
 	static async judgeConfirm(e, play) {
 		if (play instanceof Object)
 			play = play.id;
-		await $.Http.submit(e, `PUT /play/${play}/judge-confirm`);
+		await $.Http.submit(e, `POST /play/${play}/judge-confirm`);
 	}
 }
 
