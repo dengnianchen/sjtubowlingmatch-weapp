@@ -3,13 +3,13 @@
 		<image class="page__banner__elem __avatar" src="{{me.wx_info.avatarUrl}}"></image>
 		<text class="page__banner__elem __name">{{me.name}}</text>
 		<view class="page__banner__elem__last __status">
-			{{player?rankTable[player.detail.rank].name:'-'}} |
-			<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{player?player.detail.stars:'-'}} |
-			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{player?player.detail.coins:'-'}}
+			{{player.detail?rankTable[player.detail.rank].name:'-'}} |
+			<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{player.detail?player.detail.stars:'-'}} |
+			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{player.detail?player.detail.coins:'-'}}
 		</view>
 	</view>
 	<view class="cc pkhome__menu">
-		<block wx:if="{{!player}}">
+		<block wx:if="{{!player || !player.status}}">
 			<text class="__item">你尚未加入本赛季PK赛。</text>
 			<block wx:if="{{playerLastSeason}}">
 				<text class="__item">由于你参加过上一赛季的比赛，你可以选择</text>
@@ -45,9 +45,9 @@
 	</wui-dialog>
 	<wui-dialog id="dialog-inherit-success" title="成功继承段位">
 		<view>
-			当前段位：{{player?rankTable[player.detail.rank].name:'-'}} |
-			<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{player?player.detail.stars:'-'}} |
-			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{player?player.detail.coins:'-'}}
+			当前段位：{{player.detail?rankTable[player.detail.rank].name:'-'}} |
+			<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{player.detail?player.detail.stars:'-'}} |
+			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{player.detail?player.detail.coins:'-'}}
 		</view>
 	</wui-dialog>
 </template>
@@ -119,7 +119,12 @@
 			});
 			if (!r)
 				return;
-			wx.navigateTo({ url: '../pkinit/index' });
+			try {
+				await PkPlay.joinNew();
+				wx.navigateTo({ url: '../pkinit/index' });
+			} catch (ex) {
+				$.Modal.showError('开始定级赛', ex);
+			}
 		}
 	};
 </script>

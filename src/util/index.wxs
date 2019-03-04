@@ -1,0 +1,2 @@
+module.exports.valIf = function(condition, value) { return condition ? value : null; };
+module.exports.arrIsLast = function(array, index) { return index === array.length - 1 };

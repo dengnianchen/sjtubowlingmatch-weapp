@@ -1,0 +1,96 @@
+<template>
+	<wxs src="../../util/index.wxs" module="util"></wxs>
+	<wxs module="main">
+		module.exports.toFrameId = function(gindex, findex) {
+			return 'frame.' + gindex + '.' + findex;
+		};
+	</wxs>
+	<view class="game-container" style="grid-template-rows: repeat({{games.length+1}}, 1fr)">
+		<view wx:for="1234567890" wx:key="findex" wx:for-index="findex"
+		      class="game__frame {{util.valIf(findex===9,'game__frame--last-col')}}">
+			{{findex + 1}}
+		</view>
+		<block wx:for="{{games}}" wx:key="index" wx:for-index="gindex" wx:for-item="game">
+			<view wx:for="{{game.frames}}" wx:key="findex" wx:for-index="findex"
+			      id="{{main.toFrameId(gindex,findex)}}"
+			      class="game__frame {{util.valIf(findex===9,'game__frame--last-col')}} {{util.valIf(activeFrame===main.toFrameId(gindex,findex),'game__frame--active')}}"
+			      bindtap="_onFrameClicked">
+				{{item.data}}
+			</view>
+		</block>
+	</view>
+</template>
+
+<script>
+	export default {
+		config: {
+			usingComponents: {
+			}
+		},
+		behaviors: {
+		
+		},
+		properties: {
+			players: {
+				type: Object
+			},
+			games: {
+				type: Array
+			},
+			activeFrame: {
+				type: String
+			}
+		},
+		data: {
+		
+		},
+		methods: {
+			updateGames(games) {
+				this.setData({ games });
+			},
+			selectFrame(frameRef) {
+				this.setData({
+					activeFrame: !frameRef ? null : `frame.${frameRef.gameIndex}.${frameRef.frameIndex}`
+				});
+			},
+			_onFrameClicked(e) {
+				let activeFrameIdSplited = e.target.id.split('.');
+				let frameRef = {
+					gameIndex: parseInt(activeFrameIdSplited[1]),
+					frameIndex: parseInt(activeFrameIdSplited[2]),
+				};
+				this.selectFrame(frameRef);
+				this.triggerEvent('frameselected', { frameRef });
+			},
+			
+		}
+	};
+</script>
+
+<style lang="less">
+	
+	.game-container {
+		display: grid;
+		grid-template-columns: repeat(9, 1fr) 1.5fr;
+		//border-top: solid 1px black;
+	}
+	
+	.game__frame {
+		border-bottom: solid 1px black;
+		border-right: solid 1px @splitLineColor;
+		text-align: center;
+	}
+	
+	.game__frame--active {
+		background: #CCC;
+	}
+	
+	.game__frame--last-row {
+		border-bottom: none;
+	}
+	
+	.game__frame--last-col {
+		border-right: none;
+	}
+
+</style>

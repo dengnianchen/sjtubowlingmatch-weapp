@@ -1,45 +1,34 @@
 <template>
 	<view class="pkinit__hd">
-		<view class="pkinit__hd__player">选手：{{match.players[0].user.name}}</view>
+		<view class="pkinit__hd__player">选手：{{play.players[play.player_ids[0]].user.name}}</view>
 		<view>比赛类型：定级赛</view>
 	</view>
-	<wui-panel title="第一局：当前局分 {{match.players[0].games[0].score - match.players[0].games[0].bonus}}{{match.players[0].games[0].bonus===0?'':'(+'+match.players[0].games[0].bonus+')'}}">
-		<view class="game-container" style="grid-template-rows: repeat({{match.players.length+1}}, 1fr)">
-			<view wx:for="1234567890" wx:key="index"
-			      class="game__frame {{index===9?'game__frame--last-col':''}}">
-				{{index + 1}}
-			</view>
-			<view wx:for="{{match.players[0].games[0].frames}}" wx:key="index"
-			      id="frame.0.0.{{index}}"
-			      class="game__frame {{index===9?'game__frame--last-col':''}} {{activeFrame.id==='frame.0.0.'+index?'game__frame--active':''}}"
-			      bindtap="onFrameClicked">
-				{{item.data}}
-			</view>
-		</view>
+	<wui-panel title="第一局：当前局分 {{play.rounds[0][0].score - play.rounds[0][0].bonus}}{{play.rounds[0][0].bonus===0?'':'(+'+play.rounds[0][0].bonus+')'}}">
+		<app-game id="game-round0"
+		          players="{{play.players}}"
+		          games="{{play.rounds[0]}}"
+		          bindframeselected="onFrameSelected"
+		          data-round="0"
+		></app-game>
 	</wui-panel>
 	
-	<wui-panel title="第二局：当前局分 {{match.players[0].games[1].score - match.players[0].games[1].bonus}}{{match.players[0].games[1].bonus===0?'':'(+'+match.players[0].games[1].bonus+')'}}">
-		<view class="game-container" style="grid-template-rows: repeat({{match.players.length+1}}, 1fr)">
-			<view wx:for="1234567890" wx:key="index"
-			      class="game__frame {{index===9?'game__frame--last-col':''}}">
-				{{index + 1}}
-			</view>
-			<view wx:for="{{match.players[0].games[1].frames}}" wx:key="index"
-			      id="frame.0.1.{{index}}"
-			      class="game__frame {{index===9?'game__frame--last-col':''}} {{activeFrame.id==='frame.0.1.'+index?'game__frame--active':''}}"
-			      bindtap="onFrameClicked">
-				{{item.data}}
-			</view>
-		</view>
+	<wui-panel title="第二局：当前局分 {{play.rounds[1][0].score - play.rounds[1][0].bonus}}{{play.rounds[1][0].bonus===0?'':'(+'+play.rounds[1][0].bonus+')'}}">
+		<app-game id="game-round1"
+		          players="{{play.players}}"
+		          games="{{play.rounds[1]}}"
+		          bindframeselected="onFrameSelected"
+		          data-round="1"
+		></app-game>
 	</wui-panel>
+
 	<wui-panel>
 		<wui-field type="custom" label="裁判">
 			<view class="pkinit__judge-picker" bindtap="onSelectJudgeClicked">
-				<text class="pkinit__judge-picker__label" style="{{match.judge?'':'color:#999'}}">{{match.judge?match.judge.name:'请选择裁判'}}</text>
+				<text wx:if="{{play.judge}}" class="pkinit__judge-picker__label">{{play.judge.name}}</text>
+				<text wx:else class="pkinit__judge-picker__label" style="color:#999">请选择裁判</text>
 				<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
 			</view>
 		</wui-field>
-		<wui-field type="date" label="比赛日期：" value="{{match.playDate}}" bindconfirm="onPlayDateChanged"></wui-field>
 	</wui-panel>
 	<view class="cc">
 		<wxc-button size="large" type="primary" bind:submit="onSubmitButtonClicked">提交</wxc-button>
@@ -47,7 +36,7 @@
 	<view class="game-keyboard {{!showKeyboard?'game-keyboard--hide':''}}">
 		<view class="game-keyboard__mask" bindtap="onKeyboardMaskClicked"></view>
 		<view class="game-keyboard__head">
-			选手：{{match.players[activeFrame.player].user.name}}（第{{activeFrame.gameIndex+1}}局第{{activeFrame.frameIndex+1}}格）
+			选手：{{play.players[activeFrame.player].user.name}}（第{{activeFrame.gameIndex+1}}局第{{activeFrame.frameIndex+1}}格）
 		</view>
 		<button wx:for="{{keys}}" wx:key="item"
 		        class="game-keyboard__key {{keyboardSplitMode&&keyProperties[item].splitStyle?'game-keyboard__key--split':''}} {{keyProperties[item].style}}"
@@ -63,6 +52,7 @@
 <script>
 	import PkPlay from '../../models/PkPlay';
 	import Game from '../../models/Game';
+	import Player from '../../models/Player';
 	
 	export default {
 		auth: true,
@@ -74,7 +64,8 @@
 				'wui-icon': '@yapple/wui-icon',
 				'wxc-list': '@minui/wxc-list',
 				'wxc-button': '@minui/wxc-button',
-				'app-user-selector': '../../common/component/user-selector'
+				'app-user-selector': '../../common/component/user-selector',
+				'app-game': '../../common/component/game'
 			},
 		},
 		data: {
@@ -107,19 +98,34 @@
 			activeFrame: null,
 		},
 		
-		onLoad() {
-			let match = wx.getStorageSync('matchTemp');
-			if (!match) {
+		async onLoad() {
+			
+			let play = wx.getStorageSync('playTemp');
+			if (!play) {
+				let player = await Player.getInMatch('pk', this.data.me);
 				let bonus = this.data.me.gender === 2 ? PkPlay.bonus : 0;
-				match = {
-					players: [{
-						user: this.data.me,
-						games: [ new Game({ bonus: bonus }), new Game({ bonus: bonus }) ],
-					}],
-					playDate: new Date().format('yyyy-MM-dd')
+				play = {
+					player_ids: [ player.id ],
+					players: {},
+					rounds: [
+						[ new Game({ bonus: bonus, player_id: player.id }) ],
+						[ new Game({ bonus: bonus, player_id: player.id }) ]
+					]
 				};
+				play.players[player.id] = player;
+			} else {
+				play = $(play).fromPlainObject({
+					players: {
+						'*': Player
+					},
+					rounds: Game
+				});
+				//$(play.players).each((key, value) => play.players[key] = new Player(value));
+				//for (let r = 0; r < play.rounds.length; ++r)
+				//	for (let g = 0; g < play.rounds[r].length; ++g)
+				//		play.rounds[r][g] = new Game(play.rounds[r][g]);
 			}
-			this.updateMatch(match);
+			this.updatePlay(play);
 		},
 		async onSelectJudgeClicked() {
 			//this.selectComponent('#user-selector').show();
@@ -131,23 +137,25 @@
 				}
 			});
 			if (judge) {
-				this.data.match.judge = judge;
-				this.updateMatch(this.data.match);
+				this.data.play.judge = judge;
+				this.updatePlay(this.data.play);
 			}
 		},
 		async onSubmitButtonClicked(e) {
-			if (!this.data.players[0].games.every(value => value.isComplete)) {
+			let games = [];
+			for (let gamesInRound of this.data.play.rounds)
+				games.concat(gamesInRound);
+			if (!games.every(value => value.isComplete)) {
 				$.Modal.showError('提交成绩失败', '球局尚未完成录入，请完成录入后重试');
 				return;
 			}
-			if (!this.data.match.judge) {
+			if (!this.data.play.judge) {
 				$.Modal.showError('提交成绩失败', '请选择裁判后重试');
 				return;
 			}
 			$.Modal.showBusy('正在提交…');
 			try {
-				await PkPlay.play('init', this.data.match.players[0].games,
-					this.data.match.playDate, this.data.match.judge);
+				await PkPlay.play('init', games, this.data.play.judge);
 				await $.Modal.show('提交成绩', '提交成功，请联系裁判确认比赛结果');
 				wx.removeStorageSync('matchTemp');
 				wx.navigateBack();
@@ -155,13 +163,9 @@
 				$.Modal.showError('提交成绩失败', ex);
 			}
 		},
-		onPlayDateChanged(e) {
-			this.data.match.playDate = e.detail.value;
-			this.updateMatch(this.data.match);
-		},
-		updateMatch(match) {
-			this.setData({ match });
-			wx.setStorageSync('matchTemp', match);
+		updatePlay(play) {
+			this.setData({ play });
+			wx.setStorageSync('playTemp', $(play).toPlainObject());
 		},
 		onGameKeyClicked(e) {
 			let key = e.target.dataset.key;
@@ -173,8 +177,8 @@
 			if (!this.data.activeFrame) // 当前没有选中任何一格
 				return;
 			
-			let frameRef = this._getFrame(this.data.activeFrame);
-			let frameContent = frameRef.data;
+			let frame = this._getFrame(this.data.activeFrame);
+			let frameContent = frame.data;
 			
 			switch (key) {
 				case 'N':
@@ -187,20 +191,16 @@
 					frameContent = frameContent + key;
 			}
 			this._updateFrame(this.data.activeFrame, frameContent);
-			if (frameRef.isComplete())
+			if (frame.isComplete())
 				this.switchToNextFrame();
 			else
 				this.updateKeyboardStatus();
 		},
-		onFrameClicked(e) {
-			let activeFrameIdSplited = e.target.id.split('.');
+		onFrameSelected(e) {
+			let frameRef = e.detail.frameRef;
+			frameRef.round = parseInt(e.target.id.substr('game-round'.length));
 			this.setData({
-				activeFrame: {
-					id: e.target.id,
-					player: parseInt(activeFrameIdSplited[1]),
-					gameIndex: parseInt(activeFrameIdSplited[2]),
-					frameIndex: parseInt(activeFrameIdSplited[3]),
-				},
+				activeFrame: frameRef,
 				showKeyboard: true,
 			});
 			this.updateKeyboardStatus();
@@ -226,34 +226,37 @@
 			this.updateKeyStatus(acceptable, frame.data.endsWith('S'));
 		},
 		switchToNextFrame() {
-			if (this.data.activeFrame) {
-				let frameRef = this.data.activeFrame;
-				if (frameRef.gameIndex === 0) {
-					if (frameRef.frameIndex === 9) {
-						frameRef.gameIndex = 1;
-						frameRef.frameIndex = 0;
-					} else
-						frameRef.frameIndex++;
-				} else {
-					if (frameRef.frameIndex === 9)
-						frameRef = null;
-					else
-						frameRef.frameIndex++;
+			let frameRef = this.data.activeFrame;
+			if (frameRef) {
+				frameRef.frameIndex++;
+				if (frameRef.frameIndex === 10) {
+					frameRef.frameIndex = 0;
+					frameRef.gameIndex++;
 				}
-				if (frameRef)
-					frameRef.id = `frame.${frameRef.player}.${frameRef.gameIndex}.${frameRef.frameIndex}`;
-				this.setData({ activeFrame: frameRef });
+				if (frameRef.gameIndex >= this.data.play.rounds[frameRef.round].length) {
+					frameRef.gameIndex = 0;
+					frameRef.round++;
+				}
+				if (frameRef.round >= this.data.play.rounds.length)
+					frameRef = null;
 			}
+			this._switchToFrame(frameRef);
+		},
+		_switchToFrame(frameRef) {
+			this.setData({ activeFrame: frameRef });
+			for (let i = 0; i < this.data.play.rounds.length; ++i)
+				this.selectComponent(`#game-round${i}`).selectFrame(
+					(frameRef && frameRef.round === i) ? frameRef :null);
 			this.updateKeyboardStatus();
 		},
 		
 		_getFrame(fr) {
-			return this.data.match.players[fr.player].games[fr.gameIndex].frames[fr.frameIndex];
+			return this.data.play.rounds[fr.round][fr.gameIndex].frames[fr.frameIndex];
 		},
 		
 		_updateFrame(fr, frameContent) {
-			this.data.match.players[fr.player].games[fr.gameIndex].updateFrame(fr.frameIndex, frameContent);
-			this.updateMatch(this.data.match);
+			this.data.play.rounds[fr.round][fr.gameIndex].updateFrame(fr.frameIndex, frameContent);
+			this.updatePlay(this.data.play);
 		},
 	};
 </script>
@@ -277,30 +280,6 @@
 	
 	.pkinit__judge-picker__label {
 		flex-grow: 1;
-	}
-	
-	.game-container {
-		display: grid;
-		grid-template-columns: repeat(9, 1fr) 1.5fr;
-		//border-top: solid 1px black;
-	}
-	
-	.game__frame {
-		border-bottom: solid 1px black;
-		border-right: solid 1px @splitLineColor;
-		text-align: center;
-	}
-	
-	.game__frame--active {
-		background: #CCC;
-	}
-	
-	.game__frame--last-row {
-		border-bottom: none;
-	}
-	
-	.game__frame--last-col {
-		border-right: none;
 	}
 	
 	.game-keyboard {

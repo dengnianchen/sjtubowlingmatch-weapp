@@ -60,19 +60,15 @@ class PkPlay extends $.Model {
 	 *
 	 * @param {string}                  type
 	 * @param {Game[]}                  games
-	 * @param {string}                  playDate
 	 * @param {User|UserBrief|number}   judge
-	 * @param {Player[]|number[]}       players
 	 * @returns {Promise<number>}
 	 * @author Deng Nianchen
 	 */
-	static async play(type, games, playDate, judge, players = []) {
+	static async play(type, games, judge) {
 		return await $.Http.request(`POST /pk/play-${type}`, {
 			type,
 			games,
-			play_date: playDate,
-			judge_id: $.Model.id(judge),
-			player_ids: $.Model.id(players)
+			judge_id: $.Model.id(judge)
 		});
 	}
 }
