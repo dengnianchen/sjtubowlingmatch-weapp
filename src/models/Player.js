@@ -13,9 +13,9 @@ const Game = require('./Game');
 class Player extends $.Model {
 	
 	constructor(data = null) {
-		super(data);
-		if (data.user)
-			data.user = new User(data.user);
+		super(data, {
+			user: User
+		});
 	}
 	
 	/**

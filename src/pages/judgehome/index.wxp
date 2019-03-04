@@ -5,7 +5,10 @@
 			          title="PK | {{play.type}} | {{play.participants[0].player_name}} {{play.participants[0].detail.score}}分"
 			          detail="比赛日期：{{play.play_date}}"
 			          arrow="{{false}}">
-				<wxc-button size="small" type="info" value="确认" bindsubmit="onConfirmClicked" data-play="{{play.id}}"></wxc-button>
+				<view class="todo-operations">
+					<wxc-button size="small" type="info" value="接受" bindsubmit="onAcceptClicked" data-play="{{play.id}}"></wxc-button>
+					<wxc-button size="small" type="danger" plain="{{true}}" value="拒绝" bindsubmit="onRejectClicked" data-play="{{play.id}}"></wxc-button>
+				</view>
 			</wxc-list>
 		</block>
 		<wui-abnor wx:if="{{!playsTodo.length}}" error="无比赛"></wui-abnor>
@@ -13,7 +16,7 @@
 	<wui-panel title="已确认的比赛" wui-style="padding-left:false">
 		<block wx:for="{{playsDone}}" wx:key="index" wx:for-item="play">
 			<wxc-list wx:if="{{play.participants.length===1}}"
-			          title="PK | {{play.type}} | {{play.participants[0].player_name}} {{play.participants[0].detail.score}}分"
+			          title="[{{play.status === 'accepted'?'接受':'拒绝'}}] PK | {{play.type}} | {{play.participants[0].player_name}} {{play.participants[0].detail.score}}分"
 			          detail="比赛日期：{{play.play_date}}"
 			></wxc-list>
 		</block>
@@ -42,19 +45,44 @@
 			let playsTodo = [];
 			let playsDone = [];
 			for (let play of plays) {
-				if (play.status === 'player_confirmed')
-					playsTodo.push(play);
-				else if (play.status === 'confirmed')
-					playsDone.push(play);
+				switch (play.status) {
+					case 'player_accepted':
+						playsTodo.unshift(play);
+						break;
+					case 'accepted':
+					case 'refused':
+						playsDone.unshift(play);
+						break;
+				}
 			}
 			this.setData({ playsTodo, playsDone });
 		},
-		async onConfirmClicked(e) {
-			await Play.judgeConfirm(e, e.target.dataset['play']);
-			this.reloadPage();
+		async onAcceptClicked(e) {
+			try {
+				$.Modal.showBusy('正在处理…');
+				await Play.judgeConfirm(e, e.target.dataset['play'], true);
+				await $.Modal.showSuccess('操作成功');
+				this.reloadPage();
+			} catch (ex) {
+				$.Modal.showError('操作失败', ex);
+			}
+		},
+		async onRejectClicked(e) {
+			try {
+				$.Modal.showBusy('正在处理…');
+				await Play.judgeConfirm(e, e.target.dataset['play'], false);
+				await $.Modal.showSuccess('操作成功');
+				this.reloadPage();
+			} catch (ex) {
+				$.Modal.showError('操作失败', ex);
+			}
 		}
 	};
 </script>
 
 <style>
+	.todo-operations {
+		display: flex;
+		flex-direction: column;
+	}
 </style>

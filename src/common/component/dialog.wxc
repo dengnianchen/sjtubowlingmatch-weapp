@@ -1,10 +1,18 @@
 <template>
 	<wxc-dialog id="wxc-dialog"
-	            title="{{title}}"
 	            confirm-text="{{confirmText}}" bindconfirm="_onConfirm"
 	            cancel-text="{{cancelText}}" bindcancel="_onCancel">
+		<view class="dialog__title">
+			<view class="dialog__title__text">
+				{{title}}
+				<view wx:if="{{showHelpIcon}}" class="dialog__title__help" bindtap="_onHelp">
+					<wui-icon name="fas fa-question-circle"></wui-icon>
+				</view>
+			</view>
+			
+		</view>
 		<view class="dialog__content">
-			<text wx:if="{{content}}" decode="{{true}}">{{content}}</text>
+			<text wx:if="{{content}}" class="dialog__content__text" decode="{{true}}">{{content}}</text>
 			<slot></slot>
 		</view>
 	</wxc-dialog>
@@ -20,6 +28,8 @@
 				if (!wuiDialog)
 					throw $.Err.FAIL(`找不到指定的对话框组件：${selector}`);
 				if (selectorOrOption instanceof Object) {
+					if (selectorOrOption.bindhelp)
+						selectorOrOption.showHelpIcon = true;
 					wuiDialog.setData(selectorOrOption);
 				}
 				return wuiDialog.show();
@@ -38,7 +48,8 @@
 	export default {
 		config: {
 			usingComponents: {
-				'wxc-dialog': '@minui/wxc-dialog'
+				'wxc-dialog': '@minui/wxc-dialog',
+				'wui-icon': '@yapple/wui-icon'
 			}
 		},
 		behaviors: [],
@@ -56,6 +67,10 @@
 			cancelText: {
 				type: String,
 				value: '取消'
+			},
+			showHelpIcon: {
+				type: Boolean,
+				value: false
 			}
 		},
 		data: {},
@@ -79,6 +94,12 @@
 			},
 			_onCancel() {
 				this.hide(false);
+			},
+			_onHelp() {
+				if (this.data.bindhelp)
+					this.data.bindhelp();
+				else
+					this.trigger('help');
 			}
 		}
 	};
@@ -86,6 +107,33 @@
 
 <style lang="less">
 	@import "../../style";
+	
+	.dialog__title {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 0 10px 10px 10px;
+		font-size: @fontSize__title;
+	}
+	
+	.dialog__title__text {
+		position: relative;
+	}
+	
+	.dialog__title__help {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: -60px;
+		width: 60px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		font-size: @fontSize__desc;
+		color: @color__desc
+	}
 	
 	.dialog__content {
 		display: flex;
@@ -95,6 +143,10 @@
 		padding: 10px 20px 30px 20px;
 		font-size: @fontSize__desc;
 		color: @color__desc;
+	}
+	
+	.dialog__content__text {
+		text-align: center;
 	}
 	
 </style>

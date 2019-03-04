@@ -83,7 +83,7 @@ class Frame extends $.Model {
 	}
 	
 	update(data) {
-		this.data = data;
+		this.data = data ? data : '';
 		this.smState = smStates.start;
 		this.flags = [ 0 ];
 		this.pins = [];
@@ -182,6 +182,10 @@ class Frame extends $.Model {
 	}
 	
 	toString() {
+		return this.data;
+	}
+	
+	toTransferObject() {
 		return this.data;
 	}
 	

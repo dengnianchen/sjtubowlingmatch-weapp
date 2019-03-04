@@ -1,0 +1,40 @@
+<template>
+	<wxs src="../../util/index.wxs" module="util"></wxs>
+	<view>
+		{{util.valOr(rankTable[playerState.rank].name,'-')}} |
+		<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{util.valOr(playerState.stars,'-')}} |
+		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{util.valOr(playerState.coins,'-')}}
+	</view>
+</template>
+
+<script>
+	export default {
+		config: {
+			usingComponents: {
+				'wui-icon': '@yapple/wui-icon'
+			},
+		},
+		behaviors: [],
+		properties: {
+			playerState: {
+				type: Object
+			},
+			rankTable: {
+				type: Array
+			}
+		},
+		data: {},
+		lifetimes: {
+			attached() {
+				this.setData({
+					rankTable: $.App.data.matches['pk'][0].detail['rank_table']
+				});
+			}
+		},
+		methods: {},
+	};
+</script>
+
+<style lang="less">
+
+</style>

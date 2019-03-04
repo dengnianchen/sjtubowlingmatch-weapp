@@ -9,6 +9,8 @@
  * @property {string}   create_time     创建时间
  * @property {string}   update_time     更新时间
  * @property {string}   status          状态
+ * @property {number}   week            周次
+ * @property {number}   day_in_week     周内日期
  */
 class Match extends $.Model {
 	

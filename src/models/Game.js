@@ -18,10 +18,13 @@ import Frame from './Frame';
 class Game extends $.Model {
 	
 	constructor(data = null) {
-		data = $.extend({ bonus: 0, score: 0, type: 'single' }, data);
-		super(data);
-		this.frames = Array.apply(null, Array(10)).map(
-			(val, i) => new Frame(data.frames ? data.frames[i] : '', i));
+		data = $.extend({ frames : ['','','','','','','','','',''] }, data);
+		super(data, {
+			bonus: 0,
+			score: 0,
+			type: 'single',
+			frames: Frame
+		});
 		this.calcScore();
 	}
 	
@@ -56,11 +59,11 @@ class Game extends $.Model {
 	 * @return {object}
 	 * @author Deng Nianchen
 	 */
-	toPlainObject() {
-		let plainObject = super.toPlainObject();
-		plainObject.frames = Array.apply(null, Array(10)).map(
+	toTransferObject() {
+		let transferObject = super.toTransferObject();
+		transferObject.frames = Array.apply(null, Array(10)).map(
 			(val, i) => this.frames[i].data, this);
-		return plainObject;
+		return transferObject;
 	}
 	
 }
