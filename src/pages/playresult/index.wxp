@@ -1,0 +1,25 @@
+<template>
+	<view>Playresult Page</view>
+</template>
+
+<script>
+	import Play from '../../models/Play';
+	
+	export default {
+		config: {
+			navigationBarTitleText: '比赛结果',
+			usingComponents: {
+				'app-pkinit-result': '@yapple/pkinit-result',
+			},
+		},
+		data: {},
+		async onLoad(options) {
+			let play = await Play.getPlay(options.play_id);
+			let matchCategory = play.match.split('_')[0];
+			this.selectComponent(`#${matchCategory}${play.type}`).initial(play);
+		}
+	};
+</script>
+
+<style>
+</style>

@@ -91,7 +91,6 @@
 			this.updatePlay(play);
 		},
 		async onSelectJudgeClicked() {
-			//this.selectComponent('#user-selector').show();
 			let judge = await Page.navigateToDialogPage({
 				url: '../userselector/index',
 				data: {

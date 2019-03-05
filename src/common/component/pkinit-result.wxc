@@ -1,0 +1,39 @@
+<template>
+	<view>{{play.participants[0].player.user.name}}的定级赛 {{play.play_date}}</view>
+	<view>当前状态：{{play.status}}</view>
+	<wui-panel title="第一局：{{play.games[0].score}}分{{play.games[0].bonus===0?'':'(+'+play.games[0].bonus+')'}}">
+		<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
+	</wui-panel>
+	<wui-panel title="第二局：{{play.games[0].score}}分{{play.games[0].bonus===0?'':'(+'+play.games[0].bonus+')'}}">
+		<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
+	</wui-panel>
+	<wui-panel>
+		裁判：{{play.judge.name}}
+	</wui-panel>
+</template>
+
+<script>
+	
+	export default {
+		config: {
+			usingComponents: {
+				'app-game': './game'
+			},
+		},
+		behaviors: [],
+		properties: {
+		},
+		data: {
+			play: null
+		},
+		lifetimes: {},
+		methods: {
+			initial(play) {
+				this.setData({ play });
+			}
+		},
+	}
+
+</script>
+<style lang="less">
+</style>

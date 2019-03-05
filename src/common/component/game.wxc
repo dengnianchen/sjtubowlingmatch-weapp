@@ -31,8 +31,9 @@
 		
 		},
 		properties: {
-			players: {
-				type: Object
+			editable: {
+				type: Boolean,
+				value: true
 			},
 			games: {
 				type: Array
@@ -49,11 +50,15 @@
 				this.setData({ games });
 			},
 			selectFrame(frameRef) {
+				if (!this.data.editable)
+					return;
 				this.setData({
 					activeFrame: !frameRef ? null : `frame.${frameRef.gameIndex}.${frameRef.frameIndex}`
 				});
 			},
 			_onFrameClicked(e) {
+				if (!this.data.editable)
+					return;
 				let activeFrameIdSplited = e.target.id.split('.');
 				let frameRef = {
 					gameIndex: parseInt(activeFrameIdSplited[1]),
