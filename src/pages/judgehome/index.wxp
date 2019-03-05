@@ -1,25 +1,10 @@
 <template>
 	<wui-panel title="待确认的比赛" wui-style="left-padding:false">
-		<block wx:for="{{playsTodo}}" wx:key="index" wx:for-item="play">
-			<wxc-list wx:if="{{play.participants.length===1}}"
-			          title="PK | {{play.type}} | {{play.participants[0].player_name}} {{play.participants[0].detail.score}}分"
-			          detail="比赛日期：{{play.play_date}}"
-			          arrow="{{false}}">
-				<view class="todo-operations">
-					<wxc-button size="small" type="info" value="接受" bindsubmit="onAcceptClicked" data-play="{{play.id}}"></wxc-button>
-					<wxc-button size="small" type="danger" plain="{{true}}" value="拒绝" bindsubmit="onRejectClicked" data-play="{{play.id}}"></wxc-button>
-				</view>
-			</wxc-list>
-		</block>
+		<app-playlist wx:for="{{playsTodo}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
 		<wui-abnor wx:if="{{!playsTodo.length}}" error="无比赛"></wui-abnor>
 	</wui-panel>
-	<wui-panel title="已确认的比赛" wui-style="padding-left:false">
-		<block wx:for="{{playsDone}}" wx:key="index" wx:for-item="play">
-			<wxc-list wx:if="{{play.participants.length===1}}"
-			          title="[{{play.status === 'accepted'?'接受':'拒绝'}}] PK | {{play.type}} | {{play.participants[0].player_name}} {{play.participants[0].detail.score}}分"
-			          detail="比赛日期：{{play.play_date}}"
-			></wxc-list>
-		</block>
+	<wui-panel title="已确认的比赛" wui-style="left-padding:false">
+		<app-playlist wx:for="{{playsDone}}" wx:key="index" wx:for-item="play" play="{{play}}" confirm-status="{{play.status==='accepted'}}"></app-playlist>
 		<wui-abnor wx:if="{{!playsDone.length}}" error="无比赛"></wui-abnor>
 	</wui-panel>
 </template>
@@ -36,7 +21,8 @@
 				'wui-panel': '@yapple/wui-panel',
 				'wui-abnor': '@yapple/wui-abnor',
 				'wxc-list': '@minui/wxc-list',
-				'wxc-button': '@minui/wxc-button'
+				'wxc-button': '@minui/wxc-button',
+				'app-playlist': '../../common/component/playlist'
 			},
 		},
 		data: {},
@@ -76,6 +62,14 @@
 			} catch (ex) {
 				$.Modal.showError('操作失败', ex);
 			}
+		},
+		async _onPlayItemClicked(e) {
+			Page.navigateToDialog({
+				url: '../playresult/index',
+				data: {
+					id: e.target.dataset['id']
+				}
+			});
 		}
 	};
 </script>

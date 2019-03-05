@@ -1,11 +1,11 @@
 <template>
 	<view class="page__banner">
-		<image class="page__banner__elem __avatar" src="{{me.wx_info.avatarUrl}}"></image>
-		<text class="page__banner__elem__last __title">{{me.name}}，欢迎光临！</text>
+		<image class="page__banner__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
+		<text class="page__banner__elem__last __title">{{$.me.name}}，欢迎光临！</text>
 	</view>
 	<view class="cc home-menu">
 		<text class="__item __desc">———— 正在进行 ————</text>
-		<block wx:for="{{$.data.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
+		<block wx:for="{{$.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
 			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
 					wx:if="{{match.status==='active'}}"
 					class="__item" size="large" type="success"
@@ -13,7 +13,7 @@
 					bind:submit="onMenuEntryClicked"></wxc-button>
 		</block>
 		<text class="__item __desc">———— 已结束 ————</text>
-		<block wx:for="{{$.data.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
+		<block wx:for="{{$.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
 			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
 			            wx:if="{{match.status==='finished'}}"
 			            class="__item" size="large" type="disabled"

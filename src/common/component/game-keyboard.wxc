@@ -1,14 +1,16 @@
 <template>
 	<view class="game-keyboard {{!showKeyboard?'game-keyboard--hide':''}}">
 		<view class="game-keyboard__mask" bindtap="_onKeyboardMaskClicked"></view>
-		<view class="game-keyboard__head">{{head}}</view>
-		<button wx:for="{{keys}}" wx:key="item"
-		        class="game-keyboard__key {{keyboardSplitMode&&keyProperties[item].splitStyle?'game-keyboard__key--split':''}} {{keyProperties[item].style}}"
-		        bindtap="_onGameKeyClicked"
-		        data-key="{{item}}"
-		        disabled="{{!keyProperties[item].enable}}">
-			{{keyProperties[item].label}}
-		</button>
+		<view class="game-keyboard__main">
+			<view class="game-keyboard__head">{{head}}</view>
+			<button wx:for="{{keys}}" wx:key="item"
+			        class="game-keyboard__key {{keyboardSplitMode&&keyProperties[item].splitStyle?'game-keyboard__key--split':''}} {{keyProperties[item].style}}"
+			        bindtap="_onGameKeyClicked"
+			        data-key="{{item}}"
+			        disabled="{{!keyProperties[item].enable}}">
+				{{keyProperties[item].label}}
+			</button>
+		</view>
 	</view>
 </template>
 
@@ -31,7 +33,7 @@
 				'-', 'X', '/', 'H',
 				'1', '2', '3', 'S',
 				'4', '5', '6', 'C',
-				'7', '8', '9', 'N',
+				'7', '8', '9', 'P',
 			],
 			keyProperties: {
 				'X': { label: 'X', enable: true },
@@ -48,7 +50,7 @@
 				'8': { label: '8', enable: true, splitStyle: true },
 				'9': { label: '9', enable: true },
 				'C': { label: '清除', enable: true },
-				'N': { label: '下一格', enable: true },
+				'P': { label: '上一格', enable: true },
 				'H': { label: '隐藏', enable: true },
 			},
 			showKeyboard: false,
@@ -56,8 +58,8 @@
 			frame: null
 		},
 		methods: {
-			show(frame) {
-				this.setData({ showKeyboard: true });
+			show(frame, isFirst) {
+				this.setData({ showKeyboard: true, isFirst });
 				this.frame = frame;
 				this._updateKeyboardStatus();
 			},
@@ -75,8 +77,8 @@
 				let frameContent = this.frame.data;
 				
 				switch (key) {
-					case 'N':
-						this.triggerEvent('switchnext');
+					case 'P':
+						this.triggerEvent('switchprev');
 						return; // 切换到下一格
 					case 'C':
 						frameContent = '';
@@ -105,7 +107,9 @@
 					this.hide();
 					return;
 				}
-				let acceptable = this.frame.getAcceptable() + 'HN';
+				let acceptable = this.frame.getAcceptable() + 'H';
+				if (!this.data.isFirst)
+					acceptable += 'P';
 				if (this.frame.data.length !== 0)
 					acceptable += 'C';
 				this._updateKeyStatus(acceptable, this.frame.data.endsWith('S'));
@@ -118,6 +122,28 @@
 	
 	.game-keyboard {
 		position: fixed;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+	}
+	
+	.game-keyboard--hide {
+		display: none;
+	}
+	
+	.game-keyboard__mask {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background: none;
+	}
+	
+	.game-keyboard__main {
+		position: absolute;
 		bottom: 0;
 		left: 0;
 		right: 0;
@@ -129,20 +155,6 @@
 		grid-gap: 15px;
 		background: white;
 		box-shadow: 0 0 20px 10px #88888888;
-		z-index: 100;
-	}
-	
-	.game-keyboard--hide {
-		display: none;
-	}
-	
-	.game-keyboard__mask {
-		position: fixed;
-		left: 0;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		background: none;
 	}
 	
 	.game-keyboard__head {

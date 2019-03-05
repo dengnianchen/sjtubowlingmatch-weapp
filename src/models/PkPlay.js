@@ -71,6 +71,17 @@ class PkPlay extends $.Model {
 			judge_id: $.Model.id(judge)
 		});
 	}
+	
+	/**
+	 * 获取所有参加PK赛的选手
+	 *
+	 * @return {Promise<Player[]>}
+	 * @author Deng Nianchen
+	 */
+	static async getPlayers() {
+		return await $.Http.request('/pk/players', {}, {}, Player);
+	}
+	
 }
 
 module.exports = PkPlay;

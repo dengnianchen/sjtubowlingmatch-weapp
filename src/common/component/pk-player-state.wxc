@@ -27,7 +27,7 @@
 		lifetimes: {
 			attached() {
 				this.setData({
-					rankTable: $.App.data.matches['pk'][0].detail['rank_table']
+					rankTable: $.AppData.matches['pk'][0].detail['rank_table']
 				});
 			}
 		},

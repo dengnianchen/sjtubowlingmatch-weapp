@@ -1,7 +1,7 @@
 <template>
 	<view class="page__banner">
-		<image class="page__banner__elem __avatar" src="{{me.wx_info.avatarUrl}}"></image>
-		<text class="page__banner__elem __name">{{me.name}}</text>
+		<image class="page__banner__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
+		<text class="page__banner__elem __name">{{$.me.name}}</text>
 		<app-pk-player-state class="page__banner__elem__last __status" player-state="{{player.detail}}"></app-pk-player-state>
 	</view>
 	<view class="cc pkhome__menu">
@@ -26,6 +26,27 @@
 			</block>
 		</block>
 	</view>
+	<view class="pkhome__tabs">
+		<wxc-tab default-index="{{0}}"
+				 active-text-color="#108ee9"
+				 active-line-color="#108ee9"
+				 component-id="c1"
+				 animate="{{true}}">
+			<wxc-tab-panel tab-index="{{0}}" component-id="c1" label="段位表">
+				<app-playerlist wx:for="{{players}}" wx:key="index" wx:for-item="player" index="{{index}}" player="{{player}}"></app-playerlist>
+				<view class="pkhome__playerlist__desc">该表显示段位以已确认的比赛场次为准</view>
+			</wxc-tab-panel>
+			<wxc-tab-panel tab-index="{{1}}" component-id="c1" label="历史战绩">
+				<app-playlist wx:for="{{playsOther}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
+				<wui-abnor wx:if="{{!playsOther.length}}" error="暂无记录"></wui-abnor>
+			</wxc-tab-panel>
+			<wxc-tab-panel tab-index="{{2}}" component-id="c1" label="待确认的场次">
+				<app-playlist wx:for="{{playsTodo}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
+				<wui-abnor wx:if="{{!playsTodo.length}}" error="暂无记录"></wui-abnor>
+			</wxc-tab-panel>
+		</wxc-tab>
+	</view>
+	
 	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="再想想">
 		<app-pk-player-state player-state="{{playerLastSeason.detail}}" rank-table="{{$.data.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
 		<text>↓</text>
@@ -40,6 +61,7 @@
 	import PkPlay from '../../models/PkPlay';
 	import Match from '../../models/Match';
 	import Player from '../../models/Player';
+	import Play from '../../models/Play';
 	
 	const pkrule = require('../../pkrules');
 	
@@ -50,10 +72,14 @@
 			enablePullDownRefresh: true,
 			usingComponents: {
 				'wxc-button': '@minui/wxc-button',
+				'wxc-tab': '@minui/wxc-tab',
+				'wxc-tab-panel': '@minui/wxc-tab/panel',
 				'wui-dialog': '../../common/component/dialog',
 				'wui-abnor': '@yapple/wui-abnor',
 				'wui-icon': '@yapple/wui-icon',
-				'app-pk-player-state': '../../common/component/pk-player-state'
+				'app-pk-player-state': '../../common/component/pk-player-state',
+				'app-playlist': '../../common/component/playlist',
+				'app-playerlist': '../../common/component/playerlist'
 			},
 		},
 		data: {
@@ -65,16 +91,66 @@
 		},
 		
 		async onShow() {
-			let match = $.App.data.matches.pk[0];
+			let match = $.AppData.matches.pk[0];
 			if (!match || match.status !== 'active') {
 				wx.setNavigationBarTitle({ title: 'PK赛关闭中' });
 				throw $.Err.NO_RESOURCE('当前没有正在进行的赛季');
 			}
 			wx.setNavigationBarTitle({ title: match.name });
-			let player = await Player.getInMatch(match, this.data.me);
-			let playerLastSeason = player ? null :
-				await Player.getInMatch($.App.data.matches.pk[1], this.data.me);
-			this.setData({ match, player, playerLastSeason });
+
+			let players = await PkPlay.getPlayers();
+			let playerMe = null;
+			for (let player of players)
+				if (player.user_id === $.AppData.me.id)
+					playerMe = player;
+			
+			let [ playerLastSeason, plays ] = await Promise.all([
+				(async() => playerMe ? null : await Player.getInMatch($.AppData.matches.pk[1], $.AppData.me))(),
+				(async() => playerMe ? await Play.getByPlayer(playerMe) : [])()
+			]);
+			
+			plays.reverse();
+			let playsTodo = [];
+			let playsOther = [];
+			let playsInvalid = [];
+			for (let play of plays) {
+				switch (play.status) {
+					case Play.S_FILLED:
+						if (play.participants[playerMe.id].accept)
+							playsOther.push(play);
+						else
+							playsTodo.push(play);
+						break;
+					case Play.S_PLAYER_ACCEPTED:
+						playsOther.push(play);
+						break;
+					case Play.S_ACCEPTED:
+						playsOther.push(play);
+						break;
+					case Play.S_REFUSED:
+					case Play.S_PLAYER_REFUSED:
+						playsInvalid.push(play);
+						break;
+				}
+			}
+			
+			players.sort((a, b) => {
+				if (a.detail.rank < b.detail.rank)
+					return 1;
+				if (a.detail.rank > b.detail.rank)
+					return -1;
+				if (a.detail.stars < b.detail.stars)
+					return 1;
+				if (a.detail.stars > b.detail.stars)
+					return -1;
+				if (a.detail.coins < b.detail.coins)
+					return 1;
+				if (a.detail.coins > b.detail.coins)
+					return -1;
+				return 0;
+			});
+			this.setData({ match, players, player: playerMe, playerLastSeason,
+				playsTodo, playsOther, playsInvalid });
 		},
 		
 		async onInheritButtonClicked(e) {
@@ -121,7 +197,7 @@
 			});
 		},
 		_getMatch() {
-			return $.App.data.matches.pk[0];
+			return $.AppData.matches.pk[0];
 		}
 	};
 </script>
@@ -143,5 +219,14 @@
 	}
 	.pkhome__menu .__item {
 		margin-bottom: 20px;
+	}
+	.pkhome__tabs {
+		background: white;
+	}
+	.pkhome__playerlist__desc {
+		text-align: center;
+		font-size: @fontSize__desc;
+		color: @color__desc;
+		padding: 20px;
 	}
 </style>

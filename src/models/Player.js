@@ -27,11 +27,9 @@ class Player extends $.Model {
 	 */
 	static async getInMatch(match, user) {
 		if (!match || !user)
-			return null;
-		if (match instanceof Match)
-			match = match.id;
-		if (user instanceof User)
-			user = user.id;
+			throw $.Err.FAIL('参数不能为空');
+		match = $.Model.id(match);
+		user = $.Model.id(user);
 		return await $.Http.request(`/${match}/player/${user}`, {}, {}, Player);
 	}
 	

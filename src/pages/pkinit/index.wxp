@@ -36,9 +36,10 @@
 	<app-game-keyboard id="game-keyboard"
 	                   head="选手：{{play.players[play.rounds[activeFrame.round][activeFrame.gameIndex].player_id].user.name}}（第{{activeFrame.round+1}}局第{{activeFrame.round+1}}格）"
 	                   bindswitchnext="switchToNextFrame"
+	                   bindswitchprev="switchToPrevFrame"
 	                   bindchanged="onKeyboardInput"
 	></app-game-keyboard>
-	<app-user-selector id="user-selector" exclude-id="{{me.id}}" bindselect="onUserSelect"></app-user-selector>
+	<app-user-selector id="user-selector" exclude-id="{{$.me.id}}" bindselect="onUserSelect"></app-user-selector>
 </template>
 
 <script>
@@ -69,8 +70,8 @@
 			
 			let play = wx.getStorageSync('playTemp');
 			if (!play) {
-				let player = await Player.getInMatch('pk', this.data.me);
-				let bonus = this.data.me.gender === 2 ? PkPlay.bonus : 0;
+				let player = await Player.getInMatch('pk', $.AppData.me);
+				let bonus = $.AppData.me.gender === 2 ? PkPlay.bonus : 0;
 				play = {
 					player_ids: [ player.id ],
 					players: {},
@@ -91,11 +92,11 @@
 			this.updatePlay(play);
 		},
 		async onSelectJudgeClicked() {
-			let judge = await Page.navigateToDialogPage({
+			let judge = await Page.navigateToDialog({
 				url: '../userselector/index',
 				data: {
 					title: '选择裁判',
-					excludeId: this.data.me.id
+					excludeId: $.AppData.me.id
 				}
 			});
 			if (judge) {
@@ -136,6 +137,23 @@
 			this.data.play.rounds[this.data.activeFrame.round][this.data.activeFrame.gameIndex].calcScore();
 			this.updatePlay(this.data.play);
 		},
+		switchToPrevFrame() {
+			let frameRef = this.data.activeFrame;
+			if (frameRef) {
+				frameRef.frameIndex--;
+				if (frameRef.frameIndex < 0) {
+					frameRef.frameIndex = 9;
+					frameRef.gameIndex--;
+				}
+				if (frameRef.gameIndex < 0)
+					frameRef.round--;
+				if (frameRef.round < 0)
+					frameRef = null;
+				else
+					frameRef.gameIndex = this.data.play.rounds[frameRef.round].length - 1;
+			}
+			this._switchToFrame(frameRef);
+		},
 		switchToNextFrame() {
 			let frameRef = this.data.activeFrame;
 			if (frameRef) {
@@ -158,7 +176,8 @@
 			for (let i = 0; i < this.data.play.rounds.length; ++i)
 				this.selectComponent(`#game-round${i}`).selectFrame(
 					(frameRef && frameRef.round === i) ? frameRef :null);
-			this.selectComponent('#game-keyboard').show(this._getFrame(frameRef));
+			this.selectComponent('#game-keyboard').show(this._getFrame(frameRef),
+				frameRef && !frameRef.round && !frameRef.gameIndex && !frameRef.frameIndex);
 		},
 		_getFrame(fr) {
 			return !fr ? null : this.data.play.rounds[fr.round][fr.gameIndex].frames[fr.frameIndex];

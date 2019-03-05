@@ -1,15 +1,25 @@
 <template>
-	<view>{{play.participants[0].player.user.name}}的定级赛 {{play.play_date}}</view>
-	<view>当前状态：{{play.status}}</view>
-	<wui-panel title="第一局：{{play.games[0].score}}分{{play.games[0].bonus===0?'':'(+'+play.games[0].bonus+')'}}">
-		<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
-	</wui-panel>
-	<wui-panel title="第二局：{{play.games[0].score}}分{{play.games[0].bonus===0?'':'(+'+play.games[0].bonus+')'}}">
-		<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
-	</wui-panel>
-	<wui-panel>
-		裁判：{{play.judge.name}}
-	</wui-panel>
+	<view wx:if="{{play}}">
+		<wui-panel title="基本信息">
+			<wui-field type="custom" label="比赛类型">{{play.match_info.name}} - {{play.match_info.detail.type_table[play.type].name}}</wui-field>
+			<wui-field type="custom" label="参与选手">{{play.participants[play.player_ids[0]].player.user.name}}</wui-field>
+			<wui-field type="custom" label="两局总分">{{play.participants[play.player_ids[0]].detail.score}}（均分：{{play.participants[play.player_ids[0]].detail.score / 2}}）</wui-field>
+			<wui-field type="custom" label="赛后段位"><app-pk-player-state player-state="{{play.participants[play.player_ids[0]].state1}}"></app-pk-player-state></wui-field>
+			<wui-field type="custom" label="比赛日期">{{play.play_date}}</wui-field>
+			<wui-field type="custom" label="当前状态">
+				<text style="color:{{playStatusColor[play.status]}}">{{play.status_names[play.status]}}</text>
+			</wui-field>
+		</wui-panel>
+		<wui-panel title="第一局：{{play.games[0].score}}分{{play.games[0].bonus===0?'':'(+'+play.games[0].bonus+')'}}">
+			<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
+		</wui-panel>
+		<wui-panel title="第二局：{{play.games[0].score}}分{{play.games[0].bonus===0?'':'(+'+play.games[0].bonus+')'}}">
+			<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
+		</wui-panel>
+		<wui-panel title="其他信息">
+			<wui-field type="custom" label="裁判">{{play.judge.name}}</wui-field>
+		</wui-panel>
+	</view>
 </template>
 
 <script>
@@ -17,7 +27,10 @@
 	export default {
 		config: {
 			usingComponents: {
-				'app-game': './game'
+				'app-game': './game',
+				'app-pk-player-state': './pk-player-state',
+				'wui-panel': '@yapple/wui-panel',
+				'wui-field': '@yapple/wui-field'
 			},
 		},
 		behaviors: [],
@@ -26,10 +39,26 @@
 		data: {
 			play: null
 		},
-		lifetimes: {},
+		lifetimes: {
+			attached() {
+				this.setData({
+					playStatusColor: {
+						'new': $.AppData.style.dangerColor,
+						'filled': $.AppData.style.warnColor,
+						'player_accepted': $.AppData.style.warnColor,
+						'accepted': $.AppData.style.successColor,
+						'player_refused': $.AppData.style.dangerColor,
+						'refused': $.AppData.style.dangerColor
+					}
+				})
+			}
+		},
 		methods: {
 			initial(play) {
 				this.setData({ play });
+			},
+			getShareTitle() {
+				return `${this.data.play.participants[this.data.play.player_ids[0]].player.user.name}的定级赛：${this.data.play.participants[this.data.play.player_ids[0]].detail.score}分`;
 			}
 		},
 	}

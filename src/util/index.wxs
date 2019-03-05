@@ -1,5 +1,5 @@
 module.exports = {
-	valIf: function(condition, value) { return condition ? value : null; },
+	valIf: function(condition, value) { return condition ? value : undefined; },
 	valOr: function(value, defaultValue) { return (value !== null && value !== undefined) ? value : defaultValue; },
 	arrIsLast: function(array, index) { return index === array.length - 1 }
 };

@@ -1,0 +1,98 @@
+<template>
+	<form bindsubmit="_onItemClicked" report-submit="{{true}}">
+		<button class="fake-button list" form-type="submit">
+			<view class="list__body list__{{mode}}">
+				<view class="list__title">
+					<view class="list__title--main {{confirmStatus===true?'play--accept':confirmStatus===false?'play--reject':''}}">
+						PK | {{play.match_info.detail.type_table[play.type].name}} | {{play.participants[play.player_ids[0]].player_name}} {{play.participants[play.player_ids[0]].detail.score}}分
+					</view>
+					<view class="list__title--sub">
+						比赛日期：{{play.play_date}}
+					</view>
+				</view>
+				<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
+			</view>
+		</button>
+	</form>
+</template>
+
+<script>
+	
+	export default {
+		config: {
+			usingComponents: {
+				'wui-icon': '@yapple/wui-icon'
+			}
+		},
+		behaviors: [ ],
+		properties: {
+			play: {
+				type: Object,
+			},
+			confirmStatus: {
+				type: Boolean,
+				value: null
+			},
+			mode: {
+				type: String,
+				value: 'normal' // 有边框和无边框 normal, none
+			}
+		},
+		data: {},
+		methods: {
+			_onItemClicked(e) {
+				$.Http.submit(e);
+				Page.navigateToDialog({
+					url: '/pages/playresult/index',
+					data: {
+						id: this.data.play.id
+					}
+				});
+			}
+		}
+	}
+
+
+</script>
+
+<style lang="less">
+	@import "../../style.less";
+	
+	.list {
+		display: flex;
+		align-items: center;
+	}
+	
+	.list__body {
+		display: flex;
+		align-items: center;
+		min-height: 90rpx;
+		line-height: 1.4;
+		padding: 20rpx 30rpx 20rpx 0;
+		margin-left: 30rpx;
+		box-sizing: border-box;
+		border-bottom: 1px solid #ececec;
+		font-size: 32rpx;
+		color: #333;
+		flex-grow: 1;
+	}
+	.list__none {
+		border: none;
+	}
+	.list__title {
+		flex: 1;
+	}
+	.list__title--sub {
+		margin-top: 14rpx;
+		font-size: 28rpx;
+		line-height: 40rpx;
+		color: #999;
+	}
+	.play--accept {
+		color: @successColor;
+	}
+	.play--reject {
+		color: @dangerColor;
+	}
+	
+</style>

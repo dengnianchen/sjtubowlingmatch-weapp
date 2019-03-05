@@ -1,5 +1,16 @@
 <template>
-	<view>Playresult Page</view>
+	<view class="page__hd">
+		<text class="page__title">比赛结果</text>
+	</view>
+	<app-pkinit-result id="pkinit"></app-pkinit-result>
+	<view wx:if="{{enableJudgeConfirm}}" class="menu">
+		<wxc-button class="__item" type="danger" value="拒绝" size="large" bindsubmit="_onJudgeConfirmClicked" btn-style="width:300rpx" data-accept="false"></wxc-button>
+		<wxc-button class="__item" type="primary" value="接受" size="large" bindsubmit="_onJudgeConfirmClicked" btn-style="width:300rpx" data-accept="true"></wxc-button>
+	</view>
+	<view wx:if="{{enablePlayerConfirm}}" class="menu">
+		<wxc-button class="__item" type="danger" value="拒绝" size="large" bindsubmit="_onPlayerConfirmClicked" btn-style="width:300rpx" data-accept="false"></wxc-button>
+		<wxc-button class="__item" type="primary" value="接受" size="large" bindsubmit="_onPlayerConfirmClicked" btn-style="width:300rpx" data-accept="true"></wxc-button>
+	</view>
 </template>
 
 <script>
@@ -9,17 +20,78 @@
 		config: {
 			navigationBarTitleText: '比赛结果',
 			usingComponents: {
-				'app-pkinit-result': '@yapple/pkinit-result',
+				'app-pkinit-result': '../../common/component/pkinit-result',
+				'wxc-button': '@minui/wxc-button'
 			},
 		},
 		data: {},
+		
 		async onLoad(options) {
-			let play = await Play.getPlay(options.play_id);
-			let matchCategory = play.match.split('_')[0];
+			let _this = this;
+			if (!options.id)
+				throw new $.Err.NO_RESOURCE('找不到指定比赛场次');
+			let play = await Play.getPlay(options.id);
+			let matchCategory = play.match_info.category;
 			this.selectComponent(`#${matchCategory}${play.type}`).initial(play);
-		}
+			
+			let enableJudgeConfirm = play.status === Play.S_PLAYER_ACCEPTED &&
+				play.judge_id === $.AppData.me.id;
+			let enablePlayerConfirm = false;
+			$(play.participants).each((key, value) => {
+				if (value.accept === null && value.player.user_id === $.AppData.me.id)
+					enablePlayerConfirm = true;
+			});
+			this.setData({ play, enableJudgeConfirm, enablePlayerConfirm });
+		},
+		
+		async _onJudgeConfirmClicked(e) {
+			let accept = e.target.dataset['accept'];
+			try {
+				$.Modal.showBusy('正在处理…');
+				await Play.judgeConfirm(e, this.data.play, accept);
+				await $.Modal.showSuccess('操作成功');
+				if (this.loadOptions.dialog)
+					Page.navigateReturn();
+				else
+					this.reloadPage();
+			} catch (ex) {
+				$.Modal.showError('操作失败', ex);
+			}
+		},
+		
+		async _onPlayerConfirmClicked(e) {
+			let accept = e.target.dataset['accept'];
+			try {
+				$.Modal.showBusy('正在处理…');
+				await Play.playerConfirm(e, this.data.play, accept);
+				await $.Modal.showSuccess('操作成功');
+				if (this.loadOptions.dialog)
+					Page.navigateReturn();
+				else
+					this.reloadPage();
+			} catch (ex) {
+				$.Modal.showError('操作失败', ex);
+			}
+		},
+		
+		onShareAppMessage(res) {
+			let matchCategory = this.data.play.match_info.category;
+			return {
+				title: this.selectComponent(`#${matchCategory}${this.data.play.type}`).getShareTitle(),
+				path: this.getPath()
+			};
+		},
 	};
 </script>
 
 <style>
+	.menu {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+	}
+	.menu .__item {
+		margin: 0 20px 20px 20px;
+	}
 </style>

@@ -1,0 +1,107 @@
+<template>
+	<form bindsubmit="_onItemClicked" report-submit="{{true}}">
+		<button class="fake-button list" form-type="submit">
+			<view class="list__body list__{{mode}}">
+				<view class="list__id">{{index+1}}</view>
+				<view class="list__name">{{player.user.name}}</view>
+				<view class="list__rank">{{rankTable[player.detail.rank].name}}</view>
+				<view class="list__stars">
+					<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon>{{player.detail.stars}}
+				</view>
+				<view class="list__coins">
+					<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>{{player.detail.coins}}
+				</view>
+			</view>
+		</button>
+	</form>
+</template>
+
+<script>
+	
+	export default {
+		config: {
+			usingComponents: {
+				'wui-icon': '@yapple/wui-icon'
+			}
+		},
+		behaviors: [ ],
+		properties: {
+			index: {
+				type: Number
+			},
+			player: {
+				type: Object
+			},
+			mode: {
+				type: String,
+				value: 'normal' // 有边框和无边框 normal, none
+			},
+			rankTable: {
+				type: Array
+			}
+		},
+		data: {},
+		lifetimes: {
+			attached() {
+				this.setData({
+					rankTable: $.AppData.matches['pk'][0].detail['rank_table']
+				});
+			}
+		},
+		methods: {
+			_onItemClicked(e) {
+				$.Http.submit(e);
+				Page.navigateToDialog({
+					url: '/pages/playresult/index',
+					data: {
+						id: this.data.play.id
+					}
+				});
+			}
+		}
+	}
+
+
+</script>
+
+<style lang="less">
+	@import "../../style.less";
+	
+	.list {
+		display: flex;
+		align-items: center;
+	}
+	
+	.list__body {
+		display: flex;
+		align-items: center;
+		min-height: 90rpx;
+		line-height: 1.4;
+		padding: 20rpx 30rpx 20rpx 0;
+		margin-left: 30rpx;
+		box-sizing: border-box;
+		border-bottom: 1px solid #ececec;
+		font-size: 32rpx;
+		color: #333;
+		flex-grow: 1;
+	}
+	.list__none {
+		border: none;
+	}
+	.list__id {
+		width: 2em;
+	}
+	.list__name {
+		flex-grow: 1;
+	}
+	.list__rank {
+		width: 4em;
+	}
+	.list__stars {
+		width: 3em;
+	}
+	.list__coins {
+		width: 3em;
+	}
+	
+</style>
