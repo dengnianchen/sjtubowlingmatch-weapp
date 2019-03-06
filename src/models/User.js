@@ -6,12 +6,12 @@ const md5 = require('md5');
  * User类用以表示一名用户
  *
  * @property {number}       id
- * @property {string}       name            选手姓名
- * @property {Array<Game>}  games           该选手打过的球局情况
- * @property {string}       create_time     创建时间
- * @property {string}       update_time     更新时间
- * @property {string}       last_visit_time （来自wx_session）上次访问时间
- * @property {wx.UserInfo}  wx_info         （来自wx_session）微信号相关信息
+ * @property {string}       name                选手姓名
+ * @property {boolean}      is_init_password    是否是初始密码
+ * @property {string}       create_time         创建时间
+ * @property {string}       update_time         更新时间
+ * @property {string}       last_visit_time     （来自wx_session）上次访问时间
+ * @property {wx.UserInfo}  wx_info             （来自wx_session）微信号相关信息
  * @author Deng Nianchen
  */
 class User extends $.Model {
@@ -19,7 +19,19 @@ class User extends $.Model {
 	constructor(data = null) {
 		super(data);
 	}
-
+	
+	/**
+	 * 修改密码
+	 *
+	 * @param {string}    $password
+	 * @returns {Promise<void>}
+	 */
+	async changePassword($password) {
+		return await $.Http.request('PUT /user/password', {
+			password: md5($password)
+		});
+	}
+	
 	/**
 	 * 获取当前登陆的选手信息
 	 *

@@ -39,7 +39,6 @@
 			            type="{{bindInProcess?'disabled':'primary'}}"
 			            open-type='getUserInfo'
 			            bindgetuserinfo='doLoginAndRegister'
-			
 			></wxc-button>
 		</view>
 	</wui-form>
@@ -181,7 +180,12 @@
 				let params = e.detail.params;
 				// 绑定选手账号
 				await User.bind(params.name, params.password);
-				$.Modal.showSuccess('绑定成功！');
+				await $.Modal.showSuccess('绑定成功！');
+				if (User.current.is_init_password) {
+					await Page.navigateToDialog({
+						url: '/pages/modifyPassword/index'
+					});
+				}
 				this._redirectBack();
 			} catch (ex) {
 				$.Modal.showError('绑定失败', ex);
@@ -198,7 +202,7 @@
 				let params = e.detail.params;
 				// 注册选手账号并绑定
 				await User.register(params.name, params.password, params.gender);
-				$.Modal.showSuccess('注册成功！');
+				await $.Modal.showSuccess('注册成功！');
 				this._redirectBack();
 			} catch (ex) {
 				$.Modal.showError('注册失败', ex);

@@ -1,0 +1,25 @@
+<template>
+	<wui-panel wx:for="{{versions}}" wx:key="index"
+	           title="版本号：{{item.id}}" wui-style="bottom-margin:true">
+		<text>{{item.content}}</text>
+	</wui-panel>
+</template>
+
+<script>
+	const versions = require('../../versions');
+	
+	export default {
+		config: {
+			navigationBarTitleText: '版本历史',
+			usingComponents: {
+				'wui-panel': '@yapple/wui-panel'
+			},
+		},
+		data: {
+			versions: versions
+		},
+	};
+</script>
+
+<style>
+</style>

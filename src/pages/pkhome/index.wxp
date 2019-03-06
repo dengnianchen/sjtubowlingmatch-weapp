@@ -4,6 +4,7 @@
 		<text class="page__banner__elem __name">{{$.me.name}}</text>
 		<app-pk-player-state class="page__banner__elem__last __status" player-state="{{player.detail}}"></app-pk-player-state>
 	</view>
+	<view class="pkhome__week">当前为本赛季第{{match.week+1}}周</view>
 	<view class="cc pkhome__menu">
 		<block wx:if="{{!player || !player.status}}">
 			<text class="__item">你尚未加入本赛季PK赛。</text>
@@ -99,7 +100,7 @@
 			wx.setNavigationBarTitle({ title: match.name });
 
 			let players = await PkPlay.getPlayers();
-			let playerMe = null;
+			let playerMe = await Player.getInMatch(match, $.AppData.me);
 			for (let player of players)
 				if (player.user_id === $.AppData.me.id)
 					playerMe = player;
@@ -151,6 +152,19 @@
 			});
 			this.setData({ match, players, player: playerMe, playerLastSeason,
 				playsTodo, playsOther, playsInvalid });
+			
+			let playing = wx.getStorageSync('pk');
+			if (playing) {
+				(async() => {
+					await $.Modal.show('回到比赛', '您有尚未完成录入的比赛，必须完成录入后才能进行其他操作', {
+						showCancel: false,
+						confirmText: '继续录入'
+					});
+					Page.navigateTo({
+						url: `/pages/pk${playing.type}/index`
+					});
+				})();
+			}
 		},
 		
 		async onInheritButtonClicked(e) {
@@ -213,6 +227,12 @@
 	}
 	.page__banner .__status {
 		text-align: right;
+	}
+	.pkhome__week {
+		font-size: @fontSize__desc;
+		color: @color__desc;
+		text-align: right;
+		padding: 10px;
 	}
 	.pkhome__menu {
 		padding: 20px;

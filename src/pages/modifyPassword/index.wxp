@@ -1,0 +1,75 @@
+<template>
+	<wxc-notice wx:if="{{showNotice}}"
+	            notice="建议修改初始密码以确保账号安全"
+	            color="#ff5777" bgColor="#ffe8ee"></wxc-notice>
+	<wui-form id="form" bindsubmit="onSubmit">
+		<wui-panel>
+			<wui-field id="field-password" type="password" label="密码"
+			           placeholder="密码长度应介于6至20个字符之间"
+			           maxlength="20" name="password" require="{{true}}"
+			           validate="{{ { btlength:[6,20], neqinitpassword:null } }}"
+			></wui-field>
+			<wui-field id="field-repassword" type="password" label="确认密码"
+			           placeholder="请再次输入密码"
+			           maxlength="20" name="repassword" require="{{true}}"
+			           validate="eqpassword"
+			></wui-field>
+		</wui-panel>
+		<view style="text-align: center">
+			<wui-submit size="large" label="保存" type="primary"></wui-submit>
+		</view>
+	</wui-form>
+</template>
+
+<script>
+	
+	const customValidators = {
+		neqinitpassword: function(value) {
+			if (value !== '123456')
+				return '';
+			return '输入的密码不可与初始密码相同';
+		},
+		eqpassword: function(value) {
+			const password = Page.current().selectComponent('#field-password').data.value;
+			if (password === value)
+				return '';
+			return '两次输入的密码不同';
+		},
+	};
+	
+	export default {
+		auth: true,
+		config: {
+			navigationBarTitleText: '修改密码',
+			usingComponents: {
+				'wui-panel': '@yapple/wui-panel',
+				'wui-field': '@yapple/wui-field',
+				'wui-form': '@yapple/wui-form',
+				'wui-submit': '@yapple/wui-submit',
+				'wxc-notice': '@minui/wxc-notice'
+			},
+		},
+		
+		data: {},
+		
+		onLoad() {
+			this.setData({ showNotice: $.AppData.me.is_init_password });
+			this.selectComponent('#form').setCustomValidators(customValidators);
+		},
+		
+		async onSubmit(e) {
+			console.log(e);
+			$.Modal.showBusy('保存中…');
+			try {
+				await $.AppData.me.changePassword(e.detail.params.password);
+				await $.Modal.showSuccess('保存成功！');
+				wx.navigateBack();
+			} catch (ex) {
+				$.Modal.showError('保存失败', ex);
+				console.log('保存失败', ex);
+			}
+		},
+	};
+</script>
+<style lang="less">
+</style>

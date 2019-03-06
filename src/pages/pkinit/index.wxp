@@ -68,11 +68,12 @@
 		
 		async onLoad() {
 			
-			let play = wx.getStorageSync('playTemp');
+			let play = wx.getStorageSync('pk');
 			if (!play) {
 				let player = await Player.getInMatch('pk', $.AppData.me);
 				let bonus = $.AppData.me.gender === 2 ? PkPlay.bonus : 0;
 				play = {
+					type: 'init',
 					player_ids: [ player.id ],
 					players: {},
 					rounds: [
@@ -82,6 +83,8 @@
 				};
 				play.players[player.id] = player;
 			} else {
+				if (play.type !== 'init')
+					throw $.Err.FAIL('当前有其他正在进行的比赛');
 				play = $(play).toRichObject({
 					players: {
 						'*': Player
@@ -116,17 +119,20 @@
 			}
 			$.Modal.showBusy('正在提交…');
 			try {
-				await PkPlay.play('init', games, this.data.play.judge);
-				await $.Modal.show('提交成绩', '提交成功，请联系裁判确认比赛结果');
-				wx.removeStorageSync('playTemp');
-				wx.navigateBack();
+				let play_id = await PkPlay.play('init', games, this.data.play.judge);
+				wx.removeStorageSync('pk');
+				await $.Modal.showSuccess('操作成功');
+				Page.redirectTo({
+					url: '/pages/playresult',
+					data: { id: play_id, needShare: true }
+				});
 			} catch (ex) {
 				$.Modal.showError('提交成绩失败', ex);
 			}
 		},
 		updatePlay(play) {
 			this.setData({ play });
-			wx.setStorageSync('playTemp', $(play).toPlainObject());
+			wx.setStorageSync('pk', $(play).toPlainObject());
 		},
 		onFrameSelected(e) {
 			let frameRef = e.detail.frameRef;

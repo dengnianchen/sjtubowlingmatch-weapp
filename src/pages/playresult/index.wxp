@@ -11,6 +11,11 @@
 		<wxc-button class="__item" type="danger" value="拒绝" size="large" bindsubmit="_onPlayerConfirmClicked" btn-style="width:300rpx" data-accept="false"></wxc-button>
 		<wxc-button class="__item" type="primary" value="接受" size="large" bindsubmit="_onPlayerConfirmClicked" btn-style="width:300rpx" data-accept="true"></wxc-button>
 	</view>
+	<wui-dialog id="dialog-share" title="比赛录入成功" confirm-text="转发到PK赛微信群">
+		<app-pk-player-state player-state="{{playerLastSeason.detail}}" rank-table="{{$.data.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
+		<text>↓</text>
+		<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
+	</wui-dialog>
 </template>
 
 <script>
@@ -21,13 +26,13 @@
 			navigationBarTitleText: '比赛结果',
 			usingComponents: {
 				'app-pkinit-result': '../../common/component/pkinit-result',
-				'wxc-button': '@minui/wxc-button'
+				'wxc-button': '@minui/wxc-button',
+				'wui-dialog': '../../common/component/dialog'
 			},
 		},
 		data: {},
 		
 		async onLoad(options) {
-			let _this = this;
 			if (!options.id)
 				throw new $.Err.NO_RESOURCE('找不到指定比赛场次');
 			let play = await Play.getPlay(options.id);
@@ -42,6 +47,14 @@
 					enablePlayerConfirm = true;
 			});
 			this.setData({ play, enableJudgeConfirm, enablePlayerConfirm });
+			if (options.needShare) {
+				$.Modal.show('比赛录入成功',
+					'请将比赛结果转发到PK赛微信群中，并尽快联系相关选手和裁判完成确认哦！',
+					{
+						showCancel: false
+					}
+				)
+			}
 		},
 		
 		async _onJudgeConfirmClicked(e) {
