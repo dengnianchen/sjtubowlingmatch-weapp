@@ -3,7 +3,10 @@
 		<button class="fake-button list" form-type="submit">
 			<view class="list__body list__{{mode}}">
 				<view class="list__title">
-					<view class="list__title--main {{confirmStatus===true?'play--accept':confirmStatus===false?'play--reject':''}}">
+					<view class="list__title--main">
+						<wui-icon wx:if="{{play.status==='accepted'}}" class="icon-accepted" name="fas fa-check-circle"></wui-icon>
+						<wui-icon wx:elif="{{play.status==='refused'||play.status==='player_refused'}}" class="icon-refused" name="fas fa-times-circle"></wui-icon>
+						<wui-icon wx:else class="icon-unconfirmed" name="fas fa-question-circle"></wui-icon>
 						PK | {{play.match_info.detail.type_table[play.type].name}} | {{play.participants[play.player_ids[0]].player_name}} {{play.participants[play.player_ids[0]].detail.score}}分
 					</view>
 					<view class="list__title--sub">
@@ -28,10 +31,6 @@
 		properties: {
 			play: {
 				type: Object,
-			},
-			confirmStatus: {
-				type: Boolean,
-				value: null
 			},
 			mode: {
 				type: String,
@@ -94,5 +93,13 @@
 	.play--reject {
 		color: @dangerColor;
 	}
-	
+	.icon-unconfirmed {
+		color: @warnColor;
+	}
+	.icon-accepted {
+		color: @successColor;
+	}
+	.icon-refused {
+		color: @dangerColor;
+	}
 </style>

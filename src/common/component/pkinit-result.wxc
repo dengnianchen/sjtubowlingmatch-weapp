@@ -1,4 +1,5 @@
 <template>
+	<wxs src="../../models/game.wxs" module="game"></wxs>
 	<view wx:if="{{play}}">
 		<wui-panel title="基本信息">
 			<wui-field type="custom" label="比赛类型">{{play.match_info.name}} - {{play.match_info.detail.type_table[play.type].name}}</wui-field>
@@ -10,11 +11,11 @@
 				<text style="color:{{playStatusColor[play.status]}}">{{play.status_names[play.status]}}</text>
 			</wui-field>
 		</wui-panel>
-		<wui-panel title="第一局：{{play.games[0].score}}分{{play.games[0].bonus===0?'':'(+'+play.games[0].bonus+')'}}">
+		<wui-panel title="第一局：{{game.formatScore(play.games[0])}}">
 			<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
-		<wui-panel title="第二局：{{play.games[0].score}}分{{play.games[0].bonus===0?'':'(+'+play.games[0].bonus+')'}}">
-			<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
+		<wui-panel title="第二局：{{game.formatScore(play.games[1])}}">
+			<app-game games="{{[ play.games[1] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
 		<wui-panel title="其他信息">
 			<wui-field type="custom" label="裁判">{{play.judge.name}}</wui-field>

@@ -1,0 +1,7 @@
+var formatScore = function(game) {
+	return game.score + (game.bonus ? '(+' + game.bonus + ')' : '');
+};
+
+module.exports = {
+	formatScore: formatScore
+}

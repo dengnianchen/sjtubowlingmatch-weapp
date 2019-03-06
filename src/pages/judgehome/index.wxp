@@ -1,10 +1,10 @@
 <template>
-	<wui-panel title="待确认的比赛" wui-style="left-padding:false">
+	<wui-panel title="待审核的比赛" wui-style="left-padding:false">
 		<app-playlist wx:for="{{playsTodo}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
 		<wui-abnor wx:if="{{!playsTodo.length}}" error="无比赛"></wui-abnor>
 	</wui-panel>
-	<wui-panel title="已确认的比赛" wui-style="left-padding:false">
-		<app-playlist wx:for="{{playsDone}}" wx:key="index" wx:for-item="play" play="{{play}}" confirm-status="{{play.status==='accepted'}}"></app-playlist>
+	<wui-panel title="已审核的比赛" wui-style="left-padding:false">
+		<app-playlist wx:for="{{playsDone}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
 		<wui-abnor wx:if="{{!playsDone.length}}" error="无比赛"></wui-abnor>
 	</wui-panel>
 </template>

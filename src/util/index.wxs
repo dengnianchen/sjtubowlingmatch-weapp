@@ -1,5 +1,17 @@
+var valIf = function(condition, value) {
+	return condition ? value : undefined;
+};
+
+var valOr = function(value, defaultValue) {
+	return (value !== null && value !== undefined) ? value : defaultValue;
+};
+
+var arrIsLast = function(array, index) {
+	return index === array.length - 1;
+};
+
 module.exports = {
-	valIf: function(condition, value) { return condition ? value : undefined; },
-	valOr: function(value, defaultValue) { return (value !== null && value !== undefined) ? value : defaultValue; },
-	arrIsLast: function(array, index) { return index === array.length - 1 }
+	valIf: valIf,
+	valOr: valOr,
+	arrIsLast: arrIsLast
 };

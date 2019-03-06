@@ -49,7 +49,7 @@
 	</view>
 	
 	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="再想想">
-		<app-pk-player-state player-state="{{playerLastSeason.detail}}" rank-table="{{$.data.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
+		<app-pk-player-state player-state="{{playerLastSeason.detail}}" rank-table="{{$.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
 		<text>↓</text>
 		<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>

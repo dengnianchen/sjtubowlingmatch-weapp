@@ -1,9 +1,10 @@
 <template>
+	<wxs src="../../models/game.wxs" module="game"></wxs>
 	<view class="pkinit__hd">
 		<view class="pkinit__hd__player">选手：{{play.players[play.player_ids[0]].user.name}}</view>
 		<view>比赛类型：定级赛</view>
 	</view>
-	<wui-panel title="第一局：当前局分 {{play.rounds[0][0].score - play.rounds[0][0].bonus}}{{play.rounds[0][0].bonus===0?'':'(+'+play.rounds[0][0].bonus+')'}}">
+	<wui-panel title="第一局：当前局分 {{game.formatScore(play.rounds[0][0])}}">
 		<app-game id="game-round0"
 		          players="{{play.players}}"
 		          games="{{play.rounds[0]}}"
@@ -12,7 +13,7 @@
 		></app-game>
 	</wui-panel>
 	
-	<wui-panel title="第二局：当前局分 {{play.rounds[1][0].score - play.rounds[1][0].bonus}}{{play.rounds[1][0].bonus===0?'':'(+'+play.rounds[1][0].bonus+')'}}">
+	<wui-panel title="第二局：当前局分 {{game.formatScore(play.rounds[1][0])}}">
 		<app-game id="game-round1"
 		          players="{{play.players}}"
 		          games="{{play.rounds[1]}}"
@@ -123,7 +124,7 @@
 				wx.removeStorageSync('pk');
 				await $.Modal.showSuccess('操作成功');
 				Page.redirectTo({
-					url: '/pages/playresult',
+					url: '/pages/playresult/index',
 					data: { id: play_id, needShare: true }
 				});
 			} catch (ex) {
