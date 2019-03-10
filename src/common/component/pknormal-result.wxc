@@ -1,0 +1,124 @@
+<template>
+	<wxs src="../../models/game.wxs" module="game"></wxs>
+	<view wx:if="{{play}}">
+		<wui-panel title="基本信息">
+			<wui-field type="custom" label="比赛类型">{{play.match_info.name}} - {{play.match_info.detail.type_table[play.type].name}}</wui-field>
+			<wui-field type="custom" label="参与选手">
+				<view class="flex-field">
+					<view class="flex-field__1">{{play.participants[play.player_ids[0]].player.user.name}}</view>
+					<view class="flex-field__2">VS</view>
+					<view class="flex-field__3">{{play.participants[play.player_ids[1]].player.user.name}}</view>
+				</view>
+			</wui-field>
+			<wui-field type="custom" label="两局总分">
+				<view class="flex-field">
+					<view class="flex-field__1">{{play.participants[play.player_ids[0]].detail.score}}</view>
+					<view class="flex-field__2">:</view>
+					<view class="flex-field__3">{{play.participants[play.player_ids[1]].detail.score}}</view>
+				</view>
+			</wui-field>
+			<wui-field type="custom" label="比赛结果">
+				<view class="flex-field">
+					<view class="flex-field__1">{{$.enums.pk.result[play.participants[play.player_ids[0]].result]}}</view>
+					<view class="flex-field__2"></view>
+					<view class="flex-field__3">{{$.enums.pk.result[play.participants[play.player_ids[1]].result]}}</view>
+				</view>
+			</wui-field>
+			<wui-field type="custom" label="赛前段位">
+				<view class="flex-field" style="font-size: 0.8em">
+					<app-pk-player-state class="flex-field__1" player-state="{{play.participants[play.player_ids[0]].state0}}"></app-pk-player-state>
+					<view class="flex-field__2"></view>
+					<app-pk-player-state class="flex-field__3" player-state="{{play.participants[play.player_ids[1]].state0}}"></app-pk-player-state>
+				</view>
+			</wui-field>
+			<wui-field type="custom" label="赛后段位">
+				<view class="flex-field" style="font-size: 0.8em">
+					<app-pk-player-state class="flex-field__1" player-state="{{play.participants[play.player_ids[0]].state1}}"></app-pk-player-state>
+					<view class="flex-field__2"></view>
+					<app-pk-player-state class="flex-field__3" player-state="{{play.participants[play.player_ids[1]].state1}}"></app-pk-player-state>
+				</view>
+			</wui-field>
+			<wui-field type="custom" label="比赛日期">{{play.play_date}}</wui-field>
+			<wui-field type="custom" label="当前状态">
+				<text style="color:{{playStatusColor[play.status]}}">{{play.status_names[play.status]}}</text>
+			</wui-field>
+		</wui-panel>
+		<wui-panel title="第一局：{{play.participants[play.games[0].player_id].player.user.name}}先手，{{game.formatScore(play.games[0])}} : {{game.formatScore(play.games[1])}}">
+			<app-game games="{{[ play.games[0], play.games[1] ]}}" editable="{{false}}"></app-game>
+		</wui-panel>
+		<wui-panel title="第二局：{{play.participants[play.games[2].player_id].player.user.name}}先手，{{game.formatScore(play.games[2])}} : {{game.formatScore(play.games[3])}}">
+			<app-game games="{{[ play.games[2], play.games[3] ]}}" editable="{{false}}"></app-game>
+		</wui-panel>
+		<wui-panel title="其他信息">
+			<wui-field wx:for="{{play.detail['effects']}}" wx:key="index"
+			           type="custom" label="{{item.name}}">
+				<view class="flex-field">
+					<app-pk-dstate class="flex-field__1" dstate="{{play.participants[play.player_ids[0]].detail.effects[item.id]}}"></app-pk-dstate>
+					<view class="flex-field__2"></view>
+					<app-pk-dstate class="flex-field__1" dstate="{{play.participants[play.player_ids[1]].detail.effects[item.id]}}"></app-pk-dstate>
+				</view>
+			</wui-field>
+			<wui-field type="custom" label="裁判">{{play.judge.name}}</wui-field>
+		</wui-panel>
+	</view>
+</template>
+
+<script>
+	
+	export default {
+		config: {
+			usingComponents: {
+				'app-game': './game',
+				'app-pk-player-state': './pk-player-state',
+				'app-pk-dstate': './pk-dstate',
+				'wui-panel': '@yapple/wui-panel',
+				'wui-field': '@yapple/wui-field'
+			},
+		},
+		behaviors: [],
+		properties: {
+		},
+		data: {
+			play: null
+		},
+		lifetimes: {
+			attached() {
+				this.setData({
+					$: $.AppData,
+					playStatusColor: {
+						'new': $.AppData.style.dangerColor,
+						'filled': $.AppData.style.warnColor,
+						'player_accepted': $.AppData.style.warnColor,
+						'accepted': $.AppData.style.successColor,
+						'player_refused': $.AppData.style.dangerColor,
+						'refused': $.AppData.style.dangerColor
+					}
+				})
+			}
+		},
+		methods: {
+			initial(play) {
+				this.setData({ play });
+			},
+			getShareTitle() {
+				return `${this.data.play.participants[this.data.play.player_ids[0]].player.user.name}的定级赛：${this.data.play.participants[this.data.play.player_ids[0]].detail.score}分`;
+			}
+		},
+	}
+
+</script>
+<style lang="less">
+	.flex-field {
+		flex-grow: 1;
+		display: flex;
+		align-items: center;
+	}
+	.flex-field__2 {
+		width: 3em;
+		text-align: center;
+	}
+	.flex-field__1,.flex-field__3 {
+		flex-grow: 1;
+		text-align: center;
+	}
+</style>

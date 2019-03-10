@@ -1,0 +1,35 @@
+<template>
+	<view class="pk-dstate__item" wx:if="{{dstate.stars}}">
+		<wui-icon name="fas fa-star" color="#ff0000"></wui-icon>{{dstate.stars>0?'+':''}}{{dstate.stars}}
+	</view>
+	<view class="pk-dstate__item" wx:if="{{dstate.coins}}">
+		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>{{dstate.coins>0?'+':''}}{{dstate.coins}}
+	</view>
+</template>
+
+<script>
+	export default {
+		config: {
+			usingComponents: {
+				'wui-icon': '@yapple/wui-icon'
+			},
+		},
+		behaviors: [],
+		properties: {
+			dstate: {
+				type: Object
+			}
+		},
+		data: {},
+		lifetimes: {
+		},
+		methods: {},
+	};
+</script>
+
+<style lang="less">
+	.pk-dstate__item {
+		flex-grow: 1;
+		text-align: center;
+	}
+</style>

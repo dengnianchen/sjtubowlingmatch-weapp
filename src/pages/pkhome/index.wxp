@@ -8,7 +8,7 @@
 	<view class="cc pkhome__menu">
 		<block wx:if="{{!player || !player.status}}">
 			<text class="__item">你尚未加入本赛季PK赛。</text>
-			<block wx:if="{{playerLastSeason}}">
+			<block wx:if="{{playerLastSeason&&match.week<2}}">
 				<text class="__item">由于你参加过上一赛季的比赛，你可以选择</text>
 				<wxc-button class="__item" size="large" type="primary" bind:submit="onInheritButtonClicked">继承上一赛季的段位</wxc-button>
 				<text class="__item">或</text>
@@ -23,7 +23,8 @@
 			<wui-abnor class="__item" style="align-self: stretch" wx:if="{{player.status==='new'}}" error="定级赛尚未被确认"></wui-abnor>
 			<wui-abnor class="__item" style="align-self: stretch" wx:elif="{{player.status==='quit'}}" error="你已退赛"></wui-abnor>
 			<block wx:else>
-				<wxc-button class="__item" size="large" type="primary" bind:submit="onNormalPlayButtonClicked">开启常规赛</wxc-button>
+				<wxc-button class="__item" size="large" type="primary" bind:submit="onNormalPlayButtonClicked">常规赛</wxc-button>
+				<wxc-button class="__item" size="large" type="info" bind:submit="onFriendlyPlayButtonClicked">友谊赛</wxc-button>
 			</block>
 		</block>
 	</view>
@@ -34,8 +35,9 @@
 				 component-id="c1"
 				 animate="{{true}}">
 			<wxc-tab-panel tab-index="{{0}}" component-id="c1" label="段位表">
-				<app-playerlist wx:for="{{players}}" wx:key="index" wx:for-item="player" index="{{index}}" player="{{player}}"></app-playerlist>
-				<view class="pkhome__playerlist__desc">该表显示段位以已确认的比赛场次为准</view>
+				<app-playerlist wx:for="{{players}}" wx:key="index" wx:for-item="player"
+				                wx:if="{{player.status&&player.status!=='quit'}}"
+				                index="{{index}}" player="{{player}}"></app-playerlist>
 			</wxc-tab-panel>
 			<wxc-tab-panel tab-index="{{1}}" component-id="c1" label="历史战绩">
 				<app-playlist wx:for="{{playsOther}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
@@ -92,23 +94,36 @@
 		},
 		
 		async onShow() {
+			
+			let playing = wx.getStorageSync('pk');
+			if (playing) {
+				await $.Modal.show('回到比赛',
+					'您有尚未完成录入的比赛，必须完成录入后才能进行其他操作', {
+						showCancel: false,
+						confirmText: '继续录入'
+					});
+				Page.navigateTo({
+					url: `/pages/pk${playing.type}/index`
+				});
+			}
+			
 			let match = $.AppData.matches.pk[0];
 			if (!match || match.status !== 'active') {
 				wx.setNavigationBarTitle({ title: 'PK赛关闭中' });
 				throw $.Err.NO_RESOURCE('当前没有正在进行的赛季');
 			}
 			wx.setNavigationBarTitle({ title: match.name });
-
+			
 			let players = await PkPlay.getPlayers();
-			let playerMe = await Player.getInMatch(match, $.AppData.me);
+			
+			let playerMe = null;
 			for (let player of players)
 				if (player.user_id === $.AppData.me.id)
 					playerMe = player;
 			
-			let [ playerLastSeason, plays ] = await Promise.all([
-				(async() => playerMe ? null : await Player.getInMatch($.AppData.matches.pk[1], $.AppData.me))(),
-				(async() => playerMe ? await Play.getByPlayer(playerMe) : [])()
-			]);
+			let playerLastSeason = (playerMe && playerMe.status) ? null :
+				await Player.getInMatch($.AppData.matches.pk[1], $.AppData.me);
+			let plays = (playerMe && playerMe.status) ? await Play.getByPlayer(playerMe) : [];
 			
 			plays.reverse();
 			let playsTodo = [];
@@ -134,6 +149,7 @@
 						break;
 				}
 			}
+			console.log('test 6');
 			
 			players.sort((a, b) => {
 				if (a.detail.rank < b.detail.rank)
@@ -150,21 +166,10 @@
 					return -1;
 				return 0;
 			});
+			
 			this.setData({ match, players, player: playerMe, playerLastSeason,
 				playsTodo, playsOther, playsInvalid });
 			
-			let playing = wx.getStorageSync('pk');
-			if (playing) {
-				(async() => {
-					await $.Modal.show('回到比赛', '您有尚未完成录入的比赛，必须完成录入后才能进行其他操作', {
-						showCancel: false,
-						confirmText: '继续录入'
-					});
-					Page.navigateTo({
-						url: `/pages/pk${playing.type}/index`
-					});
-				})();
-			}
 		},
 		
 		async onInheritButtonClicked(e) {
@@ -202,12 +207,92 @@
 				$.Modal.showError('开始定级赛', ex);
 			}
 		},
-		onNormalPlayButtonClicked(e) {
-			$.Wui.Dialog.show({
-				title: '开启常规赛',
-				content: '常规赛将于赛季第3周起开放',
-				confirmText: '知道了',
-				cancelText: null
+		async onNormalPlayButtonClicked(e) {
+			if ($.AppData.matches['pk'][0].week < 2) {
+				await $.Modal.show('开启常规赛', '常规赛将于赛季第3周起开放', {
+					confirmText: '知道了',
+					showCancel: false
+				});
+				return;
+			}
+			if (!this.data.player.detail_confirmed) {
+				await $.Modal.show('开启常规赛', '前一场比赛尚未被确认，无法开启新赛', {
+					confirmText: '知道了',
+					showCancel: false
+				});
+				return;
+			}
+			let players = [];
+			for (let player of this.data.players) {
+				if (player.status === Player.S_NORMAL &&
+					player.detail_confirmed &&
+					player.id !== this.data.player.id &&
+					Math.abs(this.data.player.detail['rank'] - player.detail['rank']) < 2)
+					players.push(player);
+			}
+			let opponent = await Page.navigateToDialog({
+				url: '../pkplayerselector/index',
+				data: {
+					title: '选择对手'
+				},
+				richData: { players }
+			});
+			if (!opponent)
+				return;
+			let r = await $.Wui.Dialog.show({
+				title: '开始常规赛',
+				content: `确认选择${opponent.user.name}作为对手？`,
+				confirmText: '确认',
+				cancelText: '取消'
+			});
+			if (!r) return;
+			Page.navigateTo({
+				url: '../pknormal/index',
+				richData: { me: this.data.player, opponent }
+			});
+		},
+		async onFriendlyPlayButtonClicked(e) {
+			if ($.AppData.matches['pk'][0].week < 2) {
+				await $.Modal.show('开启友谊赛', '常规赛将于赛季第3周起开放', {
+					confirmText: '知道了',
+					showCancel: false
+				});
+				return;
+			}
+			if (!this.data.player.detail_confirmed) {
+				await $.Modal.show('开启友谊赛', '前一场比赛尚未被确认，无法开启新赛', {
+					confirmText: '知道了',
+					showCancel: false
+				});
+				return;
+			}
+			let players = [];
+			for (let player of this.data.players) {
+				if (player.status === Player.S_NORMAL &&
+					player.detail_confirmed &&
+					player.id !== this.data.player.id &&
+					this.data.player.detail['rank'] !== player.detail['rank'])
+					players.push(player);
+			}
+			let opponent = await Page.navigateToDialog({
+				url: '../pkplayerselector/index',
+				data: {
+					title: '选择对手'
+				},
+				richData: { players }
+			});
+			if (!opponent)
+				return;
+			let r = await $.Wui.Dialog.show({
+				title: '开始友谊赛',
+				content: `确认选择${opponent.user.name}作为对手？`,
+				confirmText: '确认',
+				cancelText: '取消'
+			});
+			if (!r) return;
+			Page.navigateTo({
+				url: '../pkfriendly/index',
+				richData: { me: this.data.player, opponent }
 			});
 		},
 		_getMatch() {

@@ -2,15 +2,14 @@
  * 小程序配置文件
  */
 const host = 'https://sjtubowling.applinzi.com';
-const publicUrl = 'http://sjtubowling.applinzi.com/bowling/Public';
 const storageUrl = 'http://sjtubowling-public.stor.sinaapp.com';
 
 module.exports = {
-	publicUrl, storageUrl,
+	storageUrl,
 	
 	// Welib配置
 	welib: {
-		host: host + "/match",
+		host: host + "/test_match",
 		wui: {
 			/* WUI组件配置 */
 		}

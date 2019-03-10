@@ -2,7 +2,7 @@
 	<wxs src="../../util/index.wxs" module="util"></wxs>
 	<view>
 		{{util.valOr(rankTable[playerState.rank].name,'-')}} |
-		<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon> {{util.valOr(playerState.stars,'-')}} |
+		<wui-icon name="fas fa-star" color="#ff0000"></wui-icon> {{util.valOr(playerState.stars,'-')}} |
 		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{util.valOr(playerState.coins,'-')}}
 	</view>
 </template>
@@ -36,5 +36,7 @@
 </script>
 
 <style lang="less">
-
+ .a{
+	 color: #d4ef37
+ }
 </style>

@@ -1,0 +1,116 @@
+<template>
+	<view class="user-selector">
+		<view class="user-selector__top">
+			<view class="user-selector__search">
+				<wxc-search showClear="{{true}}"
+				            bg-color="transparent"
+				            icon-color="#AAA"
+				            ph-color="#AAA"
+				            placeholder="查找选手"
+				            bind:input="_onSearchInput"
+				></wxc-search>
+			</view>
+		</view>
+		<view class="user-selector__userlist">
+			<scroll-view wx:if="{{players.length}}"
+			             class="user-selector__userlist__content"
+			             scroll-y="{{true}}">
+				<wxc-list wx:for="{{players}}" wx:key="index" wx:for-item="player"
+				          title="{{player.user.name}} | {{$.matches['pk'][0].detail['rank_table'][player.detail['rank']]['name']}}"
+				          arrow="{{false}}"
+				          data-index="{{index}}"
+				          bindclick="_onPlayerClicked"
+				></wxc-list>
+			</scroll-view>
+			<view wx:else class="user-selector__userlist__empty">找不到符合条件的选手</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	
+	const pinyin = require('../../vendor/pinyin/pinyinUtil');
+	
+	let allPlayers = null;
+	
+	export default {
+		config: {
+			usingComponents: {
+				'wxc-search': '@minui/wxc-search',
+				'wxc-list': '@minui/wxc-list',
+				'wxc-button': '@minui/wxc-button',
+				'wui-content': '@yapple/wui-content',
+				'wui-icon': '@yapple/wui-icon',
+			},
+		},
+		data: {},
+		async onLoad(options) {
+			if (options.title)
+				wx.setNavigationBarTitle({ title: options.title });
+			allPlayers = options.players;
+			this.setData({ players: allPlayers });
+		},
+		_onSearchInput(e) {
+			if (!allPlayers)
+				return;
+			let value = e.detail.value;
+			let players = [];
+			for (let player of allPlayers) {
+				if (player.user.name.indexOf(value) >= 0 || player.pinyin.indexOf(value.toUpperCase()) >= 0)
+					players.push(player);
+			}
+			this.setData({ players });
+		},
+		_onPlayerClicked(e) {
+			Page.navigateReturn({
+				data: this.data.players[e.target.dataset['index']]
+			});
+		}
+	};
+
+</script>
+<style lang="less">
+	
+	@import "../../style";
+	
+	.user-selector {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		flex-direction: column;
+	}
+	
+	.user-selector__top {
+		display: flex;
+		align-items: stretch;
+	}
+	
+	.user-selector__search {
+		flex-grow: 1;
+		padding: 10px 5px;
+		border-bottom: solid 1px @splitLineColor;
+	}
+	
+	.user-selector__userlist {
+		position: relative;
+		flex-grow: 1;
+	}
+	
+	.user-selector__userlist__content {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+	}
+	
+	.user-selector__userlist__empty {
+		text-align: center;
+		padding: 20px;
+		color: @subHeadingColor;
+		font-size: @fontSize__subDesc;
+	}
+</style>

@@ -1,0 +1,266 @@
+<template>
+	<wxs src="../../models/game.wxs" module="game"></wxs>
+	<view class="pkinit__hd">
+		<view class="pkinit__hd__player">{{play.players[play.player_ids[0]].user.name}} VS {{play.players[play.player_ids[1]].user.name}}</view>
+		<view>比赛类型：友谊赛</view>
+	</view>
+	<wui-panel>
+		<wui-field type="picker" label="首局先手"
+		           range="{{[ play.players[play.player_ids[0]].user.name, play.players[play.player_ids[1]].user.name ]}}"
+		           placeholder="请选择首局先手"
+		           value="{{play.first_hand_index}}"
+		           bindconfirm="onFirstHandSelected"
+		></wui-field>
+	</wui-panel>
+	<wui-panel title="第一局：{{play.players[play.rounds[0][0].player_id].user.name}}先手，当前局分 {{game.formatScore(play.rounds[0][0])}} : {{game.formatScore(play.rounds[0][1])}}">
+		<app-game id="game-round0"
+		          players="{{play.players}}"
+		          games="{{play.rounds[0]}}"
+		          bindframeselected="onFrameSelected"
+		          data-round="0"
+		></app-game>
+	</wui-panel>
+	
+	<wui-panel title="第二局：{{play.players[play.rounds[1][0].player_id].user.name}}先手，当前局分 {{game.formatScore(play.rounds[1][0])}} : {{game.formatScore(play.rounds[1][1])}}">
+		<app-game id="game-round1"
+		          players="{{play.players}}"
+		          games="{{play.rounds[1]}}"
+		          bindframeselected="onFrameSelected"
+		          data-round="1"
+		></app-game>
+	</wui-panel>
+
+	<wui-panel>
+		<wui-field type="custom" label="裁判">
+			<view class="pkinit__judge-picker" bindtap="onSelectJudgeClicked">
+				<text wx:if="{{play.judge}}" class="pkinit__judge-picker__label">{{play.judge.name}}</text>
+				<text wx:else class="pkinit__judge-picker__label" style="color:#999">请选择裁判</text>
+				<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
+			</view>
+		</wui-field>
+	</wui-panel>
+	<view class="cc">
+		<wxc-button size="large" type="primary" bind:submit="onSubmitButtonClicked">提交</wxc-button>
+	</view>
+	<app-game-keyboard id="game-keyboard"
+	                   head="选手：{{play.players[play.rounds[activeFrame.round][activeFrame.gameIndex].player_id].user.name}}（第{{activeFrame.round+1}}局第{{activeFrame.round+1}}格）"
+	                   bindswitchnext="switchToNextFrame"
+	                   bindswitchprev="switchToPrevFrame"
+	                   bindchanged="onKeyboardInput"
+	></app-game-keyboard>
+</template>
+
+<script>
+	import PkPlay from '../../models/PkPlay';
+	import Game from '../../models/Game';
+	import Player from '../../models/Player';
+	
+	export default {
+		auth: true,
+		config: {
+			navigationBarTitleText: 'PK赛 - 定级赛',
+			usingComponents: {
+				'wui-panel': '@yapple/wui-panel',
+				'wui-field': '@yapple/wui-field',
+				'wui-icon': '@yapple/wui-icon',
+				'wxc-list': '@minui/wxc-list',
+				'wxc-button': '@minui/wxc-button',
+				'app-game': '../../common/component/game',
+				'app-game-keyboard': '../../common/component/game-keyboard'
+			},
+		},
+		data: {
+			activeFrame: null,
+		},
+		
+		async onLoad(options) {
+			
+			let play = wx.getStorageSync('pk');
+			if (!play) {
+				let player_me = options.me;
+				let player_opponent = options.opponent;
+				if (!player_me)
+					throw $.Err.FAIL('缺少页面参数player_me');
+				if (!player_opponent)
+					throw $.Err.FAIL('缺少页面参数player_opponent');
+				if (player_me.id === player_opponent.id)
+					throw $.Err.FAIL('不能指定自己作为对手');
+				if (player_me.match !== $.AppData.matches.pk[0].id ||
+					player_opponent.match !== $.AppData.matches.pk[0].id)
+					throw $.Err.FAIL('指定的选手不属于PK赛');
+				let bonus_me = player_me.user.gender === 2 ? PkPlay.bonus : 0;
+				let bonus_opponent = player_opponent.user.gender === 2 ? PkPlay.bonus : 0;
+				play = {
+					type: 'normal',
+					player_ids: [ player_me.id, player_opponent.id ],
+					first_hand_index: 0,
+					players: {},
+					rounds: [
+						[
+							new Game({ bonus: bonus_me, player_id: player_me.id }),
+							new Game({ bonus: bonus_opponent, player_id: player_opponent.id })
+						],
+						[
+							new Game({ bonus: bonus_opponent, player_id: player_opponent.id }),
+							new Game({ bonus: bonus_me, player_id: player_me.id })
+						]
+					]
+				};
+				play.players[player_me.id] = player_me;
+				play.players[player_opponent.id] = player_opponent;
+			} else {
+				if (play.type !== 'normal')
+					throw $.Err.FAIL('当前有其他正在进行的比赛');
+				play = $(play).toRichObject({
+					players: {
+						'*': Player
+					},
+					rounds: Game
+				});
+			}
+			this.updatePlay(play);
+			$.Modal.show('注意！',
+				'每局的先手填写在第一行，后手填写在第二行。决定首局的先手后，次局交换先手。请注意计分行的填写顺序。', {
+				showCancel: false,
+				confirmText: '知道啦！'
+			});
+		},
+		onFirstHandSelected(e) {
+			this.data.play.first_hand_index = e.detail.value;
+			let first_hand_player_id = this.data.play.player_ids[this.data.play.first_hand_index];
+			if (this.data.play.rounds[0][0].player_id !== first_hand_player_id) {
+				let temp = this.data.play.rounds[0][0];
+				this.data.play.rounds[0][0] = this.data.play.rounds[0][1];
+				this.data.play.rounds[0][1] = temp;
+				temp = this.data.play.rounds[1][0];
+				this.data.play.rounds[1][0] = this.data.play.rounds[1][1];
+				this.data.play.rounds[1][1] = temp;
+			}
+			this.updatePlay(this.data.play);
+		},
+		async onSelectJudgeClicked() {
+			let judge = await Page.navigateToDialog({
+				url: '../userselector/index',
+				data: {
+					title: '选择裁判',
+					excludeId: [
+						this.data.play.players[this.data.play.player_ids[0]].user.id,
+						this.data.play.players[this.data.play.player_ids[1]].user.id
+					]
+				}
+			});
+			if (judge) {
+				this.data.play.judge = judge;
+				this.updatePlay(this.data.play);
+			}
+		},
+		async onSubmitButtonClicked(e) {
+			let games = Array.prototype.concat.apply([], this.data.play.rounds);
+			if (!games.every(value => value.isComplete)) {
+				$.Modal.showError('提交成绩失败', '球局尚未完成录入，请完成录入后重试');
+				return;
+			}
+			if (!this.data.play.judge) {
+				$.Modal.showError('提交成绩失败', '请选择裁判后重试');
+				return;
+			}
+			$.Modal.showBusy('正在提交…');
+			try {
+				let play_id = await PkPlay.play('friendly', games, this.data.play.judge);
+				wx.removeStorageSync('pk');
+				await $.Modal.showSuccess('操作成功');
+				Page.redirectTo({
+					url: '/pages/playresult/index',
+					data: { id: play_id, needShare: true }
+				});
+			} catch (ex) {
+				$.Modal.showError('提交成绩失败', ex);
+			}
+		},
+		updatePlay(play) {
+			this.setData({ play });
+			wx.setStorageSync('pk', $(play).toPlainObject());
+		},
+		onFrameSelected(e) {
+			let frameRef = e.detail.frameRef;
+			frameRef.round = parseInt(e.target.id.substr('game-round'.length));
+			this._switchToFrame(frameRef);
+		},
+		onKeyboardInput(e) {
+			this.data.play.rounds[this.data.activeFrame.round][this.data.activeFrame.gameIndex].calcScore();
+			this.updatePlay(this.data.play);
+		},
+		switchToPrevFrame() {
+			let frameRef = this.data.activeFrame;
+			if (frameRef) {
+				frameRef.gameIndex--;
+				if (frameRef.gameIndex < 0) {
+					frameRef.frameIndex--;
+					frameRef.gameIndex = this.data.play.rounds[frameRef.round].length - 1;
+				}
+				if (frameRef.frameIndex < 0) {
+					frameRef.round--;
+					if (frameRef.round < 0)
+						frameRef = null;
+					else {
+						frameRef.frameIndex = 9;
+						frameRef.gameIndex = this.data.play.rounds[frameRef.round].length - 1;
+					}
+				}
+			}
+			this._switchToFrame(frameRef);
+		},
+		switchToNextFrame() {
+			let frameRef = this.data.activeFrame;
+			if (frameRef) {
+				frameRef.gameIndex++;
+				if (frameRef.gameIndex >= this.data.play.rounds[frameRef.round].length) {
+					frameRef.gameIndex = 0;
+					frameRef.frameIndex++;
+				}
+				if (frameRef.frameIndex === 10) {
+					frameRef.frameIndex = 0;
+					frameRef.gameIndex = 0;
+					frameRef.round++;
+				}
+				if (frameRef.round >= this.data.play.rounds.length)
+					frameRef = null;
+			}
+			this._switchToFrame(frameRef);
+		},
+		_switchToFrame(frameRef) {
+			this.setData({ activeFrame: frameRef });
+			for (let i = 0; i < this.data.play.rounds.length; ++i)
+				this.selectComponent(`#game-round${i}`).selectFrame(
+					(frameRef && frameRef.round === i) ? frameRef :null);
+			this.selectComponent('#game-keyboard').show(this._getFrame(frameRef),
+				frameRef && !frameRef.round && !frameRef.gameIndex && !frameRef.frameIndex);
+		},
+		_getFrame(fr) {
+			return !fr ? null : this.data.play.rounds[fr.round][fr.gameIndex].frames[fr.frameIndex];
+		}
+	};
+</script>
+
+<style lang="less">
+	@import "../../style";
+	
+	.pkinit__hd {
+		display: flex;
+		padding: 10px;
+	}
+	
+	.pkinit__hd__player {
+		flex-grow: 1;
+	}
+	
+	.pkinit__judge-picker {
+		flex-grow: 1;
+		display: flex;
+	}
+	
+	.pkinit__judge-picker__label {
+		flex-grow: 1;
+	}
+	
+</style>

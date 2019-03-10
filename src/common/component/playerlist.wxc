@@ -1,12 +1,12 @@
 <template>
 	<form bindsubmit="_onItemClicked" report-submit="{{true}}">
 		<button class="fake-button list" form-type="submit">
-			<view class="list__body list__{{mode}}">
+			<view class="list__body list__{{mode}} list__{{!player.detail_confirmed?'unconfirmed':''}}">
 				<view class="list__id">{{index+1}}</view>
 				<view class="list__name">{{player.user.name}}</view>
 				<view class="list__rank">{{rankTable[player.detail.rank].name}}</view>
 				<view class="list__stars">
-					<wui-icon name="fas fa-star" color="#d5ce00"></wui-icon>{{player.detail.stars}}
+					<wui-icon name="fas fa-star" color="#ff0000"></wui-icon>{{player.detail.stars}}
 				</view>
 				<view class="list__coins">
 					<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>{{player.detail.coins}}
@@ -87,6 +87,9 @@
 	}
 	.list__none {
 		border: none;
+	}
+	.list__unconfirmed {
+		color: @color__subDesc;
 	}
 	.list__id {
 		width: 2em;

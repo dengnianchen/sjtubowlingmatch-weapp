@@ -3,6 +3,8 @@
 		<text class="page__title">比赛结果</text>
 	</view>
 	<app-pkinit-result id="pkinit"></app-pkinit-result>
+	<app-pknormal-result id="pknormal"></app-pknormal-result>
+	<app-pknormal-result id="pkfriendly"></app-pknormal-result>
 	<view wx:if="{{enableJudgeConfirm}}" class="menu">
 		<wxc-button class="__item" type="danger" value="拒绝" size="large" bindsubmit="_onJudgeConfirmClicked" btn-style="width:300rpx" data-accept="false"></wxc-button>
 		<wxc-button class="__item" type="primary" value="接受" size="large" bindsubmit="_onJudgeConfirmClicked" btn-style="width:300rpx" data-accept="true"></wxc-button>
@@ -26,6 +28,7 @@
 			navigationBarTitleText: '比赛结果',
 			usingComponents: {
 				'app-pkinit-result': '../../common/component/pkinit-result',
+				'app-pknormal-result': '../../common/component/pknormal-result',
 				'wxc-button': '@minui/wxc-button',
 				'wui-dialog': '../../common/component/dialog'
 			},

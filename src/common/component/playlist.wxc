@@ -47,6 +47,7 @@
 						id: this.data.play.id
 					}
 				});
+				Page.current().reloadPage();
 			}
 		}
 	}
