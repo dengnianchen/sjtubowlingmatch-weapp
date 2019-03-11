@@ -62,9 +62,11 @@
 				this.setData({ showKeyboard: true, isFirst });
 				this.frame = frame;
 				this._updateKeyboardStatus();
+				this.triggerEvent('show');
 			},
 			hide() {
 				this.setData({ showKeyboard: false });
+				this.triggerEvent('hide');
 			},
 			_onGameKeyClicked(e) {
 				let key = e.target.dataset.key;

@@ -1,52 +1,57 @@
 <template>
 	<wxs src="../../models/game.wxs" module="game"></wxs>
-	<view class="pkinit__hd">
-		<view class="pkinit__hd__player">{{play.players[play.player_ids[0]].user.name}} VS {{play.players[play.player_ids[1]].user.name}}</view>
-		<view>比赛类型：常规赛</view>
-	</view>
-	<wui-panel>
-		<wui-field type="picker" label="首局先手"
-		           range="{{[ play.players[play.player_ids[0]].user.name, play.players[play.player_ids[1]].user.name ]}}"
-		           placeholder="请选择首局先手"
-		           value="{{play.first_hand_index}}"
-		           bindconfirm="onFirstHandSelected"
-		></wui-field>
-	</wui-panel>
-	<wui-panel title="第一局：{{play.players[play.rounds[0][0].player_id].user.name}}先手，当前局分 {{game.formatScore(play.rounds[0][0])}} : {{game.formatScore(play.rounds[0][1])}}">
-		<app-game id="game-round0"
-		          players="{{play.players}}"
-		          games="{{play.rounds[0]}}"
-		          bindframeselected="onFrameSelected"
-		          data-round="0"
-		></app-game>
-	</wui-panel>
+	<scroll-view class="play_main {{keyboardShow?'play_main_small':''}}"
+	             scroll-y="{{true}}" scroll-with-animation="{{true}}" scroll-top="{{scrollTop}}rpx">
+		<view class="pkinit__hd">
+			<view class="pkinit__hd__player">{{play.players[play.player_ids[0]].user.name}} VS {{play.players[play.player_ids[1]].user.name}}</view>
+			<view>比赛类型：{{$.matches.pk[0].detail.type_table[play.type].name}}</view>
+		</view>
+		<wui-panel>
+			<wui-field type="picker" label="首局先手"
+			           range="{{[ play.players[play.player_ids[0]].user.name, play.players[play.player_ids[1]].user.name ]}}"
+			           placeholder="请选择首局先手"
+			           value="{{play.first_hand_index}}"
+			           bindconfirm="onFirstHandSelected"
+			></wui-field>
+		</wui-panel>
+		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第一局：{{play.players[play.rounds[0][0].player_id].user.name}}先手，当前局分 {{game.formatScore(play.rounds[0][0])}} : {{game.formatScore(play.rounds[0][1])}}">
+			<app-game id="game-round0"
+			          players="{{play.players}}"
+			          games="{{play.rounds[0]}}"
+			          bindframeselected="onFrameSelected"
+			          data-round="0"
+			></app-game>
+		</wui-panel>
+		
+		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第二局：{{play.players[play.rounds[1][0].player_id].user.name}}先手，当前局分 {{game.formatScore(play.rounds[1][0])}} : {{game.formatScore(play.rounds[1][1])}}">
+			<app-game id="game-round1"
+			          players="{{play.players}}"
+			          games="{{play.rounds[1]}}"
+			          bindframeselected="onFrameSelected"
+			          data-round="1"
+			></app-game>
+		</wui-panel>
 	
-	<wui-panel title="第二局：{{play.players[play.rounds[1][0].player_id].user.name}}先手，当前局分 {{game.formatScore(play.rounds[1][0])}} : {{game.formatScore(play.rounds[1][1])}}">
-		<app-game id="game-round1"
-		          players="{{play.players}}"
-		          games="{{play.rounds[1]}}"
-		          bindframeselected="onFrameSelected"
-		          data-round="1"
-		></app-game>
-	</wui-panel>
-
-	<wui-panel>
-		<wui-field type="custom" label="裁判">
-			<view class="pkinit__judge-picker" bindtap="onSelectJudgeClicked">
-				<text wx:if="{{play.judge}}" class="pkinit__judge-picker__label">{{play.judge.name}}</text>
-				<text wx:else class="pkinit__judge-picker__label" style="color:#999">请选择裁判</text>
-				<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
-			</view>
-		</wui-field>
-	</wui-panel>
-	<view class="cc">
-		<wxc-button size="large" type="primary" bind:submit="onSubmitButtonClicked">提交</wxc-button>
-	</view>
+		<wui-panel>
+			<wui-field type="custom" label="裁判">
+				<view class="pkinit__judge-picker" bindtap="onSelectJudgeClicked">
+					<text wx:if="{{play.judge}}" class="pkinit__judge-picker__label">{{play.judge.name}}</text>
+					<text wx:else class="pkinit__judge-picker__label" style="color:#999">请选择裁判</text>
+					<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
+				</view>
+			</wui-field>
+		</wui-panel>
+		<view class="cc">
+			<wxc-button size="large" type="primary" bind:submit="onSubmitButtonClicked">提交</wxc-button>
+		</view>
+	</scroll-view>
 	<app-game-keyboard id="game-keyboard"
 	                   head="选手：{{play.players[play.rounds[activeFrame.round][activeFrame.gameIndex].player_id].user.name}}（第{{activeFrame.round+1}}局第{{activeFrame.round+1}}格）"
 	                   bindswitchnext="switchToNextFrame"
 	                   bindswitchprev="switchToPrevFrame"
 	                   bindchanged="onKeyboardInput"
+	                   bindshow="onKeyboardShow"
+	                   bindhide="onKeyboardHide"
 	></app-game-keyboard>
 </template>
 
@@ -71,6 +76,7 @@
 		},
 		data: {
 			activeFrame: null,
+			scrollTop: 0
 		},
 		
 		async onLoad(options) {
@@ -91,9 +97,9 @@
 				let bonus_me = player_me.user.gender === 2 ? PkPlay.bonus : 0;
 				let bonus_opponent = player_opponent.user.gender === 2 ? PkPlay.bonus : 0;
 				play = {
-					type: 'normal',
+					type: "normal",
 					player_ids: [ player_me.id, player_opponent.id ],
-					first_hand_index: 0,
+					first_hand_index: null,
 					players: {},
 					rounds: [
 						[
@@ -166,7 +172,7 @@
 			}
 			$.Modal.showBusy('正在提交…');
 			try {
-				let play_id = await PkPlay.play('normal', games, this.data.play.judge);
+				let play_id = await PkPlay.play(this.data.play.type, games, this.data.play.judge);
 				wx.removeStorageSync('pk');
 				await $.Modal.showSuccess('操作成功');
 				Page.redirectTo({
@@ -189,6 +195,12 @@
 		onKeyboardInput(e) {
 			this.data.play.rounds[this.data.activeFrame.round][this.data.activeFrame.gameIndex].calcScore();
 			this.updatePlay(this.data.play);
+		},
+		onKeyboardShow() {
+			this.setData({ keyboardShow: true });
+		},
+		onKeyboardHide() {
+			this.setData({ keyboardShow: false });
 		},
 		switchToPrevFrame() {
 			let frameRef = this.data.activeFrame;
@@ -235,6 +247,7 @@
 					(frameRef && frameRef.round === i) ? frameRef :null);
 			this.selectComponent('#game-keyboard').show(this._getFrame(frameRef),
 				frameRef && !frameRef.round && !frameRef.gameIndex && !frameRef.frameIndex);
+			this.setData({ scrollTop: frameRef.round === 0 ? 0 : 150 });
 		},
 		_getFrame(fr) {
 			return !fr ? null : this.data.play.rounds[fr.round][fr.gameIndex].frames[fr.frameIndex];
@@ -261,6 +274,17 @@
 	
 	.pkinit__judge-picker__label {
 		flex-grow: 1;
+	}
+	
+	.play_main {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+	}
+	.play_main_small {
+		bottom: 500px;
 	}
 	
 </style>

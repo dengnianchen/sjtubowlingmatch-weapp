@@ -17,7 +17,7 @@
 	
 	const style = require('./style');
 	const config = require('./config');
-	const enums = require('./enum');
+	const enums = require('./enums');
 	
 	export default {
 		config: {

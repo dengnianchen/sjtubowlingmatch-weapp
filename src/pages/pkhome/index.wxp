@@ -4,6 +4,12 @@
 		<text class="page__banner__elem __name">{{$.me.name}}</text>
 		<app-pk-player-state class="page__banner__elem__last __status" player-state="{{player.detail}}"></app-pk-player-state>
 	</view>
+	<wxc-notice wx:if="{{playTodoByOther}}"
+	            notice="你的上一场比赛尚未被其他选手确认，在被确认前无法开启新的比赛"
+	            color="#ff5777" bgColor="#ffe8ee" scroll="{{true}}"></wxc-notice>
+	<wxc-notice wx:if="{{playTodoByJudge}}"
+	            notice="你的上一场比赛尚未被裁判确认，在被确认前无法开启新的比赛"
+	            color="#ff5777" bgColor="#ffe8ee" scroll="{{true}}"></wxc-notice>
 	<view class="pkhome__week">当前为本赛季第{{match.week+1}}周</view>
 	<view class="cc pkhome__menu">
 		<block wx:if="{{!player || !player.status}}">
@@ -23,8 +29,8 @@
 			<wui-abnor class="__item" style="align-self: stretch" wx:if="{{player.status==='new'}}" error="定级赛尚未被确认"></wui-abnor>
 			<wui-abnor class="__item" style="align-self: stretch" wx:elif="{{player.status==='quit'}}" error="你已退赛"></wui-abnor>
 			<block wx:else>
-				<wxc-button class="__item" size="large" type="primary" bind:submit="onNormalPlayButtonClicked">常规赛</wxc-button>
-				<wxc-button class="__item" size="large" type="info" bind:submit="onFriendlyPlayButtonClicked">友谊赛</wxc-button>
+				<wxc-button class="__item" size="large" type="{{player.detail_confirmed?'primary':'disabled'}}" bind:submit="onNormalPlayButtonClicked">常规赛</wxc-button>
+				<wxc-button class="__item" size="large" type="{{player.detail_confirmed?'info':'disabled'}}" bind:submit="onFriendlyPlayButtonClicked">友谊赛</wxc-button>
 			</block>
 		</block>
 	</view>
@@ -40,12 +46,8 @@
 				                index="{{index}}" player="{{player}}"></app-playerlist>
 			</wxc-tab-panel>
 			<wxc-tab-panel tab-index="{{1}}" component-id="c1" label="历史战绩">
-				<app-playlist wx:for="{{playsOther}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
-				<wui-abnor wx:if="{{!playsOther.length}}" error="暂无记录"></wui-abnor>
-			</wxc-tab-panel>
-			<wxc-tab-panel tab-index="{{2}}" component-id="c1" label="待确认的场次">
-				<app-playlist wx:for="{{playsTodo}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
-				<wui-abnor wx:if="{{!playsTodo.length}}" error="暂无记录"></wui-abnor>
+				<app-playlist wx:for="{{plays}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
+				<wui-abnor wx:if="{{!plays.length}}" error="暂无记录"></wui-abnor>
 			</wxc-tab-panel>
 		</wxc-tab>
 	</view>
@@ -77,6 +79,7 @@
 				'wxc-button': '@minui/wxc-button',
 				'wxc-tab': '@minui/wxc-tab',
 				'wxc-tab-panel': '@minui/wxc-tab/panel',
+				'wxc-notice': '@minui/wxc-notice',
 				'wui-dialog': '../../common/component/dialog',
 				'wui-abnor': '@yapple/wui-abnor',
 				'wui-icon': '@yapple/wui-icon',
@@ -90,7 +93,8 @@
 			player: null,
 			playerLastSeason: null,
 			rankTable: PkPlay.rankTable,
-			pkrule: pkrule
+			pkrule: pkrule,
+			showConfirmNotice: false
 		},
 		
 		async onShow() {
@@ -126,30 +130,22 @@
 			let plays = (playerMe && playerMe.status) ? await Play.getByPlayer(playerMe) : [];
 			
 			plays.reverse();
-			let playsTodo = [];
-			let playsOther = [];
-			let playsInvalid = [];
+			let playTodo = null;
+			let playTodoByOther = null;
+			let playTodoByJudge = null;
 			for (let play of plays) {
 				switch (play.status) {
 					case Play.S_FILLED:
-						if (play.participants[playerMe.id].accept)
-							playsOther.push(play);
+						if (!play.participants[playerMe.id].accept)
+							playTodo = play;
 						else
-							playsTodo.push(play);
+							playTodoByOther = play;
 						break;
 					case Play.S_PLAYER_ACCEPTED:
-						playsOther.push(play);
-						break;
-					case Play.S_ACCEPTED:
-						playsOther.push(play);
-						break;
-					case Play.S_REFUSED:
-					case Play.S_PLAYER_REFUSED:
-						playsInvalid.push(play);
+						playTodoByJudge = play;
 						break;
 				}
 			}
-			console.log('test 6');
 			
 			players.sort((a, b) => {
 				if (a.detail.rank < b.detail.rank)
@@ -168,8 +164,19 @@
 			});
 			
 			this.setData({ match, players, player: playerMe, playerLastSeason,
-				playsTodo, playsOther, playsInvalid });
-			
+				plays, playTodoByOther, playTodoByJudge });
+			if (playTodo) {
+				await $.Modal.show('确认比赛', '有一场比赛等待你的确认。', {
+					confirmText: '去确认',
+					showCancel: false
+				});
+				Page.navigateTo({
+					url: '/pages/playresult/index',
+					data: {
+						id: playTodo.id
+					}
+				});
+			}
 		},
 		
 		async onInheritButtonClicked(e) {
@@ -309,6 +316,7 @@
 		height: 60px;
 	}
 	.page__banner .__name {
+		flex-grow: 1;
 	}
 	.page__banner .__status {
 		text-align: right;

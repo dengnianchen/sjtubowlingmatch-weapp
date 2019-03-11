@@ -1,9 +1,16 @@
 <template>
 	<wxs src="../../util/index.wxs" module="util"></wxs>
-	<view>
-		{{util.valOr(rankTable[playerState.rank].name,'-')}} |
-		<wui-icon name="fas fa-star" color="#ff0000"></wui-icon> {{util.valOr(playerState.stars,'-')}} |
-		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{util.valOr(playerState.coins,'-')}}
+	<view class="pk-player-state">
+		<block wx:if="{{showRank}}">
+			{{util.valOr(rankTable[playerState.rank].name,'-')}} |
+			<view class="__item {{vertical?'__vertical':''}}">
+				<wui-icon name="fas fa-star" color="#ff0000"></wui-icon> {{util.valOr(playerState.stars,'-')}}
+			</view>
+		</block>
+		<block wx:if="{{showRank&&showCoin}}"> | </block>
+		<view wx:if="{{showCoin}}" class="__item {{vertical?'__vertical':''}}">
+			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{util.valOr(playerState.coins,'-')}}
+		</view>
 	</view>
 </template>
 
@@ -21,6 +28,18 @@
 			},
 			rankTable: {
 				type: Array
+			},
+			showRank: {
+				type: Boolean,
+				value: true
+			},
+			showCoin: {
+				type: Boolean,
+				value: true
+			},
+			vertical: {
+				type: Boolean,
+				value: false
 			}
 		},
 		data: {},
@@ -36,7 +55,14 @@
 </script>
 
 <style lang="less">
- .a{
-	 color: #d4ef37
- }
+	.pk-player-state {
+	}
+	.pk-player-state .__item {
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.pk-player-state .__vertical {
+		flex-direction: column;
+	}
 </style>

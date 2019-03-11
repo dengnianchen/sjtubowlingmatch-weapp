@@ -9,7 +9,7 @@ module.exports = {
 	
 	// Welib配置
 	welib: {
-		host: host + "/test_match",
+		host: host + "/match",
 		wui: {
 			/* WUI组件配置 */
 		}

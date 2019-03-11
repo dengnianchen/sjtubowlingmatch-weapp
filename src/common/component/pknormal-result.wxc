@@ -17,30 +17,55 @@
 					<view class="flex-field__3">{{play.participants[play.player_ids[1]].detail.score}}</view>
 				</view>
 			</wui-field>
-			<wui-field type="custom" label="比赛结果">
+			<wui-field wx:if="{{play.type!=='friendly'}}" type="custom" label="比赛结果">
 				<view class="flex-field">
 					<view class="flex-field__1">{{$.enums.pk.result[play.participants[play.player_ids[0]].result]}}</view>
 					<view class="flex-field__2"></view>
 					<view class="flex-field__3">{{$.enums.pk.result[play.participants[play.player_ids[1]].result]}}</view>
 				</view>
 			</wui-field>
-			<wui-field type="custom" label="赛前段位">
-				<view class="flex-field" style="font-size: 0.8em">
-					<app-pk-player-state class="flex-field__1" player-state="{{play.participants[play.player_ids[0]].state0}}"></app-pk-player-state>
+			<wui-field wx:if="{{play.type!=='friendly'}}" type="custom" label="赛前段位">
+				<view class="flex-field">
+					<app-pk-player-state class="flex-field__1" player-state="{{play.participants[play.player_ids[0]].state0}}" show-coin="{{false}}"></app-pk-player-state>
 					<view class="flex-field__2"></view>
-					<app-pk-player-state class="flex-field__3" player-state="{{play.participants[play.player_ids[1]].state0}}"></app-pk-player-state>
+					<app-pk-player-state class="flex-field__3" player-state="{{play.participants[play.player_ids[1]].state0}}" show-coin="{{false}}"></app-pk-player-state>
 				</view>
 			</wui-field>
-			<wui-field type="custom" label="赛后段位">
-				<view class="flex-field" style="font-size: 0.8em">
-					<app-pk-player-state class="flex-field__1" player-state="{{play.participants[play.player_ids[0]].state1}}"></app-pk-player-state>
+			<wui-field wx:if="{{play.type!=='friendly'}}" type="custom" label="赛后段位">
+				<view class="flex-field">
+					<app-pk-player-state class="flex-field__1" player-state="{{play.participants[play.player_ids[0]].state1}}" show-coin="{{false}}"></app-pk-player-state>
 					<view class="flex-field__2"></view>
-					<app-pk-player-state class="flex-field__3" player-state="{{play.participants[play.player_ids[1]].state1}}"></app-pk-player-state>
+					<app-pk-player-state class="flex-field__3" player-state="{{play.participants[play.player_ids[1]].state1}}" show-coin="{{false}}"></app-pk-player-state>
 				</view>
 			</wui-field>
 			<wui-field type="custom" label="比赛日期">{{play.play_date}}</wui-field>
 			<wui-field type="custom" label="当前状态">
 				<text style="color:{{playStatusColor[play.status]}}">{{play.status_names[play.status]}}</text>
+			</wui-field>
+		</wui-panel>
+		<wui-panel title="积分信息">
+			<wui-field type="custom" label="积分变化">
+				<view class="flex-field">
+					<view class="flex-field__1 flex-field__coin-change">
+						<app-pk-player-state player-state="{{play.participants[play.player_ids[0]].state0}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
+						<text decode="{{true}}">&nbsp;&nbsp;>&nbsp;&nbsp;</text>
+						<app-pk-player-state player-state="{{play.participants[play.player_ids[0]].state1}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
+					</view>
+					<view class="flex-field__2"></view>
+					<view class="flex-field__3 flex-field__coin-change">
+						<app-pk-player-state player-state="{{play.participants[play.player_ids[1]].state0}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
+						<text decode="{{true}}">&nbsp;&nbsp;>&nbsp;&nbsp;</text>
+						<app-pk-player-state player-state="{{play.participants[play.player_ids[1]].state1}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
+					</view>
+				</view>
+			</wui-field>
+			<wui-field wx:for="{{play.detail['effects']}}" wx:key="index"
+			           type="custom" label="{{item.name}}">
+				<view class="flex-field">
+					<view class="flex-field__1"><app-pk-dstate dstate="{{play.participants[play.player_ids[0]].detail.effects[item.id]}}"></app-pk-dstate></view>
+					<view class="flex-field__2"></view>
+					<view class="flex-field__3"><app-pk-dstate dstate="{{play.participants[play.player_ids[1]].detail.effects[item.id]}}"></app-pk-dstate></view>
+				</view>
 			</wui-field>
 		</wui-panel>
 		<wui-panel title="第一局：{{play.participants[play.games[0].player_id].player.user.name}}先手，{{game.formatScore(play.games[0])}} : {{game.formatScore(play.games[1])}}">
@@ -50,14 +75,6 @@
 			<app-game games="{{[ play.games[2], play.games[3] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
 		<wui-panel title="其他信息">
-			<wui-field wx:for="{{play.detail['effects']}}" wx:key="index"
-			           type="custom" label="{{item.name}}">
-				<view class="flex-field">
-					<app-pk-dstate class="flex-field__1" dstate="{{play.participants[play.player_ids[0]].detail.effects[item.id]}}"></app-pk-dstate>
-					<view class="flex-field__2"></view>
-					<app-pk-dstate class="flex-field__1" dstate="{{play.participants[play.player_ids[1]].detail.effects[item.id]}}"></app-pk-dstate>
-				</view>
-			</wui-field>
 			<wui-field type="custom" label="裁判">{{play.judge.name}}</wui-field>
 		</wui-panel>
 	</view>
@@ -101,7 +118,12 @@
 				this.setData({ play });
 			},
 			getShareTitle() {
-				return `${this.data.play.participants[this.data.play.player_ids[0]].player.user.name}的定级赛：${this.data.play.participants[this.data.play.player_ids[0]].detail.score}分`;
+				let playerNameA = this.data.play.participants[this.data.play.player_ids[0]].player.user.name;
+				let playerNameB = this.data.play.participants[this.data.play.player_ids[1]].player.user.name;
+				let playType = $.AppData.matches.pk[0].detail.type_table[this.data.play.type].name;
+				let scoreA = this.data.play.participants[this.data.play.player_ids[0]].detail.score;
+				let scoreB = this.data.play.participants[this.data.play.player_ids[1]].detail.score;
+				return `【${playType}】${playerNameA} VS ${playerNameB}：比分${scoreA}:${scoreB}`;
 			}
 		},
 	}
@@ -112,13 +134,19 @@
 		flex-grow: 1;
 		display: flex;
 		align-items: center;
+		justify-content: center;
 	}
 	.flex-field__2 {
-		width: 3em;
+		flex-grow: 1;
 		text-align: center;
 	}
 	.flex-field__1,.flex-field__3 {
-		flex-grow: 1;
 		text-align: center;
+		width: 220px;
+	}
+	.flex-field__coin-change {
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 </style>

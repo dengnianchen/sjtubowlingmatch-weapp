@@ -65,10 +65,7 @@
 			}
 			for (let user of allUsers)
 				user.pinyin = pinyin.getFirstLetter(user.name);
-			allUsers.sort((a, b) => {
-				let val = a.pinyin.localeCompare(b.pinyin);
-				return val;
-			});
+			allUsers.sort((a, b) => a.pinyin.localeCompare(b.pinyin));
 			this.setData({ users: allUsers });
 		},
 		_refresh() {

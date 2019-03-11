@@ -5,6 +5,7 @@
 	<view class="pk-dstate__item" wx:if="{{dstate.coins}}">
 		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>{{dstate.coins>0?'+':''}}{{dstate.coins}}
 	</view>
+	<view class="pk-dstate__item" wx:if="{{!dstate.coins&&!dstate.stars}}">-</view>
 </template>
 
 <script>
