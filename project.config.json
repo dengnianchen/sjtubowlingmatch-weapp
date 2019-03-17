@@ -12,5 +12,33 @@
 		"minified": true,
 		"newFeature": true
 	},
-	"condition": {}
+	"condition": {
+		"search": {
+			"current": -1,
+			"list": []
+		},
+		"conversation": {
+			"current": -1,
+			"list": []
+		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
+		"game": {
+			"list": []
+		},
+		"miniprogram": {
+			"current": 0,
+			"list": [
+				{
+					"id": 0,
+					"name": "Update",
+					"pathName": "pages/home/index",
+					"query": "",
+					"scene": null
+				}
+			]
+		}
+	}
 }
