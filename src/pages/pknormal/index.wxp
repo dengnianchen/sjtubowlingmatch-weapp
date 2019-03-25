@@ -247,7 +247,7 @@
 					(frameRef && frameRef.round === i) ? frameRef :null);
 			this.selectComponent('#game-keyboard').show(this._getFrame(frameRef),
 				frameRef && !frameRef.round && !frameRef.gameIndex && !frameRef.frameIndex);
-			this.setData({ scrollTop: frameRef.round === 0 ? 0 : 150 });
+			this.setData({ scrollTop: !frameRef || frameRef.round === 0 ? 0 : 150 });
 		},
 		_getFrame(fr) {
 			return !fr ? null : this.data.play.rounds[fr.round][fr.gameIndex].frames[fr.frameIndex];
