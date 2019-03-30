@@ -101,14 +101,20 @@
 			
 			let playing = wx.getStorageSync('pk');
 			if (playing) {
-				await $.Modal.show('回到比赛',
-					'您有尚未完成录入的比赛，必须完成录入后才能进行其他操作', {
-						showCancel: false,
+				var r = await $.Modal.show('回到比赛',
+					'您有尚未完成录入的比赛，是否继续完成录入？', {
+						showCancel: true,
+						cancelText: '放弃',
 						confirmText: '继续录入'
 					});
-				Page.navigateTo({
-					url: `/pages/pk${playing.type}/index`
-				});
+				if (!r) {
+					wx.removeStorageSync('pk');
+				} else {
+					Page.navigateTo({
+						url: `/pages/pk${playing.type}/index`
+					});
+					return;
+				}
 			}
 			
 			let match = $.AppData.matches.pk[0];

@@ -1,0 +1,36 @@
+<template>
+	<view class="pk-dstate__item" wx:if="{{cost.stars}}">
+		<wui-icon name="fas fa-star" color="#ff0000"></wui-icon>{{cost.stars}}
+	</view>
+	<view class="pk-dstate__item" wx:if="{{cost.coins}}">
+		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>{{cost.coins}}
+	</view>
+	<view class="pk-dstate__item" wx:if="{{!cost.coins&&!cost.stars}}">免费</view>
+</template>
+
+<script>
+	export default {
+		config: {
+			usingComponents: {
+				'wui-icon': '@yapple/wui-icon'
+			},
+		},
+		behaviors: [],
+		properties: {
+			cost: {
+				type: Object
+			}
+		},
+		data: {},
+		lifetimes: {
+		},
+		methods: {},
+	};
+</script>
+
+<style lang="less">
+	.pk-dstate__item {
+		flex-grow: 1;
+		text-align: center;
+	}
+</style>
