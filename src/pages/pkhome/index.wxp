@@ -31,6 +31,7 @@
 			<block wx:else>
 				<wxc-button class="__item" size="large" type="{{player.detail_confirmed?'primary':'disabled'}}" bind:submit="onNormalPlayButtonClicked">常规赛</wxc-button>
 				<wxc-button class="__item" size="large" type="{{player.detail_confirmed?'info':'disabled'}}" bind:submit="onFriendlyPlayButtonClicked">友谊赛</wxc-button>
+				<wxc-button class="__item" size="large" type="beauty" bind:submit="onShopButtonClicked">道具商店</wxc-button>
 			</block>
 		</block>
 	</view>
@@ -221,6 +222,7 @@
 			}
 		},
 		async onNormalPlayButtonClicked(e) {
+			$.Http.submit(e);
 			if ($.AppData.matches['pk'][0].week < 2) {
 				await $.Modal.show('开启常规赛', '常规赛将于赛季第3周起开放', {
 					confirmText: '知道了',
@@ -265,6 +267,7 @@
 			});
 		},
 		async onFriendlyPlayButtonClicked(e) {
+			$.Http.submit(e);
 			if ($.AppData.matches['pk'][0].week < 2) {
 				await $.Modal.show('开启友谊赛', '常规赛将于赛季第3周起开放', {
 					confirmText: '知道了',
@@ -306,6 +309,12 @@
 			Page.navigateTo({
 				url: '../pkfriendly/index',
 				richData: { me: this.data.player, opponent }
+			});
+		},
+		onShopButtonClicked(e) {
+			$.Http.submit(e);
+			Page.navigateTo({
+				url: '../pkshop/index'
 			});
 		},
 		_getMatch() {

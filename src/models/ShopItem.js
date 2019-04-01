@@ -1,3 +1,5 @@
+import PlayerBuy from './PlayerBuy';
+
 /**
  * @property        {Number}    id
  * @property        {String}    item_name       名称
@@ -21,8 +23,8 @@ class ShopItem extends $.Model {
 		return await $.Http.request(`/${$.Model.id(match)}/shop`, {}, ShopItem);
 	}
 	
-	async buy() {
-		return await $.Http.request(`/${this.match}/shop/buy/${this.identifier}`);
+	async buy(e) {
+		return await $.Http.submit(e, `POST /${this.match}/shop/buy/${this.identifier}`, {}, PlayerBuy);
 	}
 	
 }

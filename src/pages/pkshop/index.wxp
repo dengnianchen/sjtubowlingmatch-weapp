@@ -1,0 +1,228 @@
+<template>
+	<view class="page__banner">
+		<image class="page__banner__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
+		<text class="page__banner__elem __name">{{$.me.name}}</text>
+		<app-pk-player-state class="page__banner__elem__last __status"
+		                     player-state="{{player.detail}}"></app-pk-player-state>
+	</view>
+	<wxc-notice wx:if="{{!player.detail_confirmed}}"
+	            notice="你的上一场比赛尚未被确认，无法兑换道具。"
+	            color="#ff5777" bgColor="#ffe8ee"></wxc-notice>
+	<wui-panel wx:for="{{itemsOrganized}}" wx:key="index" wx:for-item="items"
+	           title="{{index}}">
+		<view class="shop_list">
+			<view wx:for="{{items}}" wx:key="index" class="__item">
+				<view bindtap="onItemClicked" data-item="{{item}}" class="__main">
+					<image class="__image" src="/images/pk/shop_{{item.identifier}}.svg"></image>
+					<view class="__name">{{item.item_name}}</view>
+					<app-pk-cost class="__cost" cost="{{item.detail['cost']}}" affordable="{{item.affordable}}"></app-pk-cost>
+				</view>
+				<wxc-button class="__button" value="兑换"
+				            type="{{item.violates.length&&item.affordable&&player.detail_confirmed?'success':'disabled'}}"
+				            btn-style="width: 220rpx"
+				            catch:submit="onBuyClicked"
+				            data-item="{{item}}"
+				></wxc-button>
+			</view>
+		</view>
+	</wui-panel>
+	
+	<wxc-mask status="{{itemDetail?'show':'hide'}}" content-align="cc">
+		<view class="item-detail">
+			<view class="__banner">
+				<image class="__image" src="/images/pk/shop_{{itemDetail.identifier}}.svg"></image>
+				<view class="__basic">
+					<view class="__title">
+						<text class="__title-text">{{itemDetail.item_name}}</text>
+						<app-pk-cost cost="{{itemDetail.detail['cost']}}" affordable="{{itemDetail.affordable}}"></app-pk-cost>
+					</view>
+					<view class="__desc">{{itemDetail.description}}</view>
+				</view>
+			</view>
+			<view class="__limit-list">
+				<view class="__label">限制条件：</view>
+				<view wx:for="{{itemDetail.detail['limits']}}" wx:key="index" wx:for-item="limit"
+					  class="__limit-item {{limit[1]?'__danger':'__success'}}">
+					<wui-icon wx:if="{{!limit[1]}}" name="fas fa-check"></wui-icon>
+					<wui-icon wx:elif="{{limit[1]}}" name="fas fa-times"></wui-icon>
+					{{limit[0]}}
+				</view>
+			</view>
+			<wxc-button class="__button" value="兑换"
+			            size="large"
+			            type="{{itemDetail.violates.length&&itemDetail.affordable&&player.detail_confirmed?'primary':'disabled'}}"
+			            btn-style="width: 600rpx"
+			            bind:submit="onBuyClicked"
+			            data-item="{{itemDetail}}"
+			></wxc-button>
+		</view>
+	</wxc-mask>
+	<wui-dialog id="dialog-share" title="道具兑换成功" confirmText="" cancelText="">
+		<text>道具兑换成功！</text>
+		<wxc-button type="success" size="large" btn-style="width:500rpx;margin:20rpx 0" value="转发到PK赛微信群" open-type="share"></wxc-button>
+	</wui-dialog>
+</template>
+
+<script>
+	import ShopItem from '../../models/ShopItem';
+	import Player from '../../models/Player';
+	
+	export default {
+		auth: true,
+		config: {
+			navigationBarTitleText: '道具商店',
+			usingComponents: {
+				'wxc-notice': '@minui/wxc-notice',
+				'wxc-button': '@minui/wxc-button',
+				'wxc-mask': '@minui/wxc-mask',
+				'wui-panel': '@yapple/wui-panel',
+				'wui-icon': '@yapple/wui-icon',
+				'wui-dialog': '../../common/component/dialog',
+				'app-pk-player-state': '../../common/component/pk-player-state',
+				'app-pk-cost': '../../common/component/pk-cost'
+			},
+		},
+		data: {},
+		
+		async onShow() {
+			var player = await Player.getInMatch('pk', $.AppData.me);
+			var items = await ShopItem.listAll('pk');
+			var itemsOrganized = {};
+			for (var item of items) {
+				if (!itemsOrganized[item.detail['category']])
+					itemsOrganized[item.detail['category']] = [ item ];
+				else
+					itemsOrganized[item.detail['category']].push(item);
+			}
+			this.setData({ player, itemsOrganized });
+		},
+		
+		onItemClicked(e) {
+			var item = e.currentTarget.dataset['item'];
+			this.setData({ itemDetail: item });
+		},
+		
+		async onBuyClicked(e) {
+			var item = e.currentTarget.dataset['item'];
+			try {
+				$.Modal.showBusy("正在处理");
+				var op = await ShopItem.prototype.buy.call(item, e);
+				this.setData({ lastBuy: op });
+				$.Wui.Dialog.show('#dialog-share');
+			} catch (ex) {
+				$.Modal.showError('兑换道具', ex);
+			}
+		},
+		
+		onShareAppMessage(res) {
+			$.Wui.Dialog.hide('#dialog-share');
+			return {
+				title: `${$.AppData.me.name}兑换了道具：${this.data.lastBuy.item.item_name}`,
+				path: this.getPath()
+			};
+		},
+	};
+</script>
+
+<style lang="less">
+	@import "../../style";
+	
+	.page__banner .__avatar {
+		width: 60px;
+		height: 60px;
+	}
+	
+	.page__banner .__name {
+		flex-grow: 1;
+	}
+	
+	.page__banner .__status {
+		text-align: right;
+	}
+	
+	.shop_list {
+		display: flex;
+	}
+	
+	.shop_list .__item {
+		width: 240px;
+		padding: 10px 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	
+	.shop_list .__item .__main {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	
+	.shop_list .__item .__image {
+		width: 220px;
+		height: 220px;
+	}
+	
+	.shop_list .__item .__cost {
+		font-size: 0.8em;
+	}
+	
+	.item-detail {
+		width: 600px;
+		border-radius: 10px;
+		background: white;
+		padding: 30px;
+	}
+	
+	.item-detail .__banner {
+		display: flex;
+		align-items: flex-start;
+		margin-bottom: 20px;
+	}
+	
+	.item-detail .__image {
+		width: 120px;
+		height: 120px;
+		float: left;
+		margin: 0 10px 0 0;
+	}
+	
+	.item-detail .__basic {
+		flex-grow: 1;
+	}
+	
+	.item-detail .__title {
+		font-size: @fontSize__subTitle;
+		margin-bottom: 10px;
+		display: flex;
+	}
+	
+	.item-detail .__title-text {
+		flex-grow: 1;
+	}
+	
+	.item-detail .__desc {
+		font-size: @fontSize__desc;
+		color: @color__desc;
+	}
+	
+	.item-detail .__label {
+		font-weight: bold;
+	}
+	
+	.item-detail .__limit-list {
+		font-size: @fontSize__desc;
+		border-top: 1px solid @splitLineColor;
+		margin-bottom: 20px;
+	}
+	
+	.item-detail .__limit-item.__danger {
+		color: @dangerColor;
+	}
+	
+	.item-detail .__limit-item.__success {
+		color: @successColor;
+	}
+	
+</style>

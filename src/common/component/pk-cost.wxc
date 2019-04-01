@@ -1,9 +1,11 @@
 <template>
 	<view class="pk-dstate__item" wx:if="{{cost.stars}}">
-		<wui-icon name="fas fa-star" color="#ff0000"></wui-icon>{{cost.stars}}
+		<wui-icon name="fas fa-star" color="#ff0000"></wui-icon>
+		<text class="{{affordable?'':'__danger'}}">{{cost.stars}}</text>
 	</view>
 	<view class="pk-dstate__item" wx:if="{{cost.coins}}">
-		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>{{cost.coins}}
+		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>
+		<text class="{{affordable?'':'__danger'}}">{{cost.coins}}</text>
 	</view>
 	<view class="pk-dstate__item" wx:if="{{!cost.coins&&!cost.stars}}">免费</view>
 </template>
@@ -19,6 +21,10 @@
 		properties: {
 			cost: {
 				type: Object
+			},
+			affordable: {
+				type: Boolean,
+				value: true
 			}
 		},
 		data: {},
@@ -29,8 +35,13 @@
 </script>
 
 <style lang="less">
+	@import "../../style";
+	
 	.pk-dstate__item {
 		flex-grow: 1;
 		text-align: center;
+	}
+	.pk-dstate__item .__danger {
+		color: @dangerColor;
 	}
 </style>
