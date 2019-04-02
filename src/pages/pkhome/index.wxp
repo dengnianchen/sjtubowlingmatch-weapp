@@ -29,24 +29,43 @@
 			<wui-abnor class="__item" style="align-self: stretch" wx:if="{{player.status==='new'}}" error="定级赛尚未被确认"></wui-abnor>
 			<wui-abnor class="__item" style="align-self: stretch" wx:elif="{{player.status==='quit'}}" error="你已退赛"></wui-abnor>
 			<block wx:else>
-				<wxc-button class="__item" size="large" type="{{player.detail_confirmed?'primary':'disabled'}}" bind:submit="onNormalPlayButtonClicked">常规赛</wxc-button>
-				<wxc-button class="__item" size="large" type="{{player.detail_confirmed?'info':'disabled'}}" bind:submit="onFriendlyPlayButtonClicked">友谊赛</wxc-button>
-				<wxc-button class="__item" size="large" type="beauty" bind:submit="onShopButtonClicked">道具商店</wxc-button>
+				<wxc-button class="__item" size="large"
+				            btn-style="{{$.style.button.large}} {{player.detail_confirmed?$.style.button.primary:$.style.button.disabled}}"
+				            bind:submit="onNormalPlayButtonClicked">常规赛</wxc-button>
+				<wxc-button class="__item" size="large"
+				            btn-style="{{$.style.button.large}} {{player.detail_confirmed?$.style.button.secondary:$.style.button.disabled}}"
+				            bind:submit="onFriendlyPlayButtonClicked">友谊赛</wxc-button>
+				<wxc-button class="__item" size="large" type="beauty"
+				            btn-style="{{$.style.button.large}} {{$.style.button.beauty}}"
+				            bind:submit="onShopButtonClicked">道具商店</wxc-button>
 			</block>
 		</block>
 	</view>
 	<view class="pkhome__tabs">
 		<wxc-tab default-index="{{0}}"
 				 active-text-color="#108ee9"
-				 active-line-color="#108ee9"
+				 active-line-color="none"
+		         line-color="none"
 				 component-id="c1"
 				 animate="{{true}}">
-			<wxc-tab-panel tab-index="{{0}}" component-id="c1" label="段位表">
+			<view slot="tablabel">
+				<wxc-tab-label tab-index="{{0}}" component-id="c1">
+					<view class="pkhome__tabs __label">
+						段位表
+					</view>
+				</wxc-tab-label>
+				<wxc-tab-label tab-index="{{1}}" component-id="c1">
+					<view class="pkhome__tabs __label">
+						历史战绩
+					</view>
+				</wxc-tab-label>
+			</view>
+			<wxc-tab-panel tab-index="{{0}}" component-id="c1">
 				<app-playerlist wx:for="{{players}}" wx:key="index" wx:for-item="player"
 				                wx:if="{{player.status&&player.status!=='quit'}}"
 				                index="{{index}}" player="{{player}}"></app-playerlist>
 			</wxc-tab-panel>
-			<wxc-tab-panel tab-index="{{1}}" component-id="c1" label="历史战绩">
+			<wxc-tab-panel tab-index="{{1}}" component-id="c1">
 				<app-playlist wx:for="{{plays}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
 				<wui-abnor wx:if="{{!plays.length}}" error="暂无记录"></wui-abnor>
 			</wxc-tab-panel>
@@ -80,6 +99,7 @@
 				'wxc-button': '@minui/wxc-button',
 				'wxc-tab': '@minui/wxc-tab',
 				'wxc-tab-panel': '@minui/wxc-tab/panel',
+				'wxc-tab-label': '@minui/wxc-tab/label',
 				'wxc-notice': '@minui/wxc-notice',
 				'wui-dialog': '../../common/component/dialog',
 				'wui-abnor': '@yapple/wui-abnor',
@@ -102,20 +122,18 @@
 			
 			let playing = wx.getStorageSync('pk');
 			if (playing) {
-				var r = await $.Modal.show('回到比赛',
-					'您有尚未完成录入的比赛，是否继续完成录入？', {
-						showCancel: true,
-						cancelText: '放弃',
-						confirmText: '继续录入'
-					});
-				if (!r) {
+				var r = await $.Wui.Dialog.show({
+					title: '回到比赛',
+					content: '您有尚未完成录入的比赛，是否继续完成录入？',
+					confirmText: '继续录入',
+					cancelText: '放弃'
+				});
+				if (!r)
 					wx.removeStorageSync('pk');
-				} else {
+				else
 					Page.navigateTo({
 						url: `/pages/pk${playing.type}/index`
 					});
-					return;
-				}
 			}
 			
 			let match = $.AppData.matches.pk[0];
@@ -346,7 +364,7 @@
 		padding: 20px;
 	}
 	.pkhome__menu .__item {
-		margin-bottom: 20px;
+		margin-bottom: 25px;
 	}
 	.pkhome__tabs {
 		background: white;

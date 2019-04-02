@@ -4,12 +4,12 @@
 		<block wx:if="{{showRank}}">
 			{{util.valOr(rankTable[playerState.rank].name,'-')}} |
 			<view class="__item {{vertical?'__vertical':''}}">
-				<wui-icon name="fas fa-star" color="#ff0000"></wui-icon> {{util.valOr(playerState.stars,'-')}}
+				<app-icon class="__icon" name="star" color="#FFB900"></app-icon> {{util.valOr(playerState.stars,'-')}}
 			</view>
 		</block>
 		<block wx:if="{{showRank&&showCoin}}"> | </block>
 		<view wx:if="{{showCoin}}" class="__item {{vertical?'__vertical':''}}">
-			<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon> {{util.valOr(playerState.coins,'-')}}
+			<app-icon class="__icon" name="coin" color="#FF9057"></app-icon> {{util.valOr(playerState.coins,'-')}}
 		</view>
 	</view>
 </template>
@@ -18,7 +18,7 @@
 	export default {
 		config: {
 			usingComponents: {
-				'wui-icon': '@yapple/wui-icon'
+				'app-icon': './icon'
 			},
 		},
 		behaviors: [],
@@ -61,6 +61,9 @@
 		display: inline-flex;
 		justify-content: center;
 		align-items: center;
+	}
+	.pk-player-state .__icon {
+		margin-right: 0.3em;
 	}
 	.pk-player-state .__vertical {
 		flex-direction: column;

@@ -1,10 +1,10 @@
 <template>
 	<view class="pk-dstate__item" wx:if="{{cost.stars}}">
-		<wui-icon name="fas fa-star" color="#ff0000"></wui-icon>
+		<app-icon class="__icon" name="star" color="#FFB900"></app-icon>
 		<text class="{{affordable?'':'__danger'}}">{{cost.stars}}</text>
 	</view>
 	<view class="pk-dstate__item" wx:if="{{cost.coins}}">
-		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>
+		<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>
 		<text class="{{affordable?'':'__danger'}}">{{cost.coins}}</text>
 	</view>
 	<view class="pk-dstate__item" wx:if="{{!cost.coins&&!cost.stars}}">免费</view>
@@ -14,7 +14,7 @@
 	export default {
 		config: {
 			usingComponents: {
-				'wui-icon': '@yapple/wui-icon'
+				'app-icon': './icon'
 			},
 		},
 		behaviors: [],
@@ -43,5 +43,8 @@
 	}
 	.pk-dstate__item .__danger {
 		color: @dangerColor;
+	}
+	.pk-dstate__item .__icon {
+		margin-right: 0.3em;
 	}
 </style>

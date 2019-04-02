@@ -33,5 +33,31 @@ module.exports = {
 		subTitle: "34rpx",
 		desc: "28rpx",
 		subDesc: "24rpx",
+	},
+	button: {
+		large: `
+			width: 654rpx;
+			height: 104rpx;
+			line-height: 104rpx;
+			border: none;
+			border-radius: 27rpx;
+			font-size: 30rpx;
+			`,
+		primary: `
+			background: #3ACCE1;
+			color: #FFF;
+			`,
+		secondary: `
+			background: #444F63;
+			color: #FFF;
+			`,
+		beauty: `
+			background: #FF4F9A;
+			color: #FFF;
+			`,
+		disabled: `
+			background: #D2D2D2;
+			color: #FFF;
+			`,
 	}
 };

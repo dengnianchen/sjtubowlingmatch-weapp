@@ -6,10 +6,10 @@
 				<view class="list__name">{{player.user.name}}</view>
 				<view class="list__rank">{{rankTable[player.detail.rank].name}}</view>
 				<view class="list__stars">
-					<wui-icon name="fas fa-star" color="#ff0000"></wui-icon>{{player.detail.stars}}
+					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.detail.stars}}
 				</view>
 				<view class="list__coins">
-					<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>{{player.detail.coins}}
+					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.detail.coins}}
 				</view>
 			</view>
 		</button>
@@ -21,7 +21,7 @@
 	export default {
 		config: {
 			usingComponents: {
-				'wui-icon': '@yapple/wui-icon'
+				'app-icon': './icon'
 			}
 		},
 		behaviors: [ ],
@@ -107,4 +107,7 @@
 		width: 5em;
 	}
 	
+	.list__body .__icon {
+		margin-right: 0.3em;
+	}
 </style>

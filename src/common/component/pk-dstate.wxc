@@ -1,9 +1,9 @@
 <template>
 	<view class="pk-dstate__item" wx:if="{{dstate.stars}}">
-		<wui-icon name="fas fa-star" color="#ff0000"></wui-icon>{{dstate.stars>0?'+':''}}{{dstate.stars}}
+		<app-icon class="__icon" name="star" color="#FFB900"></app-icon> {{dstate.stars>0?'+':''}}{{dstate.stars}}
 	</view>
 	<view class="pk-dstate__item" wx:if="{{dstate.coins}}">
-		<wui-icon name="fas fa-coins" color="#ff8e00"></wui-icon>{{dstate.coins>0?'+':''}}{{dstate.coins}}
+		<app-icon class="__icon" name="coin" color="#FF9057"></app-icon> {{dstate.coins>0?'+':''}}{{dstate.coins}}
 	</view>
 	<view class="pk-dstate__item" wx:if="{{!dstate.coins&&!dstate.stars}}">-</view>
 </template>
@@ -12,7 +12,7 @@
 	export default {
 		config: {
 			usingComponents: {
-				'wui-icon': '@yapple/wui-icon'
+				'app-icon': './icon'
 			},
 		},
 		behaviors: [],
@@ -32,5 +32,8 @@
 	.pk-dstate__item {
 		flex-grow: 1;
 		text-align: center;
+	}
+	.pk-dstate__item .__icon {
+		margin-right: 0.3em;
 	}
 </style>

@@ -1,4 +1,11 @@
 <template>
+	<wxs module="_this">
+		module.exports = {
+			canBuy: function(player, item) {
+				return !item.violates.length && item.affordable && player.detail_confirmed;
+			}
+		};
+	</wxs>
 	<view class="page__banner">
 		<image class="page__banner__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
 		<text class="page__banner__elem __name">{{$.me.name}}</text>
@@ -13,12 +20,12 @@
 		<view class="shop_list">
 			<view wx:for="{{items}}" wx:key="index" class="__item">
 				<view bindtap="onItemClicked" data-item="{{item}}" class="__main">
-					<image class="__image" src="/images/pk/shop_{{item.identifier}}.svg"></image>
+					<image class="__image" src="/images/pk/shop_{{item.identifier}}.png" mode="aspectFill"></image>
 					<view class="__name">{{item.item_name}}</view>
 					<app-pk-cost class="__cost" cost="{{item.detail['cost']}}" affordable="{{item.affordable}}"></app-pk-cost>
 				</view>
 				<wxc-button class="__button" value="兑换"
-				            type="{{item.violates.length&&item.affordable&&player.detail_confirmed?'success':'disabled'}}"
+				            type="{{_this.canBuy(player,item)?'success':'disabled'}}"
 				            btn-style="width: 220rpx"
 				            catch:submit="onBuyClicked"
 				            data-item="{{item}}"
@@ -30,7 +37,7 @@
 	<wxc-mask status="{{itemDetail?'show':'hide'}}" content-align="cc">
 		<view class="item-detail">
 			<view class="__banner">
-				<image class="__image" src="/images/pk/shop_{{itemDetail.identifier}}.svg"></image>
+				<image class="__image" src="/images/pk/shop_{{itemDetail.identifier}}.png" mode="aspectFill"></image>
 				<view class="__basic">
 					<view class="__title">
 						<text class="__title-text">{{itemDetail.item_name}}</text>
@@ -50,7 +57,7 @@
 			</view>
 			<wxc-button class="__button" value="兑换"
 			            size="large"
-			            type="{{itemDetail.violates.length&&itemDetail.affordable&&player.detail_confirmed?'primary':'disabled'}}"
+			            type="{{_this.canBuy(player,itemDetail)?'primary':'disabled'}}"
 			            btn-style="width: 600rpx"
 			            bind:submit="onBuyClicked"
 			            data-item="{{itemDetail}}"
@@ -104,9 +111,11 @@
 		
 		async onBuyClicked(e) {
 			var item = e.currentTarget.dataset['item'];
+			this.setData({ itemDetail: null });
 			try {
 				$.Modal.showBusy("正在处理");
 				var op = await ShopItem.prototype.buy.call(item, e);
+				$.Modal.hideToast();
 				this.setData({ lastBuy: op });
 				$.Wui.Dialog.show('#dialog-share');
 			} catch (ex) {
@@ -118,6 +127,7 @@
 			$.Wui.Dialog.hide('#dialog-share');
 			return {
 				title: `${$.AppData.me.name}兑换了道具：${this.data.lastBuy.item.item_name}`,
+				imageUrl: `/images/pk/shop_${this.data.lastBuy.item.identifier}.png`,
 				path: this.getPath()
 			};
 		},
