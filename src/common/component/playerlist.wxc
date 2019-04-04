@@ -81,15 +81,14 @@
 		margin-left: 30rpx;
 		box-sizing: border-box;
 		border-bottom: 1px solid #ececec;
-		font-size: 32rpx;
-		color: #333;
+		color: @color__text;
 		flex-grow: 1;
 	}
 	.list__none {
 		border: none;
 	}
 	.list__unconfirmed {
-		color: @color__subDesc;
+		color: @color__desc;
 	}
 	.list__id {
 		width: 2em;

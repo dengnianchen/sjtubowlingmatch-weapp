@@ -1,24 +1,28 @@
 <template>
 	<view class="page__banner">
-		<image class="page__banner__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
-		<text class="page__banner__elem__last __title">{{$.me.name}}，欢迎光临！</text>
+		<image class="__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
+		<text class="__elem __name">{{$.me.name}}，欢迎光临！</text>
 	</view>
-	<view class="cc home-menu">
-		<text class="__item __desc">———— 正在进行 ————</text>
+	<view class="home-menu">
+		<view class="__item __desc">正在进行</view>
 		<block wx:for="{{$.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
 			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
 					wx:if="{{match.status==='active'}}"
-					class="__item" size="large" type="success"
-					value="{{match.name}}" data-entry="active-{{match.category}}"
-					bind:submit="onMenuEntryClicked"></wxc-button>
+					class="__item" size="large" btn-style="{{itemButtonStyle}}"
+					data-entry="active-{{match.category}}"
+					bind:submit="onMenuEntryClicked">
+				<view class="__dot __dot--active"></view>{{match.name}}
+			</wxc-button>
 		</block>
-		<text class="__item __desc">———— 已结束 ————</text>
+		<view class="__item __desc">已结束</view>
 		<block wx:for="{{$.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
 			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
 			            wx:if="{{match.status==='finished'}}"
-			            class="__item" size="large" type="disabled"
-			            value="{{match.name}}" data-entry="finished-{{match.id}}"
-			            bind:submit="onMenuEntryClicked"></wxc-button>
+			            class="__item" size="large" btn-style="{{itemButtonStyle}}"
+			            data-entry="finished-{{match.id}}"
+			            bind:submit="onMenuEntryClicked">
+				<view class="__dot"></view>{{match.name}}
+			</wxc-button>
 		</block>
 	</view>
 	<view class="home-version" bindtap="_onVersionClicked">当前版本：{{currentVersion.id}}</view>
@@ -35,7 +39,19 @@
 			}
 		},
 		data: {
-			currentVersion: versions[0]
+			currentVersion: versions[0],
+			itemButtonStyle: `
+				width: 685rpx;
+				height: 135rpx;
+				border-radius: 27rpx;
+				font-size: ${$.AppData.style.fontSize.text};
+				color: ${$.AppData.style.color.text};
+				box-shadow: 0 4rpx 14rpx #455B6314;
+				background: white;
+				display: flex;
+				align-items: center;
+				margin: auto;
+				padding: 0`
 		},
 		onMenuEntryClicked(e) {
 			$.Http.submit(e);
@@ -58,24 +74,32 @@
 <style lang="less">
 	@import "../../style";
 	
-	.page__banner .__avatar {
-		width: 60px;
-		height: 60px;
+	.home-menu {
+		padding: 80px 32px;
+		
+		.__item {
+			margin-bottom: 27px;
+			
+			.__dot {
+				width: 16px;
+				height: 16px;
+				border-radius: 8px;
+				margin: 0 40px;
+				background: @color__inactive;
+				&--active {
+					background: @color__active;
+				}
+			}
+		}
+		
+		.__desc {
+			font-size: @fontSize__desc;
+			color: @color__desc;
+			margin-top: 60px;
+		}
 		
 	}
-	.page__banner .__title {
-	}
-	.home-menu {
 	
-	}
-	.home-menu .__item {
-		margin-top: 20px;
-	}
-	.home-menu .__desc {
-		font-size: @fontSize__desc;
-		color: @color__desc;
-		margin-top: 60px;
-	}
 	.home-version {
 		margin-top: 60px;
 		font-size: @fontSize__subDesc;

@@ -38,20 +38,20 @@
 				request: 10000,
 			},
 			tabBar: {
-				color: '#999999',
-				selectedColor: '#00B26A',
+				color: '#959DAD',
+				selectedColor: '#454F63',
 				list: [
 					{
 						pagePath: 'pages/home/index',
-						text: '首页',
-						iconPath: '/images/home.png',
-						selectedIconPath: '/images/home-active.png'
+						text: 'PK赛',
+						iconPath: '/images/pk-inactive.png',
+						selectedIconPath: '/images/pk.png'
 					},
 					{
 						pagePath: 'pages/judgehome/index',
 						text: '裁判',
-						iconPath: '/images/user.png',
-						selectedIconPath: '/images/user-active.png'
+						iconPath: '/images/judge-inactive.png',
+						selectedIconPath: '/images/judge.png'
 					}
 				],
 			},
@@ -67,6 +67,8 @@
 		 * @author Deng Nianchen
 		 */
 		async beforePageLoad(page) {
+			if (!$.AppData.matches)
+				$.AppData.matches = await MatchList.getList();
 			let redirectToBind = async () => await Page.redirectTo({
 				url: '../bind/index',
 				data: { from: page.getPath() }
@@ -92,7 +94,7 @@
 		},
 		
 		async onLaunch() {
-			$.AppData.matches = await MatchList.getList();
+			//$.AppData.matches = await MatchList.getList();
 		},
 		
 		onShow() { },
@@ -104,9 +106,10 @@
 	@import "style";
 	
 	page {
-		background-color: @backgroundColor;
+		background-color: @color__background;
 		height: 100%;
 		font-size: @fontSize__text;
+		color: @color__text;
 		line-height: 1.5;
 		font-family: -apple-system-font,Helvetica Neue,Helvetica,sans-serif;
 	}
@@ -115,14 +118,22 @@
 		display: flex;
 		align-items: center;
 		background: white;
-		border-bottom: 1px solid @splitLineColor;
-		padding: 10px;
-	}
-	.page__banner__elem {
-		margin-right: 10px;
-	}
-	.page__banner__elem__last {
-		flex-grow: 1;
+		height: 136px;
+		padding: 0 0 0 20px;
+		
+		.__elem {
+			margin-right: 20px;
+		}
+		
+		.__avatar {
+			width: 96px;
+			height: 96px;
+		}
+		
+		.__name {
+			flex-grow: 1;
+		}
+		
 	}
 	
 	.page__hd {

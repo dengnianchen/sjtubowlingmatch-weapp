@@ -73,6 +73,7 @@
 </script>
 
 <style lang="less">
+	@import "../../style";
 	
 	.game-container {
 		display: grid;
@@ -82,7 +83,7 @@
 	
 	.game__frame {
 		border-bottom: solid 1px black;
-		border-right: solid 1px @splitLineColor;
+		border-right: solid 1px @color__splitLine;
 		text-align: center;
 	}
 	

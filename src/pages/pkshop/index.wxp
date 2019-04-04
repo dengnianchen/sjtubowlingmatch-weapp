@@ -7,10 +7,9 @@
 		};
 	</wxs>
 	<view class="page__banner">
-		<image class="page__banner__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
-		<text class="page__banner__elem __name">{{$.me.name}}</text>
-		<app-pk-player-state class="page__banner__elem__last __status"
-		                     player-state="{{player.detail}}"></app-pk-player-state>
+		<image class="__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
+		<text class="__elem __name">{{$.me.name}}</text>
+		<app-pk-player-state class="__elem __status" player-state="{{player.detail}}"></app-pk-player-state>
 	</view>
 	<wxc-notice wx:if="{{!player.detail_confirmed}}"
 	            notice="你的上一场比赛尚未被确认，无法兑换道具。"
@@ -137,15 +136,6 @@
 <style lang="less">
 	@import "../../style";
 	
-	.page__banner .__avatar {
-		width: 60px;
-		height: 60px;
-	}
-	
-	.page__banner .__name {
-		flex-grow: 1;
-	}
-	
 	.page__banner .__status {
 		text-align: right;
 	}
@@ -223,7 +213,7 @@
 	
 	.item-detail .__limit-list {
 		font-size: @fontSize__desc;
-		border-top: 1px solid @splitLineColor;
+		border-top: 1px solid @color__splitLine;
 		margin-bottom: 20px;
 	}
 	

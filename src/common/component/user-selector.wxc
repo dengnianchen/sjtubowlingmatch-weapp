@@ -131,7 +131,7 @@
 	.user-selector__search {
 		flex-grow: 1;
 		padding: 10px 5px;
-		border-bottom: solid 1px @splitLineColor;
+		border-bottom: solid 1px @color__splitLine;
 	}
 	
 	.user-selector__userlist {
