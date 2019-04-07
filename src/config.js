@@ -12,6 +12,12 @@ module.exports = {
 		host: host + "/test_match",
 		wui: {
 			/* WUI组件配置 */
+			abnor: {
+				'NO_RECORD': {
+					image: null,
+					button: null
+				}
+			}
 		}
 	}
 };

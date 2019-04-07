@@ -1,6 +1,6 @@
 <template>
 	<view class="page__banner">
-		<image class="__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
+		<image class="__elem __avatar" src="{{$.me.avatar}}"></image>
 		<text class="__elem __name">{{$.me.name}}，欢迎光临！</text>
 	</view>
 	<view class="home-menu">

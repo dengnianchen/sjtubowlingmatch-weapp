@@ -1,15 +1,12 @@
 <template>
 	<view class="page__banner">
-		<image class="__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
+		<image class="__elem __avatar" src="{{$.me.avatar}}"></image>
 		<text class="__elem __name">{{$.me.name}}</text>
-		<app-pk-player-state class="__elem __status" player-state="{{player.detail}}"></app-pk-player-state>
+		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info.state}}"></app-pk-player-state>
 	</view>
-	<wxc-notice wx:if="{{playTodoByOther}}"
-	            notice="你的上一场比赛尚未被其他选手确认，在被确认前无法开启新的比赛"
-	            color="#ff5777" bgColor="#ffe8ee" scroll="{{true}}"></wxc-notice>
-	<wxc-notice wx:if="{{playTodoByJudge}}"
-	            notice="你的上一场比赛尚未被裁判确认，在被确认前无法开启新的比赛"
-	            color="#ff5777" bgColor="#ffe8ee" scroll="{{true}}"></wxc-notice>
+	<wxc-notice wx:if="{{!player.detail_confirmed}}"
+	            notice="你的上一场比赛尚未被确认，在被确认前无法开启新的比赛"
+	            color="#ff5777" bgColor="#ffe8ee"></wxc-notice>
 	<view class="cc pkhome__menu">
 		<view class="__item">当前为本赛季第{{match.week+1}}周</view>
 		<block wx:if="{{!player || !player.status}}">
@@ -47,26 +44,89 @@
 		</block>
 	</view>
 	<view class="pkhome__tabs">
-		<app-tab default-index="{{0}}"
+		<app-tab default-index="0"
 				 active-text-color="#108ee9"
 				 active-line-color="none"
 		         line-color="none"
 				 component-id="c1"
 				 animate="{{true}}">
-			<wxc-tab-panel tab-index="{{0}}" component-id="c1" label="段位表">
-				<app-playerlist wx:for="{{players}}" wx:key="index" wx:for-item="player"
-				                wx:if="{{player.status&&player.status!=='quit'}}"
-				                index="{{index}}" player="{{player}}"></app-playerlist>
+			<wxc-tab-panel tab-index="0" component-id="c1" label="段位表">
+				<wui-content id="content-player-list">
+					<app-playerlist wx:for="{{players}}" wx:key="index" wx:for-item="player"
+					                index="{{index}}" player="{{player}}"
+					                mode="{{index===players.length-1?'last':''}}"
+					></app-playerlist>
+				</wui-content>
 			</wxc-tab-panel>
-			<wxc-tab-panel tab-index="{{1}}" component-id="c1" label="历史战绩">
-				<app-playlist wx:for="{{plays}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
-				<wui-abnor wx:if="{{!plays.length}}" error="暂无记录"></wui-abnor>
+			<wxc-tab-panel tab-index="1" component-id="c1" label="赛况历史">
+				<view class="play-list__filters">
+					<app-switch checked="{{playFilter.onlyThisWeek}}"
+					            label="仅显示本周的比赛"
+					            bindchange="onPlayFilterOnlyThisWeekChanged"
+					></app-switch>
+					<app-switch checked="{{playFilter.onlyMe}}"
+					            label="仅显示我参与的比赛"
+					            bindchange="onPlayFilterOnlyMeChanged"
+					></app-switch>
+				</view>
+				<wui-content id="content-play-list">
+					<app-playlist wx:for="{{plays}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
+				</wui-content>
+			</wxc-tab-panel>
+			<wxc-tab-panel tab-index="2" component-id="c1" label="本周榜单">
+				<wui-content id="content-weekly-list">
+					<view class="weekly-list__title">场高分榜</view>
+					<view class="weekly-list__content">
+						<block wx:for="{{weeklyList.playscore}}" wx:key="index">
+							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
+								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
+								<image class="__award" src="/images/award{{index}}.png"></image>
+								<view class="__name">{{player.name}}</view>
+								<view class="__value">{{item.value}}分</view>
+							</view>
+						</block>
+						<view wx:if="{{!weeklyList.playscore.length}}" class="__item">
+							<app-avatar class="__avatar" src="../../images/unknown-avatar.jpg"></app-avatar>
+							<view class="__name">虚位以待</view>
+						</view>
+					</view>
+					<view class="weekly-list__title">局高分榜</view>
+					<view class="weekly-list__content">
+						<block wx:for="{{weeklyList.gamescore}}" wx:key="index">
+							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
+								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
+								<image class="__award" src="/images/award{{index}}.png"></image>
+								<view class="__name">{{player.name}}</view>
+								<view class="__value">{{item.value}}分</view>
+							</view>
+						</block>
+						<view wx:if="{{!weeklyList.gamescore.length}}" class="__item">
+							<app-avatar class="__avatar" src="../../images/unknown-avatar.jpg"></app-avatar>
+							<view class="__name">虚位以待</view>
+						</view>
+					</view>
+					<view class="weekly-list__title">分屏榜</view>
+					<view class="weekly-list__content">
+						<block wx:for="{{weeklyList.split}}" wx:key="index">
+							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
+								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
+								<image class="__award" src="/images/award{{index}}.png"></image>
+								<view class="__name">{{player.name}}</view>
+								<view class="__value">{{item.value}}个</view>
+							</view>
+						</block>
+						<view wx:if="{{!weeklyList.split.length}}" class="__item">
+							<app-avatar class="__avatar" src="../../images/unknown-avatar.jpg"></app-avatar>
+							<view class="__name">虚位以待</view>
+						</view>
+					</view>
+				</wui-content>
 			</wxc-tab-panel>
 		</app-tab>
 	</view>
 	
 	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="再想想">
-		<app-pk-player-state player-state="{{playerLastSeason.detail}}" rank-table="{{$.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
+		<app-pk-player-state player-state="{{playerLastSeason.detail_info.state}}" rank-table="{{$.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
 		<text>↓</text>
 		<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
@@ -96,10 +156,13 @@
 				'wui-dialog': '../../common/component/dialog',
 				'wui-abnor': '@yapple/wui-abnor',
 				'wui-icon': '@yapple/wui-icon',
+				'wui-content': '@yapple/wui-content',
 				'app-pk-player-state': '../../common/component/pk-player-state',
 				'app-playlist': '../../common/component/playlist',
 				'app-playerlist': '../../common/component/playerlist',
-				'app-tab': '../../common/component/tab'
+				'app-tab': '../../common/component/tab',
+				'app-avatar': '../../common/component/avatar',
+				'app-switch': '../../common/component/switch'
 			},
 		},
 		data: {
@@ -108,11 +171,22 @@
 			playerLastSeason: null,
 			rankTable: PkPlay.rankTable,
 			pkrule: pkrule,
-			showConfirmNotice: false
+			showConfirmNotice: false,
+			playFilter: {
+				onlyThisWeek: true,
+				onlyMe: false
+			}
+		},
+		
+		onLoad() {
+			$.Wui.content('content-player-list').bindLoad(this.loadPlayerList);
+			$.Wui.content('content-play-list').bindLoad(this.loadPlayList);
+			$.Wui.content('content-weekly-list').bindLoad(this.loadWeeklyList);
 		},
 		
 		async onShow() {
 			
+			// 检查是否有未完成录入的比赛，若有，则提示之
 			let playing = wx.getStorageSync('pk');
 			if (playing) {
 				var r = await $.Wui.Dialog.show({
@@ -129,6 +203,7 @@
 					});
 			}
 			
+			// 获取当前赛季的比赛信息
 			let match = $.AppData.matches.pk[0];
 			if (!match || match.status !== 'active') {
 				wx.setNavigationBarTitle({ title: 'PK赛关闭中' });
@@ -136,65 +211,20 @@
 			}
 			wx.setNavigationBarTitle({ title: match.name });
 			
-			let players = await PkPlay.getPlayers();
+			// 获取当前用户在本赛季中的选手信息
+			let playerMe = await Player.getInMatch(match, $.AppData.me);
 			
-			let playerMe = null;
-			for (let player of players)
-				if (player.user_id === $.AppData.me.id)
-					playerMe = player;
-			
+			// 如需要，获取当前用户在上赛季中的选手信息（用于判断段位继承）
 			let playerLastSeason = (playerMe && playerMe.status) ? null :
 				await Player.getInMatch($.AppData.matches.pk[1], $.AppData.me);
-			let plays = (playerMe && playerMe.status) ? await Play.getByPlayer(playerMe) : [];
+
+			this.setData({ match, player: playerMe, playerLastSeason });
 			
-			plays.reverse();
-			let playTodo = null;
-			let playTodoByOther = null;
-			let playTodoByJudge = null;
-			for (let play of plays) {
-				switch (play.status) {
-					case Play.S_FILLED:
-						if (!play.participants[playerMe.id].accept)
-							playTodo = play;
-						else
-							playTodoByOther = play;
-						break;
-					case Play.S_PLAYER_ACCEPTED:
-						playTodoByJudge = play;
-						break;
-				}
-			}
+			// 加载其他内容
+			$.Wui.content('content-player-list').load();
+			$.Wui.content('content-play-list').load();
+			$.Wui.content('content-weekly-list').load();
 			
-			players.sort((a, b) => {
-				if (a.detail.rank < b.detail.rank)
-					return 1;
-				if (a.detail.rank > b.detail.rank)
-					return -1;
-				if (a.detail.stars < b.detail.stars)
-					return 1;
-				if (a.detail.stars > b.detail.stars)
-					return -1;
-				if (a.detail.coins < b.detail.coins)
-					return 1;
-				if (a.detail.coins > b.detail.coins)
-					return -1;
-				return 0;
-			});
-			
-			this.setData({ match, players, player: playerMe, playerLastSeason,
-				plays, playTodoByOther, playTodoByJudge });
-			if (playTodo) {
-				await $.Modal.show('确认比赛', '有一场比赛等待你的确认。', {
-					confirmText: '去确认',
-					showCancel: false
-				});
-				Page.navigateTo({
-					url: '/pages/playresult/index',
-					data: {
-						id: playTodo.id
-					}
-				});
-			}
 		},
 		
 		async onInheritButtonClicked(e) {
@@ -253,7 +283,7 @@
 				if (player.status === Player.S_NORMAL &&
 					player.detail_confirmed &&
 					player.id !== this.data.player.id &&
-					Math.abs(this.data.player.detail['rank'] - player.detail['rank']) < 2)
+					Math.abs(this.data.player.detail_info.state['rank'] - player.detail_info.state['rank']) < 2)
 					players.push(player);
 			}
 			let opponent = await Page.navigateToDialog({
@@ -267,7 +297,7 @@
 				return;
 			let r = await $.Wui.Dialog.show({
 				title: '开始常规赛',
-				content: `确认选择${opponent.user.name}作为对手？`,
+				content: `确认选择${opponent.name}作为对手？`,
 				confirmText: '确认',
 				cancelText: '取消'
 			});
@@ -298,7 +328,7 @@
 				if (player.status === Player.S_NORMAL &&
 					player.detail_confirmed &&
 					player.id !== this.data.player.id &&
-					this.data.player.detail['rank'] !== player.detail['rank'])
+					this.data.player.detail_info.state['rank'] !== player.detail_info.state['rank'])
 					players.push(player);
 			}
 			let opponent = await Page.navigateToDialog({
@@ -312,7 +342,7 @@
 				return;
 			let r = await $.Wui.Dialog.show({
 				title: '开始友谊赛',
-				content: `确认选择${opponent.user.name}作为对手？`,
+				content: `确认选择${opponent.name}作为对手？`,
 				confirmText: '确认',
 				cancelText: '取消'
 			});
@@ -327,6 +357,66 @@
 			Page.navigateTo({
 				url: '../pkshop/index'
 			});
+		},
+		onPlayFilterOnlyThisWeekChanged(e) {
+			let playFilter = this.data.playFilter;
+			playFilter.onlyThisWeek = e.detail.value;
+			this.setData({ playFilter });
+			$.Wui.content('content-play-list').load();
+		},
+		onPlayFilterOnlyMeChanged(e) {
+			let playFilter = this.data.playFilter;
+			playFilter.onlyMe = e.detail.value;
+			this.setData({ playFilter });
+			$.Wui.content('content-play-list').load();
+		},
+		async loadPlayerList() {
+			let players = await PkPlay.getPlayers();
+			players.sort((a, b) => {
+				if (a.detail_info.state['rank'] < b.detail_info.state['rank'])
+					return 1;
+				if (a.detail_info.state['rank'] > b.detail_info.state['rank'])
+					return -1;
+				if (a.detail_info.state['stars'] < b.detail_info.state['stars'])
+					return 1;
+				if (a.detail_info.state['stars'] > b.detail_info.state['stars'])
+					return -1;
+				if (a.detail_info.state['coins'] < b.detail_info.state['coins'])
+					return 1;
+				if (a.detail_info.state['coins'] > b.detail_info.state['coins'])
+					return -1;
+				return 0;
+			});
+			this.setData({ players });
+		},
+		async loadPlayList() {
+			let filters = {};
+			if (this.data.playFilter.onlyThisWeek)
+				filters.from_week = this.data.match.week;
+			if (this.data.playFilter.onlyMe && this.data.player)
+				filters.play_by = this.data.player.id;
+			let plays = await Play.getPlays(this.data.match, filters);
+			plays.reverse();
+			if (!plays.length)
+				throw $.Err.NO_RECORD ();
+			
+			/*if (playTodo) {
+				await $.Modal.show('确认比赛', '有一场比赛等待你的确认。', {
+					confirmText: '去确认',
+					showCancel: false
+				});
+				Page.navigateTo({
+					url: '/pages/playresult/index',
+					data: {
+						id: playTodo.id
+					}
+				});
+			}*/
+			this.setData({ plays });
+		},
+		async loadWeeklyList() {
+			let weeklyList = await PkPlay.getWeeklyList();
+			this.setData({ weeklyList });
 		},
 		_getMatch() {
 			return $.AppData.matches.pk[0];
@@ -367,6 +457,65 @@
 		font-size: @fontSize__desc;
 		color: @color__desc;
 		padding: 20px;
+	}
+	
+	.play-list__filters {
+		display: flex;
+		justify-content: space-between;
+		padding: 25px 15px;
+	}
+	
+	.weekly-list__title {
+		text-align: center;
+		font-size: @fontSize__desc;
+		color: @color__desc;
+		margin: 80px 0 30px 0;
+	}
+	
+	.weekly-list__content {
+		display: flex;
+		justify-content: space-around;
+		margin: 30px 0;
+		
+		.__item {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			position: relative;
+			padding-top: 20px;
+			
+			.__avatar {
+				width: 120px;
+				height: 120px;
+			}
+			
+			.__award {
+				position:absolute;
+				width:80px;
+				height:80px;
+				top:-20px;
+				right:-20px;
+				rotate:30deg;
+				
+			}
+			
+			.__name {
+				font-size: @fontSize__text;
+				color: @color__text;
+			}
+			
+			.__value {
+				font-size: @fontSize__text;
+				color: @color__text;
+			}
+			
+			.__date {
+				font-size: @fontSize__desc;
+				color: @color__desc;
+			}
+			
+		}
+		
 	}
 	
 </style>

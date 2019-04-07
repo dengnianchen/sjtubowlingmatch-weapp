@@ -80,8 +80,8 @@
 		margin-left: 30rpx;
 		box-sizing: border-box;
 		border-bottom: 1px solid #ececec;
-		font-size: 32rpx;
-		color: #333;
+		font-size: @fontSize__text;
+		color: @color__text;
 		flex-grow: 1;
 	}
 	.list__none {
@@ -92,9 +92,9 @@
 	}
 	.list__title--sub {
 		margin-top: 14rpx;
-		font-size: 28rpx;
+		font-size: @fontSize__desc;
 		line-height: 40rpx;
-		color: #999;
+		color: @color__desc;
 	}
 	.play--accept {
 		color: @successColor;

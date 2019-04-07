@@ -6,10 +6,13 @@ const Game = require('./Game');
  * @property {number}   id
  * @property {number}   user_id     所属用户ID
  * @property {string}   match       所属比赛
- * @property {object}   detail      详情（内容与具体比赛有关）
+ * @property {object}   detail_info 详情（内容与具体比赛有关）
  * @property {boolean}  detail_confirmed 详情是否确认
  * @property {string}   create_time 创建时间
  * @property {string}   update_time 更新时间
+ * @property-read {string}  name    选手姓名
+ * @property-read {number}  gender  选手性别
+ * @property-read {string}  avatar  选手头像
  */
 class Player extends $.Model {
 	

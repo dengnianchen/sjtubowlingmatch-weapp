@@ -1,0 +1,83 @@
+<template>
+	<view class="avatar">
+		<view class="avatar__pic avatar__pic--{{mode}}" style="background-image: url(/images/default-avatar.jpg)"></view>
+		<view wx:if="{{src}}" class="avatar__pic avatar__pic--{{mode}}" style="background-image: url({{src}})"></view>
+		<wxc-cc>
+			<slot></slot>
+		</wxc-cc>
+		
+		<wxc-badge class="avatar__badge" wx:if="{{count}}">{{count}}</wxc-badge>
+	</view>
+</template>
+
+<script>
+	export default {
+		config: {
+			usingComponents: {
+				'wxc-badge': '@minui/wxc-badge',
+				'wxc-cc': '@minui/wxc-cc'
+			}
+		},
+		behaviors: [],
+		properties: {
+			src: {
+				type: String,
+				value: ''
+			},
+			mode: {
+				type: String,
+				value: 'circle'
+			},
+			count: {
+				type: Number,
+				value: ''
+			},
+			approve: {
+				type: String,
+				value: ''
+			}
+		},
+		data: {},
+		methods: {}
+	}
+</script>
+
+<style lang="less">
+	
+	.avatar {
+		display: inline-block;
+		position: relative;
+		width: 100%;
+		height: 100%;
+		
+		&__pic {
+			display: block;
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background-repeat: no-repeat;
+			background-position: center center;
+			background-size: cover;
+			
+			&--circle {
+				border-radius: 50%;
+			}
+			
+			&--round-square {
+				border-radius: 27px;
+			}
+			
+		}
+		
+		&__badge {
+			position: absolute;
+			top: -8px;
+			right: -8px;
+			z-index: 1;
+		}
+		
+	}
+	
+</style>

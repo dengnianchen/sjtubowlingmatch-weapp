@@ -7,9 +7,9 @@
 		};
 	</wxs>
 	<view class="page__banner">
-		<image class="__elem __avatar" src="{{$.me.wx_info.avatarUrl}}"></image>
+		<image class="__elem __avatar" src="{{$.me.avatar}}"></image>
 		<text class="__elem __name">{{$.me.name}}</text>
-		<app-pk-player-state class="__elem __status" player-state="{{player.detail}}"></app-pk-player-state>
+		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info.state}}"></app-pk-player-state>
 	</view>
 	<wxc-notice wx:if="{{!player.detail_confirmed}}"
 	            notice="你的上一场比赛尚未被确认，无法兑换道具。"
@@ -47,11 +47,11 @@
 			</view>
 			<view class="__limit-list">
 				<view class="__label">限制条件：</view>
-				<view wx:for="{{itemDetail.detail['limits']}}" wx:key="index" wx:for-item="limit"
-					  class="__limit-item {{limit[1]?'__danger':'__success'}}">
-					<wui-icon wx:if="{{!limit[1]}}" name="fas fa-check"></wui-icon>
-					<wui-icon wx:elif="{{limit[1]}}" name="fas fa-times"></wui-icon>
-					{{limit[0]}}
+				<view wx:for="{{itemDetail.detail['buy_constraints']}}" wx:key="index" wx:for-item="buy_constraint"
+					  class="__limit-item {{buy_constraint[1]?'__danger':'__success'}}">
+					<wui-icon wx:if="{{!buy_constraint[1]}}" name="fas fa-check"></wui-icon>
+					<wui-icon wx:elif="{{buy_constraint[1]}}" name="fas fa-times"></wui-icon>
+					{{buy_constraint[0]}}
 				</view>
 			</view>
 			<wxc-button class="__button" value="兑换"

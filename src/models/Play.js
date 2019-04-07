@@ -63,6 +63,21 @@ class Play extends $.Model {
 	}
 	
 	/**
+	 * 获取指定赛事的有效比赛，可以指定筛选条件。
+	 *
+	 * @param {String|Match}    match   赛事
+	 * @param {Object}          filters 筛选条件
+	 *
+	 * @return {Promise<PlayBrief[]>}
+	 * @author Deng Nianchen
+	 */
+	static async getPlays(match, filters = null) {
+		if (!filters)
+			return await $.Http.request(`/${$.Model.id(match)}/plays`, {}, {}, PlayBrief);
+		return await $.Http.request(`/${$.Model.id(match)}/plays`, { filters }, {}, PlayBrief);
+	}
+	
+	/**
 	 * 裁判确认指定比赛场次（接受或拒绝）
 	 *
 	 * @param {Event}           e       submit事件

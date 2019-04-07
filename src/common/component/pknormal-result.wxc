@@ -5,9 +5,9 @@
 			<wui-field type="custom" label="比赛类型">{{play.match_info.name}} - {{play.match_info.detail.type_table[play.type].name}}</wui-field>
 			<wui-field type="custom" label="参与选手">
 				<view class="flex-field">
-					<view class="flex-field__1">{{play.participants[play.player_ids[0]].player.user.name}}</view>
+					<view class="flex-field__1">{{play.participants[play.player_ids[0]].player.name}}</view>
 					<view class="flex-field__2">VS</view>
-					<view class="flex-field__3">{{play.participants[play.player_ids[1]].player.user.name}}</view>
+					<view class="flex-field__3">{{play.participants[play.player_ids[1]].player.name}}</view>
 				</view>
 			</wui-field>
 			<wui-field type="custom" label="两局总分">
@@ -68,10 +68,10 @@
 				</view>
 			</wui-field>
 		</wui-panel>
-		<wui-panel title="第一局：{{play.participants[play.games[0].player_id].player.user.name}}先手，{{game.formatScore(play.games[0])}} : {{game.formatScore(play.games[1])}}">
+		<wui-panel title="第一局：{{play.participants[play.games[0].player_id].player.name}}先手，{{game.formatScore(play.games[0])}} : {{game.formatScore(play.games[1])}}">
 			<app-game games="{{[ play.games[0], play.games[1] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
-		<wui-panel title="第二局：{{play.participants[play.games[2].player_id].player.user.name}}先手，{{game.formatScore(play.games[2])}} : {{game.formatScore(play.games[3])}}">
+		<wui-panel title="第二局：{{play.participants[play.games[2].player_id].player.name}}先手，{{game.formatScore(play.games[2])}} : {{game.formatScore(play.games[3])}}">
 			<app-game games="{{[ play.games[2], play.games[3] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
 		<wui-panel title="其他信息">
@@ -118,8 +118,8 @@
 				this.setData({ play });
 			},
 			getShareTitle() {
-				let playerNameA = this.data.play.participants[this.data.play.player_ids[0]].player.user.name;
-				let playerNameB = this.data.play.participants[this.data.play.player_ids[1]].player.user.name;
+				let playerNameA = this.data.play.participants[this.data.play.player_ids[0]].player.name;
+				let playerNameB = this.data.play.participants[this.data.play.player_ids[1]].player.name;
 				let playType = $.AppData.matches.pk[0].detail.type_table[this.data.play.type].name;
 				let scoreA = this.data.play.participants[this.data.play.player_ids[0]].detail.score;
 				let scoreB = this.data.play.participants[this.data.play.player_ids[1]].detail.score;

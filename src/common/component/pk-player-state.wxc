@@ -2,14 +2,21 @@
 	<wxs src="../../util/index.wxs" module="util"></wxs>
 	<view class="pk-player-state">
 		<block wx:if="{{showRank}}">
-			{{util.valOr(rankTable[playerState.rank].name,'-')}} |
+			<view class="__item">
+				<block wx:if="{{rankTable[playerState['rank']].name}}">
+					<image src="/images/pk/rank{{playerState['rank']}}.png" class="__rank-icon"></image>
+					{{rankTable[playerState['rank']].name}}
+				</block>
+				<block wx:else>-</block>
+			</view>
 			<view class="__item {{vertical?'__vertical':''}}">
-				<app-icon class="__icon" name="star" color="#FFB900"></app-icon> {{util.valOr(playerState.stars,'-')}}
+				<app-icon class="__icon" name="star" color="#FFB900"></app-icon>
+				{{util.valOr(playerState.stars,'-')}}
 			</view>
 		</block>
-		<block wx:if="{{showRank&&showCoin}}"> | </block>
 		<view wx:if="{{showCoin}}" class="__item {{vertical?'__vertical':''}}">
-			<app-icon class="__icon" name="coin" color="#FF9057"></app-icon> {{util.valOr(playerState.coins,'-')}}
+			<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>
+			{{util.valOr(playerState.coins,'-')}}
 		</view>
 	</view>
 </template>
@@ -56,11 +63,20 @@
 
 <style lang="less">
 	.pk-player-state {
+		display: flex;
+		align-items: center;
+		
+		.__rank-icon {
+			width: 1.2em;
+			height: 1.2em;
+		}
+		
 	}
 	.pk-player-state .__item {
 		display: inline-flex;
 		justify-content: center;
 		align-items: center;
+		margin: 0 0.5em;
 	}
 	.pk-player-state .__icon {
 		margin-right: 0.3em;

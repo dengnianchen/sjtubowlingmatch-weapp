@@ -1,7 +1,7 @@
 <template>
 	<wxs src="../../models/game.wxs" module="game"></wxs>
 	<view class="pkinit__hd">
-		<view class="pkinit__hd__player">选手：{{play.players[play.player_ids[0]].user.name}}</view>
+		<view class="pkinit__hd__player">选手：{{play.players[play.player_ids[0]].name}}</view>
 		<view>比赛类型：定级赛</view>
 	</view>
 	<wui-panel title="第一局：当前局分 {{game.formatScore(play.rounds[0][0])}}">
@@ -35,7 +35,7 @@
 		<wxc-button size="large" type="primary" bind:submit="onSubmitButtonClicked">提交</wxc-button>
 	</view>
 	<app-game-keyboard id="game-keyboard"
-	                   head="选手：{{play.players[play.rounds[activeFrame.round][activeFrame.gameIndex].player_id].user.name}}（第{{activeFrame.round+1}}局第{{activeFrame.round+1}}格）"
+	                   head="选手：{{play.players[play.rounds[activeFrame.round][activeFrame.gameIndex].player_id].name}}（第{{activeFrame.round+1}}局第{{activeFrame.round+1}}格）"
 	                   bindswitchnext="switchToNextFrame"
 	                   bindswitchprev="switchToPrevFrame"
 	                   bindchanged="onKeyboardInput"

@@ -3,7 +3,7 @@
 	<view wx:if="{{play}}">
 		<wui-panel title="基本信息">
 			<wui-field type="custom" label="比赛类型">{{play.match_info.name}} - {{play.match_info.detail.type_table[play.type].name}}</wui-field>
-			<wui-field type="custom" label="参与选手">{{play.participants[play.player_ids[0]].player.user.name}}</wui-field>
+			<wui-field type="custom" label="参与选手">{{play.participants[play.player_ids[0]].player.name}}</wui-field>
 			<wui-field type="custom" label="两局总分">{{play.participants[play.player_ids[0]].detail.score}}（均分：{{play.participants[play.player_ids[0]].detail.score / 2}}）</wui-field>
 			<wui-field type="custom" label="赛后段位"><app-pk-player-state player-state="{{play.participants[play.player_ids[0]].state1}}"></app-pk-player-state></wui-field>
 			<wui-field type="custom" label="比赛日期">{{play.play_date}}</wui-field>
@@ -59,7 +59,7 @@
 				this.setData({ play });
 			},
 			getShareTitle() {
-				return `${this.data.play.participants[this.data.play.player_ids[0]].player.user.name}的定级赛：${this.data.play.participants[this.data.play.player_ids[0]].detail.score}分`;
+				return `${this.data.play.participants[this.data.play.player_ids[0]].player.name}的定级赛：${this.data.play.participants[this.data.play.player_ids[0]].detail.score}分`;
 			}
 		},
 	}

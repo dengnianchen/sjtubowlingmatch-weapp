@@ -16,7 +16,7 @@
 			             class="user-selector__userlist__content"
 			             scroll-y="{{true}}">
 				<wxc-list wx:for="{{players}}" wx:key="index" wx:for-item="player"
-				          title="{{player.user.name}} | {{$.matches['pk'][0].detail['rank_table'][player.detail['rank']]['name']}}"
+				          title="{{player.name}} | {{$.matches['pk'][0].detail['rank_table'][player.detail_info.state['rank']]['name']}}"
 				          arrow="{{false}}"
 				          data-index="{{index}}"
 				          bindclick="_onPlayerClicked"
@@ -56,7 +56,7 @@
 			let value = e.detail.value;
 			let players = [];
 			for (let player of allPlayers) {
-				if (player.user.name.indexOf(value) >= 0 || player.pinyin.indexOf(value.toUpperCase()) >= 0)
+				if (player.name.indexOf(value) >= 0 || player.pinyin.indexOf(value.toUpperCase()) >= 0)
 					players.push(player);
 			}
 			this.setData({ players });

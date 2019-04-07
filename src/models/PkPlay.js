@@ -82,6 +82,19 @@ class PkPlay extends $.Model {
 		return await $.Http.request('/pk/players', {}, {}, Player);
 	}
 	
+	/**
+	 * 获取周榜单。
+	 *
+	 * @param {Number}  week    （可选）统计周次，默认为当前周
+	 * @return {Promise<Object>}
+	 * @author Deng Nianchen
+	 */
+	static async getWeeklyList(week = null) {
+		if (week)
+			return await $.Http.request('/pk/weekly-list', { week });
+		else
+			return await $.Http.request('/pk/weekly-list');
+	}
 }
 
 module.exports = PkPlay;

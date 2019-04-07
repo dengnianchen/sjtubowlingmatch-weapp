@@ -3,18 +3,18 @@
 	<scroll-view class="play_main {{keyboardShow?'play_main_small':''}}"
 	             scroll-y="{{true}}" scroll-with-animation="{{true}}" scroll-top="{{scrollTop}}rpx">
 		<view class="pkinit__hd">
-			<view class="pkinit__hd__player">{{play.players[play.player_ids[0]].user.name}} VS {{play.players[play.player_ids[1]].user.name}}</view>
+			<view class="pkinit__hd__player">{{play.players[play.player_ids[0]].name}} VS {{play.players[play.player_ids[1]].name}}</view>
 			<view>比赛类型：{{$.matches.pk[0].detail.type_table[play.type].name}}</view>
 		</view>
 		<wui-panel>
 			<wui-field type="picker" label="首局先手"
-			           range="{{[ play.players[play.player_ids[0]].user.name, play.players[play.player_ids[1]].user.name ]}}"
+			           range="{{[ play.players[play.player_ids[0]].name, play.players[play.player_ids[1]].name ]}}"
 			           placeholder="请选择首局先手"
 			           value="{{play.first_hand_index}}"
 			           bindconfirm="onFirstHandSelected"
 			></wui-field>
 		</wui-panel>
-		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第一局：{{play.players[play.rounds[0][0].player_id].user.name}}先手，当前局分 {{game.formatScore(play.rounds[0][0])}} : {{game.formatScore(play.rounds[0][1])}}">
+		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第一局：{{play.players[play.rounds[0][0].player_id].name}}先手，当前局分 {{game.formatScore(play.rounds[0][0])}} : {{game.formatScore(play.rounds[0][1])}}">
 			<app-game id="game-round0"
 			          players="{{play.players}}"
 			          games="{{play.rounds[0]}}"
@@ -23,7 +23,7 @@
 			></app-game>
 		</wui-panel>
 		
-		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第二局：{{play.players[play.rounds[1][0].player_id].user.name}}先手，当前局分 {{game.formatScore(play.rounds[1][0])}} : {{game.formatScore(play.rounds[1][1])}}">
+		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第二局：{{play.players[play.rounds[1][0].player_id].name}}先手，当前局分 {{game.formatScore(play.rounds[1][0])}} : {{game.formatScore(play.rounds[1][1])}}">
 			<app-game id="game-round1"
 			          players="{{play.players}}"
 			          games="{{play.rounds[1]}}"
@@ -46,7 +46,7 @@
 		</view>
 	</scroll-view>
 	<app-game-keyboard id="game-keyboard"
-	                   head="选手：{{play.players[play.rounds[activeFrame.round][activeFrame.gameIndex].player_id].user.name}}（第{{activeFrame.round+1}}局第{{activeFrame.round+1}}格）"
+	                   head="选手：{{play.players[play.rounds[activeFrame.round][activeFrame.gameIndex].player_id].name}}（第{{activeFrame.round+1}}局第{{activeFrame.round+1}}格）"
 	                   bindswitchnext="switchToNextFrame"
 	                   bindswitchprev="switchToPrevFrame"
 	                   bindchanged="onKeyboardInput"
@@ -94,8 +94,8 @@
 				if (player_me.match !== $.AppData.matches.pk[0].id ||
 					player_opponent.match !== $.AppData.matches.pk[0].id)
 					throw $.Err.FAIL('指定的选手不属于PK赛');
-				let bonus_me = player_me.user.gender === 2 ? PkPlay.bonus : 0;
-				let bonus_opponent = player_opponent.user.gender === 2 ? PkPlay.bonus : 0;
+				let bonus_me = player_me.gender === 2 ? PkPlay.bonus : 0;
+				let bonus_opponent = player_opponent.gender === 2 ? PkPlay.bonus : 0;
 				play = {
 					type: "normal",
 					player_ids: [ player_me.id, player_opponent.id ],
@@ -150,8 +150,8 @@
 				data: {
 					title: '选择裁判',
 					excludeId: [
-						this.data.play.players[this.data.play.player_ids[0]].user.id,
-						this.data.play.players[this.data.play.player_ids[1]].user.id
+						this.data.play.players[this.data.play.player_ids[0]].user_id,
+						this.data.play.players[this.data.play.player_ids[1]].user_id
 					]
 				}
 			});

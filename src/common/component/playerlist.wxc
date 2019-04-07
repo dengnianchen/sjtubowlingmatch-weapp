@@ -1,15 +1,21 @@
 <template>
 	<form bindsubmit="_onItemClicked" report-submit="{{true}}">
-		<button class="fake-button list" form-type="submit">
-			<view class="list__body list__{{mode}} list__{{!player.detail_confirmed?'unconfirmed':''}}">
-				<view class="list__id">{{index+1}}</view>
-				<view class="list__name">{{player.user.name}}</view>
-				<view class="list__rank">{{rankTable[player.detail.rank].name}}</view>
-				<view class="list__stars">
-					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.detail.stars}}
+		<button class="fake-button list list--{{mode}} list--{{!player.detail_confirmed?'unconfirmed':''}}" form-type="submit">
+			<view class="__id">{{index+1}}</view>
+			<view class="__content">
+				<view class="__avatar">
+					<app-avatar src="{{player.avatar}}" mode="round-square"></app-avatar>
 				</view>
-				<view class="list__coins">
-					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.detail.coins}}
+				<view class="__name">{{player.name}}</view>
+				<view class="__rank">
+					<image src="/images/pk/rank{{player.detail_info.state['rank']}}.png" class="__rank-icon"></image>
+					{{rankTable[player.detail_info.state['rank']].name}}
+				</view>
+				<view class="__stars">
+					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.detail_info.state['stars']}}
+				</view>
+				<view class="__coins">
+					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.detail_info.state['coins']}}
 				</view>
 			</view>
 		</button>
@@ -21,7 +27,8 @@
 	export default {
 		config: {
 			usingComponents: {
-				'app-icon': './icon'
+				'app-icon': './icon',
+				'app-avatar': './avatar'
 			}
 		},
 		behaviors: [ ],
@@ -68,45 +75,86 @@
 	@import "../../style.less";
 	
 	.list {
-		display: flex;
-		align-items: center;
+		position: relative;
+		height: 188px;
+		color: @color__text;
+		
+		&--unconfirmed {
+			color: @color__desc;
+		}
+		
+		.__id {
+			position: absolute;
+			top: 0;
+			right: 0;
+			padding: 0 24px;
+			font-size: 72px;
+			text-align: right;
+			font-weight: bold;
+			color: #F7F7F7;
+		}
+		
+		.__content {
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			display: flex;
+			align-items: center;
+			
+			.__avatar {
+				position: relative;
+				width: 96px;
+				height: 96px;
+				margin: 0 34px 0 48px;
+				
+				.__avatar_image {
+					position: absolute;
+					left: 0;
+					top: 0;
+					right: 0;
+					bottom: 0;
+				}
+			}
+			
+			.__name {
+				flex-grow: 1;
+			}
+			
+			.__rank {
+				display: flex;
+				align-items: center;
+				.__rank-icon {
+					width: 1.2em;
+					height: 1.2em;
+				}
+				width: 5.5em;
+			}
+			
+			.__stars {
+				width: 3em;
+			}
+			
+			.__coins {
+				width: 5em;
+			}
+			
+			.__icon {
+				margin-right: 0.3em;
+			}
+			
+		}
+		
 	}
 	
-	.list__body {
-		display: flex;
-		align-items: center;
-		min-height: 90rpx;
-		line-height: 1.4;
-		padding: 20rpx 10rpx 20rpx 0;
-		margin-left: 30rpx;
-		box-sizing: border-box;
-		border-bottom: 1px solid #ececec;
-		color: @color__text;
-		flex-grow: 1;
+	.list:after {
+		margin-left: 48rpx;
+		border-bottom: 2px solid @color__splitLine;
 	}
-	.list__none {
+	
+	.list--last:after {
 		border: none;
 	}
-	.list__unconfirmed {
-		color: @color__desc;
-	}
-	.list__id {
-		width: 2em;
-	}
-	.list__name {
-		flex-grow: 1;
-	}
-	.list__rank {
-		width: 4em;
-	}
-	.list__stars {
-		width: 3em;
-	}
-	.list__coins {
-		width: 5em;
-	}
 	
-	.list__body .__icon {
-		margin-right: 0.3em;
-	}
 </style>

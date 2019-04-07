@@ -182,5 +182,31 @@
 		font-size: @fontSize__desc;
 		color: @color__desc;
 	}
+	
+	/*swtich样式-start*/
+	/*swtich整体大小*/
+	.wx-switch-input {
+		width: 2em !important;
+		height: 1em !important;
+	}
+	
+	/*白色样式（false的样式）*/
+	.wx-switch-input::before {
+		width: 80px !important;
+		height: 36px !important;
+		background: #3ACCE1;
+		color: #3ACCE1;
+	}
+	
+	/*绿色样式（true的样式）*/
+	.wx-switch-input::after {
+		width: 40px !important;
+		height: 36px !important;
+		background: #FF5777;
+		color: #FF5777;
+	}
+	
+	/*swtich样式end*/
+
 
 </style>

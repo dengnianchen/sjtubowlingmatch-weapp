@@ -9,6 +9,7 @@
 	"author": "Deng Nianchen",
 	"license": "MIT",
 	"dependencies": {
+		"@minui/wxc-avatar": "^1.0.5",
 		"@minui/wxc-button": "^1.0.2",
 		"@minui/wxc-dialog": "^1.0.10",
 		"@minui/wxc-icon": "^1.0.9",
@@ -18,6 +19,7 @@
 		"@minui/wxc-tab": "^1.0.8",
 		"@yapple/wui-abnor": "^1.0.4",
 		"@yapple/wui-cc": "^1.0.5",
+		"@yapple/wui-content": "^1.0.12",
 		"@yapple/wui-field": "^1.0.3",
 		"@yapple/wui-list": "^1.0.4",
 		"@yapple/wui-panel": "^1.0.5",
