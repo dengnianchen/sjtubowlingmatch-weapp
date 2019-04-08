@@ -13,10 +13,22 @@ module.exports = {
 		wui: {
 			/* WUI组件配置 */
 			abnor: {
-				'NO_RECORD': {
+				NO_RECORD: {
 					image: null,
 					button: null
-				}
+				},
+				PK_UNCONFIRMED: {
+					image: null,
+					button: null
+				},
+				PK_INIT_GAME_UNCONFIRMED: {
+					image: null,
+					button: null
+				},
+				PK_QUIT: {
+					image: null,
+					button: null
+				},
 			}
 		}
 	}

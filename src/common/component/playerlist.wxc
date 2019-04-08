@@ -47,7 +47,8 @@
 				type: Array
 			}
 		},
-		data: {},
+		data: {
+		},
 		lifetimes: {
 			attached() {
 				this.setData({
@@ -128,6 +129,7 @@
 				.__rank-icon {
 					width: 1.2em;
 					height: 1.2em;
+					margin-right: 5px;
 				}
 				width: 5.5em;
 			}

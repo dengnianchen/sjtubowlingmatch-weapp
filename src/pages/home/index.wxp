@@ -1,6 +1,6 @@
 <template>
 	<view class="page__banner">
-		<image class="__elem __avatar" src="{{$.me.avatar}}"></image>
+		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
 		<text class="__elem __name">{{$.me.name}}，欢迎光临！</text>
 	</view>
 	<view class="home-menu">
@@ -35,7 +35,8 @@
 		auth: true,
 		config: {
 			usingComponents: {
-				'wxc-button': '@minui/wxc-button'
+				'wxc-button': '@minui/wxc-button',
+				'app-avatar': '../../common/component/avatar'
 			}
 		},
 		data: {

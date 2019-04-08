@@ -13,6 +13,10 @@ let style = {
 	dangerBackgroundColor: "#FFE6E6",
 	disableColor: "#999999",
 	color: {
+		num1: "#3ACCE1",
+		num2: "#3497FD",
+		num3: "#5773FF",
+		num4: "#665EFF",
 		text: "#454F63",
 		desc: "#959DAD",
 		subDesc: "#999999",

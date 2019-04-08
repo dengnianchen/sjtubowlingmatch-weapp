@@ -59,10 +59,14 @@
 		},
 		methods: {
 			show(frame, isFirst) {
-				this.setData({ showKeyboard: true, isFirst });
 				this.frame = frame;
-				this._updateKeyboardStatus();
-				this.triggerEvent('show');
+				if (!frame)
+					this.hide();
+				else {
+					this.setData({ showKeyboard: true, isFirst });
+					this._updateKeyboardStatus();
+					this.triggerEvent('show');
+				}
 			},
 			hide() {
 				this.setData({ showKeyboard: false });
@@ -156,7 +160,7 @@
 		grid-template-rows: repeat(5, 1fr);
 		grid-gap: 15px;
 		background: white;
-		box-shadow: 0 0 20px 10px #88888888;
+		box-shadow: 0 0 20px 10px rgba(136, 136, 136, 0.25);
 	}
 	
 	.game-keyboard__head {

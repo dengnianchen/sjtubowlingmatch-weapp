@@ -7,7 +7,7 @@
 		};
 	</wxs>
 	<view class="page__banner">
-		<image class="__elem __avatar" src="{{$.me.avatar}}"></image>
+		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
 		<text class="__elem __name">{{$.me.name}}</text>
 		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info.state}}"></app-pk-player-state>
 	</view>

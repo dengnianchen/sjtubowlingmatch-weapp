@@ -1,47 +1,47 @@
 <template>
 	<view class="page__banner">
-		<image class="__elem __avatar" src="{{$.me.avatar}}"></image>
+		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
 		<text class="__elem __name">{{$.me.name}}</text>
 		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info.state}}"></app-pk-player-state>
 	</view>
-	<wxc-notice wx:if="{{!player.detail_confirmed}}"
-	            notice="你的上一场比赛尚未被确认，在被确认前无法开启新的比赛"
-	            color="#ff5777" bgColor="#ffe8ee"></wxc-notice>
-	<view class="cc pkhome__menu">
-		<view class="__item">当前为本赛季第{{match.week+1}}周</view>
-		<block wx:if="{{!player || !player.status}}">
-			<block wx:if="{{playerLastSeason&&match.week<2}}">
-				<text class="__item">由于你参加过上一赛季的比赛，你可以选择</text>
-				<wxc-button class="__item" size="large"
-				            btn-style="{{$.style.button.large}} {{$.style.button.primary}}"
-				            bind:submit="onInheritButtonClicked">继承上一赛季的段位</wxc-button>
-				<text class="__item">或</text>
-				<wxc-button class="__item" size="large"
-				            btn-style="{{$.style.button.large}} {{$.style.button.secondary}}"
-				            bind:submit="onPlayInitButtonClicked">重新进行定级赛</wxc-button>
-			</block>
-			<block wx:else>
-				<text class="__item">要加入PK赛，你可以选择</text>
-				<wxc-button class="__item" size="large"
-				            btn-style="{{$.style.button.large}} {{$.style.button.primary}}"
-				            bind:submit="onPlayInitButtonClicked">开始定级赛</wxc-button>
-			</block>
+	<view class="pkhome__week">当前为本赛季第{{match.week+1}}周</view>
+	<view wx:if="{{!player || !player.status}}" class="cc pkhome__menu">
+		<block wx:if="{{playerLastSeason&&match.week<2}}">
+			<text class="__item">由于你参加过上一赛季的比赛，你可以选择</text>
+			<wxc-button class="__item" size="large"
+			            btn-style="{{$.style.button.large}} {{$.style.button.primary}}"
+			            bind:submit="onInheritButtonClicked">继承上一赛季的段位</wxc-button>
+			<text class="__item">或</text>
+			<wxc-button class="__item" size="large"
+			            btn-style="{{$.style.button.large}} {{$.style.button.secondary}}"
+			            bind:submit="onPlayInitButtonClicked">重新进行定级赛</wxc-button>
 		</block>
 		<block wx:else>
-			<wui-abnor class="__item" style="align-self: stretch" wx:if="{{player.status==='new'}}" error="定级赛尚未被确认"></wui-abnor>
-			<wui-abnor class="__item" style="align-self: stretch" wx:elif="{{player.status==='quit'}}" error="你已退赛"></wui-abnor>
-			<block wx:else>
-				<wxc-button class="__item" size="large"
-				            btn-style="{{$.style.button.large}} {{player.detail_confirmed?$.style.button.primary:$.style.button.disabled}}"
-				            bind:submit="onNormalPlayButtonClicked">常规赛</wxc-button>
-				<wxc-button class="__item" size="large"
-				            btn-style="{{$.style.button.large}} {{player.detail_confirmed?$.style.button.secondary:$.style.button.disabled}}"
-				            bind:submit="onFriendlyPlayButtonClicked">友谊赛</wxc-button>
-				<wxc-button class="__item" size="large" type="beauty"
-				            btn-style="{{$.style.button.large}} {{$.style.button.beauty}}"
-				            bind:submit="onShopButtonClicked">道具商店</wxc-button>
-			</block>
+			<text class="__item">要加入PK赛，你可以选择</text>
+			<wxc-button class="__item" size="large"
+			            btn-style="{{$.style.button.large}} {{$.style.button.primary}}"
+			            bind:submit="onPlayInitButtonClicked">开始定级赛</wxc-button>
 		</block>
+	</view>
+	<view wx:else class="pkhome__gridmenu">
+		<wxc-button btn-style="{{gridMenuItemStyle}} background:{{$.style.color.num1}}"
+		            bind:submit="onNormalPlayButtonClicked">
+			<app-icon class="__icon" name="pk"></app-icon>
+			<view>常规赛</view>
+		</wxc-button>
+		<wxc-button btn-style="{{gridMenuItemStyle}} background:{{$.style.color.num2}}"
+		            bind:submit="onFriendlyPlayButtonClicked">
+			<app-icon class="__icon" name="friendly"></app-icon>
+			<view>友谊赛</view>
+		</wxc-button>
+		<wxc-button btn-style="{{gridMenuItemStyle}} background:{{$.style.color.num3}}"
+		            bind:submit="onShopButtonClicked">
+			<app-icon class="__icon" name="store"></app-icon>
+			<view>道具商店</view>
+		</wxc-button>
+		<wui-abnor class="__abnor" wx:if={{player.status==='new'}} error="PK_INIT_GAME_UNCONFIRMED"></wui-abnor>
+		<wui-abnor class="__abnor" wx:elif="{{player.status==='quit'}}" error="PK_QUIT"></wui-abnor>
+		<wui-abnor class="__abnor" wx:elif={{!player.detail_confirmed}} error="PK_UNCONFIRMED"></wui-abnor>
 	</view>
 	<view class="pkhome__tabs">
 		<app-tab default-index="0"
@@ -157,6 +157,7 @@
 				'wui-abnor': '@yapple/wui-abnor',
 				'wui-icon': '@yapple/wui-icon',
 				'wui-content': '@yapple/wui-content',
+				'app-icon': '../../common/component/icon',
 				'app-pk-player-state': '../../common/component/pk-player-state',
 				'app-playlist': '../../common/component/playlist',
 				'app-playerlist': '../../common/component/playerlist',
@@ -175,7 +176,18 @@
 			playFilter: {
 				onlyThisWeek: true,
 				onlyMe: false
-			}
+			},
+			gridMenuItemStyle: `
+				width: 250rpx;
+				height: 250rpx;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				color: white;
+				border: none;
+				border-radius: 0;
+				font-size: ${$.AppData.style.fontSize.text};`
 		},
 		
 		onLoad() {
@@ -427,12 +439,23 @@
 <style lang="less">
 	@import "../../style";
 	
+	page {
+		background: white;
+	}
+	
 	.page__banner {
 		
 		.__status {
 			text-align: right;
 		}
 		
+	}
+	
+	.pkhome__week {
+		font-size: @fontSize__desc;
+		color: @color__desc;
+		text-align: center;
+		padding: 36px 0;
 	}
 	
 	.pkhome__menu {
@@ -448,8 +471,25 @@
 		}
 	}
 	
+	.pkhome__gridmenu {
+		position: relative;
+		display: flex;
+		
+		.__icon {
+			font-size: 2em;
+		}
+		
+		.__abnor {
+			position:absolute;
+			left:0;
+			top:0;
+			right:0;
+			bottom:0;
+			background:rgba(255,255,255,0.85);
+		}
+	}
+	
 	.pkhome__tabs {
-		background: white;
 	}
 	
 	.pkhome__playerlist__desc {
@@ -461,7 +501,7 @@
 	
 	.play-list__filters {
 		display: flex;
-		justify-content: space-between;
+		justify-content: space-around;
 		padding: 25px 15px;
 	}
 	
