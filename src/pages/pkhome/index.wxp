@@ -495,8 +495,7 @@
 				height:80px;
 				top:-20px;
 				right:-20px;
-				rotate:30deg;
-				
+				transform:rotate(30deg);
 			}
 			
 			.__name {

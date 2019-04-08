@@ -46,7 +46,7 @@
 				border-radius: 27rpx;
 				font-size: ${$.AppData.style.fontSize.text};
 				color: ${$.AppData.style.color.text};
-				box-shadow: 0 4rpx 14rpx #455B6314;
+				box-shadow: 0 4rpx 14rpx rgba(69,91,99,0.08);
 				background: white;
 				display: flex;
 				align-items: center;
@@ -81,6 +81,7 @@
 			margin-bottom: 27px;
 			
 			.__dot {
+				color: #455B63;
 				width: 16px;
 				height: 16px;
 				border-radius: 8px;

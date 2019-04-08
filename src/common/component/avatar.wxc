@@ -1,6 +1,6 @@
 <template>
 	<view class="avatar">
-		<view class="avatar__pic avatar__pic--{{mode}}" style="background-image: url(/images/default-avatar.jpg)"></view>
+		<image class="avatar__pic avatar__pic--{{mode}}" src="../../images/default-avatar.jpg"></image>
 		<view wx:if="{{src}}" class="avatar__pic avatar__pic--{{mode}}" style="background-image: url({{src}})"></view>
 		<wxc-cc>
 			<slot></slot>
