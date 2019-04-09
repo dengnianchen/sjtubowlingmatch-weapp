@@ -26,6 +26,8 @@
 		</block>
 	</view>
 	<view class="home-version" bindtap="_onVersionClicked">当前版本：{{currentVersion.id}}</view>
+	<view class="home-co">上海交通大学中路保龄球馆@2019</view>
+	<view class="home-author">程序设计by苹果 / 界面设计by小白</view>
 </template>
 
 <script>
@@ -104,6 +106,16 @@
 	
 	.home-version {
 		margin-top: 60px;
+		font-size: @fontSize__subDesc;
+		color: @color__subDesc;
+		text-align: center;
+	}
+	.home-co {
+		font-size: @fontSize__subDesc;
+		color: @color__subDesc;
+		text-align: center;
+	}
+	.home-author {
 		font-size: @fontSize__subDesc;
 		color: @color__subDesc;
 		text-align: center;

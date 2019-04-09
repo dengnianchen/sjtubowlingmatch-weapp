@@ -17,18 +17,11 @@
 	<wui-panel wx:for="{{itemsOrganized}}" wx:key="index" wx:for-item="items"
 	           title="{{index}}">
 		<view class="shop_list">
-			<view wx:for="{{items}}" wx:key="index" class="__item">
-				<view bindtap="onItemClicked" data-item="{{item}}" class="__main">
-					<image class="__image" src="/images/pk/shop_{{item.identifier}}.png" mode="aspectFill"></image>
-					<view class="__name">{{item.item_name}}</view>
-					<app-pk-cost class="__cost" cost="{{item.detail['cost']}}" affordable="{{item.affordable}}"></app-pk-cost>
-				</view>
-				<wxc-button class="__button" value="兑换"
-				            type="{{_this.canBuy(player,item)?'success':'disabled'}}"
-				            btn-style="width: 220rpx"
-				            catch:submit="onBuyClicked"
-				            data-item="{{item}}"
-				></wxc-button>
+			<view wx:for="{{items}}" wx:key="index" class="__item"
+			      bindtap="onItemClicked" data-item="{{item}}">
+				<image class="__image" src="/images/pk/shop_{{item.identifier}}.png" mode="aspectFill"></image>
+				<view class="__name">{{item.item_name}}</view>
+				<app-pk-cost class="__cost" cost="{{item.detail['cost']}}" affordable="{{item.affordable}}"></app-pk-cost>
 			</view>
 		</view>
 	</wui-panel>
@@ -85,7 +78,8 @@
 				'wui-icon': '@yapple/wui-icon',
 				'wui-dialog': '../../common/component/dialog',
 				'app-pk-player-state': '../../common/component/pk-player-state',
-				'app-pk-cost': '../../common/component/pk-cost'
+				'app-pk-cost': '../../common/component/pk-cost',
+				'app-avatar': '../../common/component/avatar'
 			},
 		},
 		data: {},
@@ -147,13 +141,6 @@
 	.shop_list .__item {
 		width: 240px;
 		padding: 10px 0;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-	
-	.shop_list .__item .__main {
-		width: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
