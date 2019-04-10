@@ -17,6 +17,7 @@ let style = {
 		num2: "#3497FD",
 		num3: "#5773FF",
 		num4: "#665EFF",
+		darkGray: "#2A2E43",
 		text: "#454F63",
 		desc: "#959DAD",
 		subDesc: "#999999",
@@ -26,7 +27,7 @@ let style = {
 	},
 	fontSize: {
 		text: "28rpx",
-		title: "40rpx",
+		title: "50rpx",
 		subTitle: "34rpx",
 		desc: "24rpx",
 		subDesc: "22rpx",

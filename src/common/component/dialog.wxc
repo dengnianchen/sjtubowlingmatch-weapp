@@ -1,21 +1,20 @@
 <template>
-	<wxc-dialog id="wxc-dialog"
-	            confirm-text="{{confirmText}}" bindconfirm="_onConfirm"
-	            cancel-text="{{cancelText}}" bindcancel="_onCancel">
-		<view class="dialog__title">
-			<view class="dialog__title__text">
-				{{title}}
-				<view wx:if="{{showHelpIcon}}" class="dialog__title__help" bindtap="_onHelp">
-					<wui-icon name="fas fa-question-circle"></wui-icon>
-				</view>
+	<wxc-popup animation-mode="none" align="center" locked="true" class="popup">
+		<view class="wui-dialog" catchtap="_onContentTap">
+			<view class="__title" wx:if="{{title}}">{{title}}</view>
+			<view class="__content">
+				<text wx:if="{{content}}" class="__content__text" decode="{{true}}">{{content}}</text>
+				<slot></slot>
 			</view>
-			
+			<view class="__btns">
+				<view class="__btns__cancel" wx:if="{{cancelText===true}}" bindtap="_onCancel">
+					<app-avatar name="cancel"></app-avatar>
+				</view>
+				<view class="__btns__cancel" wx:if="{{cancelText===true}}" bindtap="_onCancel">{{cancelText}}</view>
+				<view class="__btns__confirm" wx:if="{{confirmText}}" bindtap="_onConfirm">{{confirmText}}</view>
+			</view>
 		</view>
-		<view class="dialog__content">
-			<text wx:if="{{content}}" class="dialog__content__text" decode="{{true}}">{{content}}</text>
-			<slot></slot>
-		</view>
-	</wxc-dialog>
+	</wxc-popup>
 </template>
 
 <script>
@@ -48,8 +47,9 @@
 	export default {
 		config: {
 			usingComponents: {
-				'wxc-dialog': '@minui/wxc-dialog',
-				'wui-icon': '@yapple/wui-icon'
+				'wxc-popup': '@minui/wxc-popup',
+				'wui-icon': '@yapple/wui-icon',
+				'app-avatar': './avatar'
 			}
 		},
 		behaviors: [],
@@ -77,30 +77,44 @@
 		methods: {
 			async show() {
 				let _this = this;
+				
+				let popupComponent = this.selectComponent('.popup');
+				if (!popupComponent)
+					return null;
+				popupComponent.show();
+				
 				this.selectComponent('#wxc-dialog').show();
 				return new Promise((resolve, reject) => {
 					_this._resolve = resolve;
 					_this._reject = reject;
 				});
 			},
+			
 			hide(confirmed = false) {
 				if (this._resolve)
 					this._resolve(confirmed);
 				this._resolve = null;
-				this.selectComponent('#wxc-dialog').hide();
+				let popupComponent = this.selectComponent('.popup');
+				popupComponent && popupComponent.hide();
 			},
+			
+			_onContentTap () {},
+			
 			_onConfirm() {
 				this.hide(true);
 			},
+			
 			_onCancel() {
 				this.hide(false);
 			},
+			
 			_onHelp() {
 				if (this.data.bindhelp)
 					this.data.bindhelp();
 				else
 					this.trigger('help');
 			}
+			
 		}
 	};
 </script>
@@ -108,46 +122,74 @@
 <style lang="less">
 	@import "../../style";
 	
-	.dialog__title {
+	.wui-dialog {
+		background: @color__darkGray;
+		width: 655px;
+		border-radius: 27px;
 		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 0 10px 10px 10px;
-		font-size: @fontSize__text;
-		color: @color__text;
+		flex-flow: column nowrap;
+		align-items: stretch;
+		padding-top: 42px 50px;
+		
+		.__title {
+			display: flex;
+			align-items: center;
+			margin-bottom: 42px;
+			font-size: @fontSize__title;
+			color: white;
+			
+			.__title__help {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				right: -60px;
+				width: 60px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				font-size: @fontSize__desc;
+				color: @color__desc
+			}
+			
+		}
+		
+		.__content {
+			font-size: @fontSize__text;
+			color: white;
+		}
+		
+		
+		.__btns {
+			display: flex;
+			flex-flow: row nowrap;
+			justify-content: flex-end;
+			align-items: center;
+			font-size: 36px;
+			
+			.__btns__cancel {
+				width: 105px;
+				height: 105px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: @color__purple;
+				color: white;
+			}
+			
+			.__btns__confirm {
+				width: 105px;
+				height: 105px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: @color__num1;
+				color: white;
+			}
+			
+		}
+		
 	}
-	
-	.dialog__title__text {
-		position: relative;
-	}
-	
-	.dialog__title__help {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		right: -60px;
-		width: 60px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		font-size: @fontSize__desc;
-		color: @color__desc
-	}
-	
-	.dialog__content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 10px 20px 30px 20px;
-		font-size: @fontSize__desc;
-		color: @color__desc;
-	}
-	
-	.dialog__content__text {
-		text-align: center;
-	}
-	
 </style>
