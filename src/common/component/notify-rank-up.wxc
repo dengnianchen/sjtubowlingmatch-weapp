@@ -1,0 +1,40 @@
+<template>
+	恭喜晋级：{{rankTable[detail.from]['name']}} -> {{rankTable[detail.to]['name']}}
+</template>
+
+<script>
+	export default {
+		config: {
+			usingComponents: {
+				'wui-dialog': '../../common/component/dialog'
+			},
+		},
+		behaviors: [],
+		properties: {
+			detail: {
+				type: Object
+			},
+			rankTable: {
+				type: Array
+			}
+		},
+		data: {},
+		methods: {
+			show(detail) {
+				this.setData({ detail });
+				return $.Wui.Dialog.show('#dialog-rank-up');
+			}
+		},
+		lifetimes: {
+			attached() {
+				this.setData({
+					rankTable: $.AppData.matches['pk'][0].detail['rank_table']
+				});
+			}
+		},
+	};
+</script>
+
+<style lang="less">
+
+</style>

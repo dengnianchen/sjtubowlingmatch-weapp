@@ -114,7 +114,8 @@
 		align-items: center;
 		justify-content: center;
 		padding: 0 10px 10px 10px;
-		font-size: @fontSize__title;
+		font-size: @fontSize__text;
+		color: @color__text;
 	}
 	
 	.dialog__title__text {

@@ -133,13 +133,17 @@
 	<wui-dialog id="dialog-inherit-success" title="成功继承段位">
 		当前段位：<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
+	<wui-dialog id="dialog-notify">
+		<app-notify-rank-up wx:if="{{notify['PK_RANK_UP']}}" detail="{{notify['PK_RANK_UP']}}"></app-notify-rank-up>
+	</wui-dialog>
+	
 </template>
 
 <script>
 	import PkPlay from '../../models/PkPlay';
-	import Match from '../../models/Match';
 	import Player from '../../models/Player';
 	import Play from '../../models/Play';
+	import Notify from '../../models/Notify';
 	
 	const pkrule = require('../../pkrules');
 	
@@ -163,7 +167,8 @@
 				'app-playerlist': '../../common/component/playerlist',
 				'app-tab': '../../common/component/tab',
 				'app-avatar': '../../common/component/avatar',
-				'app-switch': '../../common/component/switch'
+				'app-switch': '../../common/component/switch',
+				'app-notify-rank-up': '../../common/component/notify-rank-up'
 			},
 		},
 		data: {
@@ -237,6 +242,7 @@
 			$.Wui.content('content-play-list').load();
 			$.Wui.content('content-weekly-list').load();
 			
+			this.showNotifications();
 		},
 		
 		async onInheritButtonClicked(e) {
@@ -429,6 +435,15 @@
 		async loadWeeklyList() {
 			let weeklyList = await PkPlay.getWeeklyList();
 			this.setData({ weeklyList });
+		},
+		async showNotifications() {
+			let notifications = await Notify.get('pkhome');
+			for (let notification of notifications) {
+				let notify = {};
+				notify[notification.identifier] = notification.detail;
+				this.setData({ notify });
+				await $.Wui.Dialog.show("#dialog-notify");
+			}
 		},
 		_getMatch() {
 			return $.AppData.matches.pk[0];
