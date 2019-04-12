@@ -133,10 +133,7 @@
 	<wui-dialog id="dialog-inherit-success" title="成功继承段位">
 		当前段位：<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
-	<wui-dialog id="dialog-notify">
-		<app-notify-rank-up wx:if="{{notify['PK_RANK_UP']}}" detail="{{notify['PK_RANK_UP']}}"></app-notify-rank-up>
-	</wui-dialog>
-	
+	<app-notify-rank-up id="notify-PK_RANK_UP"></app-notify-rank-up>
 </template>
 
 <script>
@@ -206,11 +203,9 @@
 			// 检查是否有未完成录入的比赛，若有，则提示之
 			let playing = wx.getStorageSync('pk');
 			if (playing) {
-				var r = await $.Wui.Dialog.show({
-					title: '回到比赛',
-					content: '您有尚未完成录入的比赛，是否继续完成录入？',
-					confirmText: '继续录入',
-					cancelText: '放弃'
+				var r = await $.Modal.show('回到比赛', '您有尚未完成录入的比赛，是否继续完成录入？', {
+					confirmBtn: '继续录入',
+					cancelBtn: '放弃'
 				});
 				if (!r)
 					wx.removeStorageSync('pk');
@@ -243,6 +238,7 @@
 			$.Wui.content('content-weekly-list').load();
 			
 			this.showNotifications();
+			
 		},
 		
 		async onInheritButtonClicked(e) {
@@ -265,11 +261,9 @@
 			}
 		},
 		async onPlayInitButtonClicked(e) {
-			let r = await $.Wui.Dialog.show({
-				title: '开始定级赛',
-				content: `今天是本赛季的第${this._getMatch().week + 1}周，将按${this._getMatch().week < 2 ? '赛季初' : '赛季中'}的规则计算初始段位`,
-				confirmText: '开始',
-				cancelText: '再想想'
+			let r = await $.Modal.show('开始定级赛', `今天是本赛季的第${this._getMatch().week + 1}周，将按${this._getMatch().week < 2 ? '赛季初' : '赛季中'}的规则计算初始段位`, {
+				confirmBtn: '开始',
+				cancelBtn: '再想想'
 			});
 			if (!r)
 				return;
@@ -283,17 +277,11 @@
 		async onNormalPlayButtonClicked(e) {
 			$.Http.submit(e);
 			if ($.AppData.matches['pk'][0].week < 2) {
-				await $.Modal.show('开启常规赛', '常规赛将于赛季第3周起开放', {
-					confirmText: '知道了',
-					showCancel: false
-				});
+				$.Modal.show('开启常规赛', '常规赛将于赛季第3周起开放');
 				return;
 			}
 			if (!this.data.player.detail_confirmed) {
-				await $.Modal.show('开启常规赛', '前一场比赛尚未被确认，无法开启新赛', {
-					confirmText: '知道了',
-					showCancel: false
-				});
+				$.Modal.show('开启常规赛', '前一场比赛尚未被确认，无法开启新赛');
 				return;
 			}
 			let players = [];
@@ -311,13 +299,11 @@
 				},
 				richData: { players }
 			});
-			if (!opponent)
+			if (!opponent) {
 				return;
-			let r = await $.Wui.Dialog.show({
-				title: '开始常规赛',
-				content: `确认选择${opponent.name}作为对手？`,
-				confirmText: '确认',
-				cancelText: '取消'
+			}
+			let r = await $.Modal.show('开始常规赛', `确认选择${opponent.name}作为对手？`, {
+				cancelBtn: true
 			});
 			if (!r) return;
 			Page.navigateTo({
@@ -328,17 +314,11 @@
 		async onFriendlyPlayButtonClicked(e) {
 			$.Http.submit(e);
 			if ($.AppData.matches['pk'][0].week < 2) {
-				await $.Modal.show('开启友谊赛', '常规赛将于赛季第3周起开放', {
-					confirmText: '知道了',
-					showCancel: false
-				});
+				$.Modal.show('开启友谊赛', '常规赛将于赛季第3周起开放');
 				return;
 			}
 			if (!this.data.player.detail_confirmed) {
-				await $.Modal.show('开启友谊赛', '前一场比赛尚未被确认，无法开启新赛', {
-					confirmText: '知道了',
-					showCancel: false
-				});
+				$.Modal.show('开启友谊赛', '前一场比赛尚未被确认，无法开启新赛');
 				return;
 			}
 			let players = [];
@@ -358,11 +338,8 @@
 			});
 			if (!opponent)
 				return;
-			let r = await $.Wui.Dialog.show({
-				title: '开始友谊赛',
-				content: `确认选择${opponent.name}作为对手？`,
-				confirmText: '确认',
-				cancelText: '取消'
+			let r = await $.Modal.show('开始友谊赛', `确认选择${opponent.name}作为对手？`, {
+				cancelBtn: true
 			});
 			if (!r) return;
 			Page.navigateTo({
@@ -419,10 +396,7 @@
 				throw $.Err.NO_RECORD ();
 			
 			/*if (playTodo) {
-				await $.Modal.show('确认比赛', '有一场比赛等待你的确认。', {
-					confirmText: '去确认',
-					showCancel: false
-				});
+				await $.Modal.show('确认比赛', '有一场比赛等待你的确认。');
 				Page.navigateTo({
 					url: '/pages/playresult/index',
 					data: {
@@ -439,10 +413,7 @@
 		async showNotifications() {
 			let notifications = await Notify.get('pkhome');
 			for (let notification of notifications) {
-				let notify = {};
-				notify[notification.identifier] = notification.detail;
-				this.setData({ notify });
-				await $.Wui.Dialog.show("#dialog-notify");
+				await this.selectComponent(`#notify-${notification.identifier}`).show(notification.detail);
 			}
 		},
 		_getMatch() {

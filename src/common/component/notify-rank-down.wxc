@@ -1,5 +1,5 @@
 <template>
-	<wui-dialog id="notify-dialog" title="恭喜你晋级啦！">
+	<wui-dialog id="notify-dialog" title="Sorry，你掉段啦！">
 		<view style="text-align: center">{{rankTable[detail.from]['name']}} → {{rankTable[detail.to]['name']}}</view>
 	</wui-dialog>
 </template>

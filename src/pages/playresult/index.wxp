@@ -13,9 +13,13 @@
 		<wxc-button class="__item" type="danger" value="拒绝" size="large" bindsubmit="_onPlayerConfirmClicked" btn-style="width:300rpx" data-accept="false"></wxc-button>
 		<wxc-button class="__item" type="primary" value="接受" size="large" bindsubmit="_onPlayerConfirmClicked" btn-style="width:300rpx" data-accept="true"></wxc-button>
 	</view>
-	<wui-dialog id="dialog-share" title="比赛录入成功" confirmText="" cancelText="">
+	<wui-dialog id="dialog-share" title="比赛录入成功" customBtns="{{true}}">
 		<text>请将比赛结果转发到PK赛微信群中，并尽快联系相关选手和裁判完成确认哦！</text>
-		<wxc-button type="success" size="large" btn-style="width:500rpx;margin:20rpx 0" value="转发到PK赛微信群" open-type="share"></wxc-button>
+		<view slot="btns" style="flex-grow:1">
+			<wxc-button type="success" size="large"
+			            btn-style="width:100%; height:105rpx; line-height:105rpx; border-radius:28rpx;"
+			            value="转发到PK赛微信群" open-type="share"></wxc-button>
+		</view>
 	</wui-dialog>
 </template>
 

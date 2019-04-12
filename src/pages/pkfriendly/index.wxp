@@ -125,11 +125,7 @@
 				});
 			}
 			this.updatePlay(play);
-			$.Modal.show('注意！',
-				'每局的先手填写在第一行，后手填写在第二行。决定首局的先手后，次局交换先手。请注意计分行的填写顺序。', {
-				showCancel: false,
-				confirmText: '知道啦！'
-			});
+			$.Modal.show('注意！', '每局的先手填写在第一行，后手填写在第二行。决定首局的先手后，次局交换先手。请注意计分行的填写顺序。');
 		},
 		onFirstHandSelected(e) {
 			this.data.play.first_hand_index = e.detail.value;

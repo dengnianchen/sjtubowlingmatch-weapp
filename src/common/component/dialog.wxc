@@ -7,11 +7,17 @@
 				<slot></slot>
 			</view>
 			<view class="__btns">
-				<view class="__btns__cancel" wx:if="{{cancelText===true}}" bindtap="_onCancel">
-					<app-avatar name="cancel"></app-avatar>
-				</view>
-				<view class="__btns__cancel" wx:if="{{cancelText===true}}" bindtap="_onCancel">{{cancelText}}</view>
-				<view class="__btns__confirm" wx:if="{{confirmText}}" bindtap="_onConfirm">{{confirmText}}</view>
+				<slot wx:if="{{customBtns}}" name="btns"></slot>
+				<block wx:else>
+					<view class="__btn __btn--cancel" wx:if="{{cancelBtn===true}}" bindtap="_onCancel">
+						<app-icon name="cancel"></app-icon>
+					</view>
+					<view class="__btn __btn--cancel __btn--text" wx:elif="{{cancelBtn}}" bindtap="_onCancel">{{cancelBtn}}</view>
+					<view class="__btn __btn--confirm" wx:if="{{confirmBtn===true}}" bindtap="_onConfirm">
+						<app-icon name="confirm"></app-icon>
+					</view>
+					<view class="__btn __btn--confirm __btn--text" wx:elif="{{confirmBtn}}" bindtap="_onConfirm">{{confirmBtn}}</view>
+				</block>
 			</view>
 		</view>
 	</wxc-popup>
@@ -21,15 +27,17 @@
 	
 	if (!$.Wui.Dialog) {
 		$.Wui.Dialog = class {
-			static async show(selectorOrOption) {
+			static async show(selectorOrOption, context = null) {
+				if (!context)
+					context = Page.current();
 				let selector = !(selectorOrOption instanceof Object) ? selectorOrOption : '#dialog-common';
-				let wuiDialog = Page.current().selectComponent(selector);
+				let wuiDialog = context.selectComponent(selector);
 				if (!wuiDialog)
 					throw $.Err.FAIL(`找不到指定的对话框组件：${selector}`);
 				if (selectorOrOption instanceof Object) {
 					if (selectorOrOption.bindhelp)
 						selectorOrOption.showHelpIcon = true;
-					wuiDialog.setData(selectorOrOption);
+					wuiDialog.setData($.extend(wuiDialog.data.defaultProperties, selectorOrOption));
 				}
 				return wuiDialog.show();
 			}
@@ -49,8 +57,11 @@
 			usingComponents: {
 				'wxc-popup': '@minui/wxc-popup',
 				'wui-icon': '@yapple/wui-icon',
-				'app-avatar': './avatar'
-			}
+				'app-icon': './icon'
+			},
+		},
+		options: {
+			multipleSlots: true
 		},
 		behaviors: [],
 		properties: {
@@ -60,20 +71,33 @@
 			content: {
 				type: String
 			},
-			confirmText: {
-				type: String,
-				value: '确定'
+			confirmBtn: {
+				type: null,
+				value: true
 			},
-			cancelText: {
-				type: String,
-				value: '取消'
+			cancelBtn: {
+				type: null,
+				value: false
 			},
 			showHelpIcon: {
 				type: Boolean,
 				value: false
+			},
+			customBtns: {
+				type: Boolean,
+				value: false
 			}
 		},
-		data: {},
+		data: {
+			defaultProperties: {
+				title: '',
+				content: '',
+				confirmBtn: true,
+				cancelBtn: false,
+				showHelpIcon: false,
+				customBtns: false
+			}
+		},
 		methods: {
 			async show() {
 				let _this = this;
@@ -83,7 +107,6 @@
 					return null;
 				popupComponent.show();
 				
-				this.selectComponent('#wxc-dialog').show();
 				return new Promise((resolve, reject) => {
 					_this._resolve = resolve;
 					_this._reject = reject;
@@ -124,12 +147,14 @@
 	
 	.wui-dialog {
 		background: @color__darkGray;
+		color: white;
 		width: 655px;
 		border-radius: 27px;
 		display: flex;
 		flex-flow: column nowrap;
 		align-items: stretch;
-		padding-top: 42px 50px;
+		padding: 42px 50px;
+		box-sizing: border-box;
 		
 		.__title {
 			display: flex;
@@ -156,9 +181,7 @@
 		
 		.__content {
 			font-size: @fontSize__text;
-			color: white;
 		}
-		
 		
 		.__btns {
 			display: flex;
@@ -166,27 +189,31 @@
 			justify-content: flex-end;
 			align-items: center;
 			font-size: 36px;
+			margin-top: 42px;
 			
-			.__btns__cancel {
+			.__btn {
 				width: 105px;
 				height: 105px;
-				border-radius: 50%;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				background: @color__purple;
-				color: white;
+				margin-left: 20px;
 			}
 			
-			.__btns__confirm {
-				width: 105px;
-				height: 105px;
+			.__btn--cancel {
 				border-radius: 50%;
-				display: flex;
-				align-items: center;
-				justify-content: center;
+				background: @color__purple;
+			}
+			
+			.__btn--confirm {
+				border-radius: 50%;
 				background: @color__num1;
-				color: white;
+			}
+			
+			.__btn--text {
+				width: auto;
+				padding: 0 1em;
+				border-radius: 27px;
 			}
 			
 		}

@@ -56,9 +56,13 @@
 			></wxc-button>
 		</view>
 	</wxc-mask>
-	<wui-dialog id="dialog-share" title="道具兑换成功" confirmText="" cancelText="">
+	<wui-dialog id="dialog-share" title="道具兑换成功" customBtns="{{true}}">
 		<text>道具兑换成功！</text>
-		<wxc-button type="success" size="large" btn-style="width:500rpx;margin:20rpx 0" value="转发到PK赛微信群" open-type="share"></wxc-button>
+		<view slot="btns" style="flex-grow:1">
+			<wxc-button type="success" size="large"
+			            btn-style="width:100%; height:105rpx; line-height:105rpx; border-radius:28rpx;"
+			            value="转发到PK赛微信群" open-type="share"></wxc-button>
+		</view>
 	</wui-dialog>
 </template>
 
