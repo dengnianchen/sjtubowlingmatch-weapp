@@ -9,7 +9,7 @@
 	<view class="page__banner">
 		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
 		<text class="__elem __name">{{$.me.name}}</text>
-		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info.state}}"></app-pk-player-state>
+		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info}}"></app-pk-player-state>
 	</view>
 	<wxc-notice wx:if="{{!player.detail_confirmed}}"
 	            notice="你的上一场比赛尚未被确认，无法兑换道具。"
@@ -89,7 +89,7 @@
 		data: {},
 		
 		async onShow() {
-			var player = await Player.getInMatch('pk', $.AppData.me);
+			var player = await Player.getPlayerByUser('pk', $.AppData.me, true);
 			var items = await ShopItem.listAll('pk');
 			var itemsOrganized = {};
 			for (var item of items) {

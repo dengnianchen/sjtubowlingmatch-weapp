@@ -71,7 +71,7 @@
 			
 			let play = wx.getStorageSync('pk');
 			if (!play) {
-				let player = await Player.getInMatch('pk', $.AppData.me);
+				let player = await Player.getPlayerByUser('pk', $.AppData.me, true);
 				let bonus = $.AppData.me.gender === 2 ? PkPlay.bonus : 0;
 				play = {
 					type: 'init',
@@ -125,7 +125,11 @@
 				await $.Modal.showSuccess('操作成功');
 				Page.redirectTo({
 					url: '/pages/playresult/index',
-					data: { id: play_id, needShare: true }
+					data: {
+						id: play_id,
+						match: 'pk',
+						needShare: true
+					}
 				});
 			} catch (ex) {
 				$.Modal.showError('提交成绩失败', ex);

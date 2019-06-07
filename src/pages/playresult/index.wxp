@@ -40,9 +40,9 @@
 		data: {},
 		
 		async onLoad(options) {
-			if (!options.id)
+			if (!options.id || !options.match)
 				throw new $.Err.NO_RESOURCE('找不到指定比赛场次');
-			let play = await Play.getPlay(options.id);
+			let play = await Play.getPlay(options.match, options.id);
 			let matchCategory = play.match_info.category;
 			this.selectComponent(`#${matchCategory}${play.type}`).initial(play);
 			
@@ -62,7 +62,8 @@
 			let accept = e.target.dataset['accept'];
 			try {
 				$.Modal.showBusy('正在处理…');
-				await Play.judgeConfirm(e, this.data.play, accept);
+				await Play.judgeConfirm(this.data.play.match_info,
+					this.data.play, accept, e);
 				await $.Modal.showSuccess('操作成功');
 				if (getCurrentPages().length > 1)
 					wx.navigateBack();
@@ -77,7 +78,8 @@
 			let accept = e.target.dataset['accept'];
 			try {
 				$.Modal.showBusy('正在处理…');
-				await Play.playerConfirm(e, this.data.play, accept);
+				await Play.playerConfirm(this.data.play.match_info,
+					this.data.play, accept, e);
 				await $.Modal.showSuccess('操作成功');
 				if (getCurrentPages().length > 1)
 					wx.navigateBack();

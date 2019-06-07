@@ -18,7 +18,7 @@
 					<view class="list__title--sub">
 						比赛日期：{{play.play_date}}，
 						<block wx:if="{{play.player_ids.length === 2}}">
-							比分：{{play.participants[play.player_ids[0]].detail.score}}:{{play.participants[play.player_ids[1]].detail.score}}
+							比分：{{play.participants[play.player_ids[0]].score}}:{{play.participants[play.player_ids[1]].score}}
 						</block>
 					</view>
 				</view>
@@ -53,7 +53,8 @@
 				Page.navigateTo({
 					url: '/pages/playresult/index',
 					data: {
-						id: this.data.play.id
+						id: this.data.play.id,
+						match: this.data.play.match_info
 					}
 				});
 			}

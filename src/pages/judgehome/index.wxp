@@ -27,7 +27,7 @@
 		},
 		data: {},
 		async onShow() {
-			let plays = await Play.judgeByMe();
+			let plays = await Play.judgeByMe('pk');
 			let playsTodo = [];
 			let playsDone = [];
 			for (let play of plays) {
@@ -42,26 +42,6 @@
 				}
 			}
 			this.setData({ playsTodo, playsDone });
-		},
-		async onAcceptClicked(e) {
-			try {
-				$.Modal.showBusy('正在处理…');
-				await Play.judgeConfirm(e, e.target.dataset['play'], true);
-				await $.Modal.showSuccess('操作成功');
-				this.reloadPage();
-			} catch (ex) {
-				$.Modal.showError('操作失败', ex);
-			}
-		},
-		async onRejectClicked(e) {
-			try {
-				$.Modal.showBusy('正在处理…');
-				await Play.judgeConfirm(e, e.target.dataset['play'], false);
-				await $.Modal.showSuccess('操作成功');
-				this.reloadPage();
-			} catch (ex) {
-				$.Modal.showError('操作失败', ex);
-			}
 		},
 		async _onPlayItemClicked(e) {
 			Page.navigateToDialog({

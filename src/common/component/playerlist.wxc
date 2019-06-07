@@ -8,14 +8,14 @@
 				</view>
 				<view class="__name">{{player.name}}</view>
 				<view class="__rank">
-					<image src="/images/pk/rank{{player.detail_info.state['rank']}}.png" class="__rank-icon"></image>
-					{{rankTable[player.detail_info.state['rank']].name}}
+					<image src="/images/pk/rank{{player.detail_info['rank']}}.png" class="__rank-icon"></image>
+					{{rankTable[player.detail_info['rank']].name}}
 				</view>
 				<view class="__stars">
-					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.detail_info.state['stars']}}
+					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.detail_info['stars']}}
 				</view>
 				<view class="__coins">
-					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.detail_info.state['coins']}}
+					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.detail_info['coins']}}
 				</view>
 			</view>
 		</button>

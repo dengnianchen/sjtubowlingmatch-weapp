@@ -2,7 +2,7 @@
 	<view class="page__banner">
 		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
 		<text class="__elem __name">{{$.me.name}}</text>
-		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info.state}}"></app-pk-player-state>
+		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info}}"></app-pk-player-state>
 	</view>
 	<view class="pkhome__week">当前为本赛季第{{match.week+1}}周</view>
 	<view wx:if="{{!player || !player.status}}" class="cc pkhome__menu">
@@ -126,7 +126,7 @@
 	</view>
 	
 	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="再想想">
-		<app-pk-player-state player-state="{{playerLastSeason.detail_info.state}}" rank-table="{{$.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
+		<app-pk-player-state player-state="{{playerLastSeason.detail_info}}" rank-table="{{$.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
 		<text>↓</text>
 		<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
@@ -172,7 +172,6 @@
 			match: null,
 			player: null,
 			playerLastSeason: null,
-			rankTable: PkPlay.rankTable,
 			pkrule: pkrule,
 			showConfirmNotice: false,
 			playFilter: {
@@ -224,11 +223,11 @@
 			wx.setNavigationBarTitle({ title: match.name });
 			
 			// 获取当前用户在本赛季中的选手信息
-			let playerMe = await Player.getInMatch(match, $.AppData.me);
+			let playerMe = await Player.getPlayerByUser(match, $.AppData.me, true);
 			
 			// 如需要，获取当前用户在上赛季中的选手信息（用于判断段位继承）
 			let playerLastSeason = (playerMe && playerMe.status) ? null :
-				await Player.getInMatch($.AppData.matches.pk[1], $.AppData.me);
+				await Player.getPlayerByUser($.AppData.matches.pk[1], $.AppData.me, true);
 
 			this.setData({ match, player: playerMe, playerLastSeason });
 			
@@ -289,7 +288,7 @@
 				if (player.status === Player.S_NORMAL &&
 					player.detail_confirmed &&
 					player.id !== this.data.player.id &&
-					Math.abs(this.data.player.detail_info.state['rank'] - player.detail_info.state['rank']) < 2)
+					Math.abs(this.data.player.detail_info['rank'] - player.detail_info['rank']) < 2)
 					players.push(player);
 			}
 			let opponent = await Page.navigateToDialog({
@@ -326,7 +325,7 @@
 				if (player.status === Player.S_NORMAL &&
 					player.detail_confirmed &&
 					player.id !== this.data.player.id &&
-					this.data.player.detail_info.state['rank'] !== player.detail_info.state['rank'])
+					this.data.player.detail_info['rank'] !== player.detail_info['rank'])
 					players.push(player);
 			}
 			let opponent = await Page.navigateToDialog({
@@ -366,19 +365,19 @@
 			$.Wui.content('content-play-list').load();
 		},
 		async loadPlayerList() {
-			let players = await PkPlay.getPlayers();
+			let players = await Player.getPlayers(this.data.match);
 			players.sort((a, b) => {
-				if (a.detail_info.state['rank'] < b.detail_info.state['rank'])
+				if (a.detail_info['rank'] < b.detail_info['rank'])
 					return 1;
-				if (a.detail_info.state['rank'] > b.detail_info.state['rank'])
+				if (a.detail_info['rank'] > b.detail_info['rank'])
 					return -1;
-				if (a.detail_info.state['stars'] < b.detail_info.state['stars'])
+				if (a.detail_info['stars'] < b.detail_info['stars'])
 					return 1;
-				if (a.detail_info.state['stars'] > b.detail_info.state['stars'])
+				if (a.detail_info['stars'] > b.detail_info['stars'])
 					return -1;
-				if (a.detail_info.state['coins'] < b.detail_info.state['coins'])
+				if (a.detail_info['coins'] < b.detail_info['coins'])
 					return 1;
-				if (a.detail_info.state['coins'] > b.detail_info.state['coins'])
+				if (a.detail_info['coins'] > b.detail_info['coins'])
 					return -1;
 				return 0;
 			});
