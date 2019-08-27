@@ -42,7 +42,7 @@
 		async onLoad(options) {
 			if (!options.id)
 				throw new $.Err.NO_RESOURCE('找不到指定比赛场次');
-			let play = await Play.getPlay('pk', options.id);
+			let play = await Play.getPlay(options.match, options.id);
 			let matchCategory = play.match_info.category;
 			this.selectComponent(`#${matchCategory}${play.type}`).initial(play);
 			

@@ -12,13 +12,7 @@ class PkPlay extends $.Model {
 	 * @return {*[]}
 	 */
 	static get rankTable() {
-		return [
-			{ "name": "Open",   "rank_score": 90,  "base_score": 90,  "max_stars": 3 },
-			{ "name": "Spare",  "rank_score": 120, "base_score": 120, "max_stars": 3 },
-			{ "name": "Strike", "rank_score": 150, "base_score": 150, "max_stars": 4 },
-			{ "name": "Turkey", "rank_score": 175, "base_score": 175, "max_stars": 10 },
-			{ "name": "Bagger", "rank_score": 500, "base_score": 175, "max_stars": 1000000 }
-		];
+		return $.AppData.matches['pk'][0].detail['rank_table'];
 	}
 	
 	/**

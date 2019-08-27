@@ -125,7 +125,7 @@
 				await $.Modal.showSuccess('操作成功');
 				Page.redirectTo({
 					url: '/pages/playresult/index',
-					data: { id: play_id, needShare: true }
+					data: { id: play_id, match: 'pk', needShare: true }
 				});
 			} catch (ex) {
 				$.Modal.showError('提交成绩失败', ex);

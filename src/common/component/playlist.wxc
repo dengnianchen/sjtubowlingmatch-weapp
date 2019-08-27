@@ -54,6 +54,7 @@
 					url: '/pages/playresult/index',
 					data: {
 						id: this.data.play.id
+						match: this.data.play.match
 					}
 				});
 			}
