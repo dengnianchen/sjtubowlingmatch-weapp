@@ -72,17 +72,23 @@
 			margin-right: 5px;
 		}
 		
-	}
-	.pk-player-state .__item {
-		display: inline-flex;
-		justify-content: center;
-		align-items: center;
-		margin: 0 0.5em;
-	}
-	.pk-player-state .__icon {
-		margin-right: 0.3em;
-	}
-	.pk-player-state .__vertical {
-		flex-direction: column;
+		.__item {
+			display: inline-flex;
+			justify-content: center;
+			align-items: center;
+			margin: 0 0.5em;
+		}
+		
+		.__icon {
+			margin-right: 0.3em;
+		}
+		
+		.__vertical {
+			flex-direction: column;
+			
+			.__icon {
+				margin-right: 0;
+			}
+		}
 	}
 </style>

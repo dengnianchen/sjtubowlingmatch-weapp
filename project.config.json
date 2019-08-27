@@ -13,6 +13,8 @@
 		"newFeature": true,
 		"autoAudits": false
 	},
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
 	"condition": {
 		"search": {
 			"current": -1,
@@ -29,6 +31,10 @@
 		"game": {
 			"list": []
 		},
+		"gamePlugin": {
+			"current": -1,
+			"list": []
+		},
 		"miniprogram": {
 			"current": 0,
 			"list": [
@@ -37,6 +43,12 @@
 					"name": "Update",
 					"pathName": "pages/home/index",
 					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/pkshop/index",
+					"pathName": "pages/pkshop/index",
 					"scene": null
 				}
 			]

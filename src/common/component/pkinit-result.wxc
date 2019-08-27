@@ -1,5 +1,5 @@
 <template>
-	<wxs src="../../models/game.wxs" module="game"></wxs>
+	<wxs src="../../models/Game.wxs" module="game"></wxs>
 	<view wx:if="{{play}}">
 		<wui-panel title="基本信息">
 			<wui-field type="custom" label="比赛类型">{{play.match_info.name}} - {{play.match_info.detail.type_table[play.type].name}}</wui-field>

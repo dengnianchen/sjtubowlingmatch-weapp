@@ -45,7 +45,7 @@
 			},
 		},
 		data: {
-			excludeId: null,
+			excludeName: null,
 		},
 		async onLoad(options) {
 			if (options.title)
@@ -53,11 +53,11 @@
 			allUsers = await User.getAll();
 			
 			// 去掉排除项
-			let excludeIdArr = options.excludeId === null || options.excludeId === undefined ? [] :
-				typeof(options.excludeId) === 'number' ? [ options.excludeId ] : options.excludeId;
-			for (let excludeId of excludeIdArr) {
+			let excludeNameArr = options.excludeName === null || options.excludeName === undefined ? [] :
+				typeof(options.excludeName) === 'string' ? [ options.excludeName ] : options.excludeName;
+			for (let excludeName of excludeNameArr) {
 				for (let i = 0; i < allUsers.length; ++i) {
-					if (allUsers[i].id === excludeId) {
+					if (allUsers[i].name === excludeName) {
 						allUsers.splice(i, 1);
 						break;
 					}

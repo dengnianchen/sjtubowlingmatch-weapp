@@ -21,9 +21,15 @@ class Match extends $.Model {
 	static async getAll(category) {
 		return await $.Http.request(`/${category}/all-seasons`, {}, {}, Match);
 	}
+	
 	static async get(match) {
 		return await $.Http.request(`/${match}`, {}, {}, Match);
 	}
+	
+	isBeginning() {
+		return this.week < this.detail.begin_weeks;
+	}
+	
 }
 
 module.exports = Match;

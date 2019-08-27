@@ -73,16 +73,6 @@ class PkPlay extends $.Model {
 	}
 	
 	/**
-	 * 获取所有参加PK赛的选手
-	 *
-	 * @return {Promise<Player[]>}
-	 * @author Deng Nianchen
-	 */
-	static async getPlayers() {
-		return await $.Http.request('/pk/players', {}, {}, Player);
-	}
-	
-	/**
 	 * 获取周榜单。
 	 *
 	 * @param {Number}  week    （可选）统计周次，默认为当前周

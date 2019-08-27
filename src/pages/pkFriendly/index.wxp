@@ -1,5 +1,5 @@
 <template>
-	<wxs src="../../models/game.wxs" module="game"></wxs>
+	<wxs src="../../models/Game.wxs" module="Game"></wxs>
 	<scroll-view class="play_main {{keyboardShow?'play_main_small':''}}"
 	             scroll-y="{{true}}" scroll-with-animation="{{true}}" scroll-top="{{scrollTop}}rpx">
 		<view class="pkinit__hd">
@@ -14,7 +14,7 @@
 			           bindconfirm="onFirstHandSelected"
 			></wui-field>
 		</wui-panel>
-		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第一局：{{play.players[play.rounds[0][0].player_id].name}}先手，当前局分 {{game.formatScore(play.rounds[0][0])}} : {{game.formatScore(play.rounds[0][1])}}">
+		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第一局：{{play.players[play.rounds[0][0].player_id].name}}先手，当前局分 {{Game.formatScore(play.rounds[0][0])}} : {{Game.formatScore(play.rounds[0][1])}}">
 			<app-game id="game-round0"
 			          players="{{play.players}}"
 			          games="{{play.rounds[0]}}"
@@ -23,7 +23,7 @@
 			></app-game>
 		</wui-panel>
 		
-		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第二局：{{play.players[play.rounds[1][0].player_id].name}}先手，当前局分 {{game.formatScore(play.rounds[1][0])}} : {{game.formatScore(play.rounds[1][1])}}">
+		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第二局：{{play.players[play.rounds[1][0].player_id].name}}先手，当前局分 {{Game.formatScore(play.rounds[1][0])}} : {{Game.formatScore(play.rounds[1][1])}}">
 			<app-game id="game-round1"
 			          players="{{play.players}}"
 			          games="{{play.rounds[1]}}"
@@ -63,7 +63,7 @@
 	export default {
 		auth: true,
 		config: {
-			navigationBarTitleText: 'PK赛 - 定级赛',
+			navigationBarTitleText: 'PK赛 - 友谊赛',
 			usingComponents: {
 				'wui-panel': '@yapple/wui-panel',
 				'wui-field': '@yapple/wui-field',
@@ -72,7 +72,7 @@
 				'wxc-button': '@minui/wxc-button',
 				'app-game': '../../common/component/game',
 				'app-game-keyboard': '../../common/component/game-keyboard'
-			}
+			},
 		},
 		data: {
 			activeFrame: null,
@@ -97,7 +97,7 @@
 				let bonus_me = player_me.gender === 2 ? PkPlay.bonus : 0;
 				let bonus_opponent = player_opponent.gender === 2 ? PkPlay.bonus : 0;
 				play = {
-					type: "normal",
+					type: "Friendly",
 					player_ids: [ player_me.id, player_opponent.id ],
 					first_hand_index: null,
 					players: {},
@@ -115,7 +115,7 @@
 				play.players[player_me.id] = player_me;
 				play.players[player_opponent.id] = player_opponent;
 			} else {
-				if (play.type !== 'normal')
+				if (play.type !== 'Friendly')
 					throw $.Err.FAIL('当前有其他正在进行的比赛');
 				play = $(play).toRichObject({
 					players: {
@@ -145,9 +145,9 @@
 				url: '../userselector/index',
 				data: {
 					title: '选择裁判',
-					excludeId: [
-						this.data.play.players[this.data.play.player_ids[0]].user_id,
-						this.data.play.players[this.data.play.player_ids[1]].user_id
+					excludeName: [
+						this.data.play.players[this.data.play.player_ids[0]].name,
+						this.data.play.players[this.data.play.player_ids[1]].name
 					]
 				}
 			});
@@ -243,7 +243,7 @@
 					(frameRef && frameRef.round === i) ? frameRef :null);
 			this.selectComponent('#game-keyboard').show(this._getFrame(frameRef),
 				frameRef && !frameRef.round && !frameRef.gameIndex && !frameRef.frameIndex);
-			this.setData({ scrollTop: !frameRef || frameRef.round === 0 ? 0 : 150 });
+			this.setData({ scrollTop: frameRef.round === 0 ? 0 : 150 });
 		},
 		_getFrame(fr) {
 			return !fr ? null : this.data.play.rounds[fr.round][fr.gameIndex].frames[fr.frameIndex];
@@ -282,5 +282,4 @@
 	.play_main_small {
 		bottom: 500px;
 	}
-	
 </style>

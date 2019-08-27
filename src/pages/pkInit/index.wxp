@@ -1,10 +1,10 @@
 <template>
-	<wxs src="../../models/game.wxs" module="game"></wxs>
+	<wxs src="../../models/Game.wxs" module="Game"></wxs>
 	<view class="pkinit__hd">
 		<view class="pkinit__hd__player">选手：{{play.players[play.player_ids[0]].name}}</view>
 		<view>比赛类型：定级赛</view>
 	</view>
-	<wui-panel title="第一局：当前局分 {{game.formatScore(play.rounds[0][0])}}">
+	<wui-panel title="第一局：当前局分 {{Game.formatScore(play.rounds[0][0])}}">
 		<app-game id="game-round0"
 		          players="{{play.players}}"
 		          games="{{play.rounds[0]}}"
@@ -13,7 +13,7 @@
 		></app-game>
 	</wui-panel>
 	
-	<wui-panel title="第二局：当前局分 {{game.formatScore(play.rounds[1][0])}}">
+	<wui-panel title="第二局：当前局分 {{Game.formatScore(play.rounds[1][0])}}">
 		<app-game id="game-round1"
 		          players="{{play.players}}"
 		          games="{{play.rounds[1]}}"
@@ -71,10 +71,10 @@
 			
 			let play = wx.getStorageSync('pk');
 			if (!play) {
-				let player = await Player.getInMatch('pk', $.AppData.me);
+				let player = await Player.getInMatch('pk', $.AppData.me, true);
 				let bonus = $.AppData.me.gender === 2 ? PkPlay.bonus : 0;
 				play = {
-					type: 'init',
+					type: 'Init',
 					player_ids: [ player.id ],
 					players: {},
 					rounds: [
@@ -84,7 +84,7 @@
 				};
 				play.players[player.id] = player;
 			} else {
-				if (play.type !== 'init')
+				if (play.type !== 'Init')
 					throw $.Err.FAIL('当前有其他正在进行的比赛');
 				play = $(play).toRichObject({
 					players: {
@@ -100,7 +100,7 @@
 				url: '../userselector/index',
 				data: {
 					title: '选择裁判',
-					excludeId: $.AppData.me.id
+					excludeName: $.AppData.me.name
 				}
 			});
 			if (judge) {

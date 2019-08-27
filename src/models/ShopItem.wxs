@@ -1,0 +1,7 @@
+var canBuy = function(_this, player) {
+	return player && _this && !_this.violates.length && _this.affordable && player.state_confirmed;
+};
+
+module.exports = {
+	canBuy: canBuy
+}

@@ -2,11 +2,11 @@
 	<view class="page__banner">
 		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
 		<text class="__elem __name">{{$.me.name}}</text>
-		<app-pk-player-state class="__elem __status" player-state="{{player.detail_info.state}}"></app-pk-player-state>
+		<app-pk-player-state class="__elem __status" player-state="{{player.state}}"></app-pk-player-state>
 	</view>
-	<view class="pkhome__week">当前为本赛季第{{match.week+1}}周</view>
-	<view wx:if="{{!player || !player.status}}" class="cc pkhome__menu">
-		<block wx:if="{{playerLastSeason&&match.week<2}}">
+	<view class="pkhome__week">当前为本赛季第{{match.week + 1}}周</view>
+	<view wx:if="{{!player || (player.state_confirmed && !player.state)}}" class="cc pkhome__menu">
+		<block wx:if="{{playerLastSeason && match.week < match.detail.begin_weeks}}">
 			<text class="__item">由于你参加过上一赛季的比赛，你可以选择</text>
 			<wxc-button class="__item" size="large"
 			            btn-style="{{$.style.button.large}} {{$.style.button.primary}}"
@@ -39,9 +39,12 @@
 			<app-icon class="__icon" name="store"></app-icon>
 			<view>道具商店</view>
 		</wxc-button>
-		<wui-abnor class="__abnor" wx:if={{player.status==='new'}} error="PK_INIT_GAME_UNCONFIRMED"></wui-abnor>
-		<wui-abnor class="__abnor" wx:elif="{{player.status==='quit'}}" error="PK_QUIT"></wui-abnor>
-		<wui-abnor class="__abnor" wx:elif={{!player.detail_confirmed}} error="PK_UNCONFIRMED"></wui-abnor>
+		<wui-abnor wx:if="{{!player.state && !player.state_confirmed}}"
+		           class="__abnor" error="PK_INIT_GAME_UNCONFIRMED"
+		></wui-abnor>
+		<wui-abnor wx:elif={{!player.state_confirmed}}
+		           class="__abnor" error="PK_UNCONFIRMED"
+		></wui-abnor>
 	</view>
 	<view class="pkhome__tabs">
 		<app-tab default-index="0"
@@ -125,8 +128,8 @@
 		</app-tab>
 	</view>
 	
-	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-text="继承" cancel-text="再想想">
-		<app-pk-player-state player-state="{{playerLastSeason.detail_info.state}}" rank-table="{{$.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
+	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-btn="继承" cancel-btn="再想想">
+		<app-pk-player-state player-state="{{playerLastSeason.state}}" rank-table="{{$.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
 		<text>↓</text>
 		<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
@@ -224,11 +227,11 @@
 			wx.setNavigationBarTitle({ title: match.name });
 			
 			// 获取当前用户在本赛季中的选手信息
-			let playerMe = await Player.getInMatch(match, $.AppData.me);
+			let playerMe = await Player.getInMatch(match, $.AppData.me, true);
 			
 			// 如需要，获取当前用户在上赛季中的选手信息（用于判断段位继承）
 			let playerLastSeason = (playerMe && playerMe.status) ? null :
-				await Player.getInMatch($.AppData.matches.pk[1], $.AppData.me);
+				await Player.getInMatch($.AppData.matches.pk[1], $.AppData.me, true);
 
 			this.setData({ match, player: playerMe, playerLastSeason });
 			
@@ -251,8 +254,7 @@
 					return;
 				
 				$.Modal.showBusy('正在处理');
-				let player = await PkPlay.joinByInherit();
-				this.setData({ player });
+				await PkPlay.joinByInherit();
 				$.Modal.hideToast();
 				await $.Wui.Dialog.show("#dialog-inherit-success");
 				this.reloadPage();
@@ -261,35 +263,39 @@
 			}
 		},
 		async onPlayInitButtonClicked(e) {
-			let r = await $.Modal.show('开始定级赛', `今天是本赛季的第${this._getMatch().week + 1}周，将按${this._getMatch().week < 2 ? '赛季初' : '赛季中'}的规则计算初始段位`, {
-				confirmBtn: '开始',
-				cancelBtn: '再想想'
-			});
+			let r = await $.Modal.show('开始定级赛',
+				`今天是本赛季的第${this.data.match.week + 1}周，` +
+				`将按${this.data.match.isBeginning() ? '赛季初' : '赛季中'}的规则计算初始段位`,
+				{
+					confirmBtn: '开始',
+					cancelBtn: '再想想'
+				}
+			);
 			if (!r)
 				return;
 			try {
-				await PkPlay.joinNew();
-				wx.navigateTo({ url: '../pkinit/index' });
+				await Player.create(this.data.match);
+				wx.navigateTo({ url: '../pkInit/index' });
 			} catch (ex) {
 				$.Modal.showError('开始定级赛', ex);
 			}
 		},
 		async onNormalPlayButtonClicked(e) {
 			$.Http.submit(e);
-			if ($.AppData.matches['pk'][0].week < 2) {
-				$.Modal.show('开启常规赛', '常规赛将于赛季第3周起开放');
+			if (this.data.match.isBeginning()) {
+				$.Modal.show('开启常规赛', `常规赛将于赛季第${this.data.match.detail.begin_weeks + 1}周起开放`);
 				return;
 			}
-			if (!this.data.player.detail_confirmed) {
+			if (!this.data.player.state_confirmed) {
 				$.Modal.show('开启常规赛', '前一场比赛尚未被确认，无法开启新赛');
 				return;
 			}
 			let players = [];
 			for (let player of this.data.players) {
-				if (player.status === Player.S_NORMAL &&
-					player.detail_confirmed &&
+				if (player.state &&
+					player.state_confirmed &&
 					player.id !== this.data.player.id &&
-					Math.abs(this.data.player.detail_info.state['rank'] - player.detail_info.state['rank']) < 2)
+					Math.abs(this.data.player.state['rank'] - player.state['rank']) < 2)
 					players.push(player);
 			}
 			let opponent = await Page.navigateToDialog({
@@ -299,22 +305,21 @@
 				},
 				richData: { players }
 			});
-			if (!opponent) {
+			if (!opponent)
 				return;
-			}
 			let r = await $.Modal.show('开始常规赛', `确认选择${opponent.name}作为对手？`, {
 				cancelBtn: true
 			});
 			if (!r) return;
 			Page.navigateTo({
-				url: '../pknormal/index',
+				url: '../pkNormal/index',
 				richData: { me: this.data.player, opponent }
 			});
 		},
 		async onFriendlyPlayButtonClicked(e) {
 			$.Http.submit(e);
-			if ($.AppData.matches['pk'][0].week < 2) {
-				$.Modal.show('开启友谊赛', '常规赛将于赛季第3周起开放');
+			if (this.data.match.isBeginning()) {
+				$.Modal.show('开启友谊赛', `友谊赛将于赛季第${this.data.match.detail.begin_weeks + 1}周起开放`);
 				return;
 			}
 			if (!this.data.player.detail_confirmed) {
@@ -323,10 +328,10 @@
 			}
 			let players = [];
 			for (let player of this.data.players) {
-				if (player.status === Player.S_NORMAL &&
-					player.detail_confirmed &&
+				if (player.state &&
+					player.state_confirmed &&
 					player.id !== this.data.player.id &&
-					this.data.player.detail_info.state['rank'] !== player.detail_info.state['rank'])
+					this.data.player.state['rank'] !== player.state['rank'])
 					players.push(player);
 			}
 			let opponent = await Page.navigateToDialog({
@@ -343,7 +348,7 @@
 			});
 			if (!r) return;
 			Page.navigateTo({
-				url: '../pkfriendly/index',
+				url: '../pkFriendly/index',
 				richData: { me: this.data.player, opponent }
 			});
 		},
@@ -366,19 +371,19 @@
 			$.Wui.content('content-play-list').load();
 		},
 		async loadPlayerList() {
-			let players = await PkPlay.getPlayers();
+			let players = await Player.getPlayers(this.data.match);
 			players.sort((a, b) => {
-				if (a.detail_info.state['rank'] < b.detail_info.state['rank'])
+				if (a.state['rank'] < b.state['rank'])
 					return 1;
-				if (a.detail_info.state['rank'] > b.detail_info.state['rank'])
+				if (a.state['rank'] > b.state['rank'])
 					return -1;
-				if (a.detail_info.state['stars'] < b.detail_info.state['stars'])
+				if (a.state['stars'] < b.state['stars'])
 					return 1;
-				if (a.detail_info.state['stars'] > b.detail_info.state['stars'])
+				if (a.state['stars'] > b.state['stars'])
 					return -1;
-				if (a.detail_info.state['coins'] < b.detail_info.state['coins'])
+				if (a.state['coins'] < b.state['coins'])
 					return 1;
-				if (a.detail_info.state['coins'] > b.detail_info.state['coins'])
+				if (a.state['coins'] > b.state['coins'])
 					return -1;
 				return 0;
 			});

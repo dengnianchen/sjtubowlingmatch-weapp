@@ -1,0 +1,7 @@
+var getParticipant = function(_this, index) {
+	return _this.participants[_this.player_ids[index].toString()];
+};
+
+module.exports = {
+	getParticipant: getParticipant
+}

@@ -14,7 +14,7 @@ class MatchList extends $.Model {
 		for (let match of matches) {
 			if (!this[match.category])
 				this[match.category] = [];
-			this[match.category].unshift(match);
+			this[match.category].push(match);
 			this[match.id] = match;
 		}
 	}

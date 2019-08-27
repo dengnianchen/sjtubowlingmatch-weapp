@@ -1,6 +1,6 @@
 <template>
 	<form bindsubmit="_onItemClicked" report-submit="{{true}}">
-		<button class="fake-button list list--{{mode}} list--{{!player.detail_confirmed?'unconfirmed':''}}" form-type="submit">
+		<button class="fake-button list list--{{mode}} list--{{!player.state_confirmed?'unconfirmed':''}}" form-type="submit">
 			<view class="__id">{{index+1}}</view>
 			<view class="__content">
 				<view class="__avatar">
@@ -8,14 +8,14 @@
 				</view>
 				<view class="__name">{{player.name}}</view>
 				<view class="__rank">
-					<image src="/images/pk/rank{{player.detail_info.state['rank']}}.png" class="__rank-icon"></image>
-					{{rankTable[player.detail_info.state['rank']].name}}
+					<image src="/images/pk/rank{{player.state['rank']}}.png" class="__rank-icon"></image>
+					{{rankTable[player.state['rank']].name}}
 				</view>
 				<view class="__stars">
-					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.detail_info.state['stars']}}
+					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.state['stars']}}
 				</view>
 				<view class="__coins">
-					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.detail_info.state['coins']}}
+					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.state['coins']}}
 				</view>
 			</view>
 		</button>

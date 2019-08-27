@@ -46,20 +46,24 @@ class Play extends $.Model {
 	
 	/**
 	 *
-	 * @param {Player|number}   player
+	 * @param {Match|string}    match   赛事
+	 * @param {Player|number}   player  选手
 	 * @return {Promise<PlayBrief>}
 	 */
-	static async getByPlayer(player) {
+	static async getByPlayer(match, player) {
+		match = $.Model.id(match);
 		player = $.Model.id(player);
-		return await $.Http.request(`/play/by/${player}`, {}, {}, PlayBrief);
+		return await $.Http.request(`/${match}/play/by/${player}`, {}, {}, PlayBrief);
 	}
 	
 	/**
 	 *
+	 * @param {Match|string}    match   指赛事
 	 * @return {Promise<PlayBrief>}
 	 */
-	static async judgeByMe() {
-		return await $.Http.request('/play/judge-by-me', {}, {}, PlayBrief);
+	static async judgeByMe(match) {
+		match = $.Model.id(match);
+		return await $.Http.request(`/${match}/play/judge-by-me`, {}, {}, PlayBrief);
 	}
 	
 	/**
@@ -72,39 +76,46 @@ class Play extends $.Model {
 	 * @author Deng Nianchen
 	 */
 	static async getPlays(match, filters = null) {
+		match = $.Model.id(match);
 		if (!filters)
-			return await $.Http.request(`/${$.Model.id(match)}/plays`, {}, {}, PlayBrief);
-		return await $.Http.request(`/${$.Model.id(match)}/plays`, { filters }, {}, PlayBrief);
+			return await $.Http.request(`/${match}/play`, {}, {}, PlayBrief);
+		return await $.Http.request(`/${match}/play`, { filters }, {}, PlayBrief);
 	}
 	
 	/**
 	 * 裁判确认指定比赛场次（接受或拒绝）
 	 *
 	 * @param {Event}           e       submit事件
-	 * @param {Play|number}     play    指定比赛场次
+	 * @param {Play}            play    指定比赛场次
 	 * @param {boolean|string}  accept  接受或拒绝
 	 * @return {Promise<number>}
 	 */
 	static async judgeConfirm(e, play, accept) {
-		play = $.Model.id(play);
-		await $.Http.submit(e, `POST /play/${play}/judge-confirm/${accept}`);
+		return await $.Http.submit(e, `POST /${play.match}/play/${$.Model.id(play)}/judge-confirm/${accept}`);
 	}
 	
 	/**
 	 * 选手确认指定比赛场次（接受或拒绝）
 	 *
 	 * @param {Event}           e       submit事件
-	 * @param {Play|number}     play    指定比赛场次
+	 * @param {Play}            play    指定比赛场次
 	 * @param {boolean|string}  accept  接受或拒绝
 	 * @return {Promise<number>}
 	 */
 	static async playerConfirm(e, play, accept) {
-		play = $.Model.id(play);
-		await $.Http.submit(e, `POST /play/${play}/player-confirm/${accept}`);
+		return await $.Http.submit(e, `POST /${play.match}/play/${$.Model.id(play)}/player-confirm/${accept}`);
 	}
 	
-	static async getPlay(id) {
-		return await $.Http.request(`/play/${id}`, {}, {}, Play);
+	/**
+	 * 获取指定比赛场次信息
+	 *
+	 * @param {Match|string}    match   赛事
+	 * @param {number}          id      比赛场次ID
+	 * @return {Promise<Play>}
+	 */
+	static async getPlay(match, id) {
+		match = $.Model.id(match);
+		return await $.Http.request(`/${match}/play/${id}`, {}, {}, Play);
 	}
 	
 }
