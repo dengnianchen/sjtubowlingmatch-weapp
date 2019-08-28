@@ -1,4 +1,5 @@
 <template>
+	<wxs src="../../models/Play.wxs" module="Play"></wxs>
 	<form bindsubmit="_onItemClicked" report-submit="{{true}}">
 		<button class="fake-button list" form-type="submit">
 			<view class="list__body list__{{mode}}">
@@ -8,17 +9,17 @@
 						<wui-icon wx:elif="{{play.status==='refused'||play.status==='player_refused'}}" class="icon-refused" name="fas fa-times-circle"></wui-icon>
 						<wui-icon wx:else class="icon-unconfirmed" name="fas fa-question-circle"></wui-icon>
 						PK | {{play.match_info.detail.type_table[play.type].name}} |
-						<block wx:if="{{play.player_ids.length === 1}}">
-							{{play.participants[play.player_ids[0]].player_name}} {{play.participants[play.player_ids[0]].score}}分
+						<block wx:if="{{play.participants.keys.length === 1}}">
+							{{Play.getParticipant(play, 0).player_name}} {{Play.getParticipant(play, 0).score}}分
 						</block>
 						<block wx:else>
-							{{play.participants[play.player_ids[0]].player_name}} VS {{play.participants[play.player_ids[1]].player_name}}
+							{{Play.getParticipant(play, 0).player_name}} VS {{Play.getParticipant(play, 1).player_name}}
 						</block>
 					</view>
 					<view class="list__title--sub">
 						比赛日期：{{play.play_date}}
 						<block wx:if="{{play.player_ids.length === 2}}">
-							，比分：{{play.participants[play.player_ids[0]].score}}:{{play.participants[play.player_ids[1]].score}}
+							，比分：{{Play.getParticipant(play, 0).score}}:{{Play.getParticipant(play, 1).score}}
 						</block>
 					</view>
 				</view>

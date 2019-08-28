@@ -1,5 +1,7 @@
 var getParticipant = function(_this, index) {
-	return _this.participants[_this.player_ids[index].toString()];
+	return _this && _this.participants ?
+		_this.participants[_this.participants.keys[index].toString()] :
+		null;
 };
 
 module.exports = {

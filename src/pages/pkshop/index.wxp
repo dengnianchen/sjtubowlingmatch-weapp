@@ -133,12 +133,12 @@
 			<view>
 				<wui-field type="custom" label="目标">
 					<view class="target-picker" bindtap="onSelectTargetClicked">
-						<text wx:if="{{applyData.target}}" class="__value">{{applyData.target.name}}</text>
+						<text wx:if="{{applyTarget}}" class="__value">{{applyTarget.name}}</text>
 						<text wx:else class="__value" style="color:#999">请选择目标选手</text>
 						<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
 					</view>
 				</wui-field>
-				<wui-field type="text" label="显示名称" value="{{applyData.displayName}}"></wui-field>
+				<wui-field type="text" label="显示名称" bindconfirm="onNicknameChanged"></wui-field>
 			</view>
 			<wxc-button class="__button" value="使用"
 			            size="large"
@@ -243,7 +243,10 @@
 		
 		onOwnedItemClicked(e) {
 			var item = e.currentTarget.dataset['item'];
-			this.setData({ ownedDetail: item });
+			this.setData({
+				ownedDetail: item,
+				applyData: {}
+			});
 		},
 		
 		async onBuyClicked(e) {
@@ -265,7 +268,7 @@
 			this.setData({ ownedDetail: null });
 			try {
 				$.Modal.showBusy("正在处理");
-				var op = await OwnedItem.prototype.use.call(item, e, {});
+				var op = await OwnedItem.prototype.use.call(item, e, { data: this.data.applyData });
 				$.Modal.hideToast();
 				$.Wui.Dialog.show('#dialog-use-success');
 			} catch (ex) {
@@ -292,14 +295,25 @@
 					!player.effects['Nick'])
 					availableTargets.push(player);
 			}
-			this.data.applyData.target = await Page.navigateToDialog({
+			let applyTarget = await Page.navigateToDialog({
 				url: '../pkplayerselector/index',
 				data: {
 					title: '选择道具目标'
 				},
 				richData: { players: availableTargets }
 			});
-			this.setData({ applyData: this.data.applyData });
+			this.data.applyData.player_id = applyTarget.id;
+			this.setData({
+				applyTarget,
+				applyData: this.data.applyData
+			});
+		},
+		
+		onNicknameChanged(e) {
+			this.data.applyData.nickname = e.detail.value;
+			this.setData({
+				applyData: this.data.applyData
+			});
 		}
 	};
 </script>

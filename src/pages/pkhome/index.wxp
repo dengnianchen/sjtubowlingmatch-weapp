@@ -175,7 +175,6 @@
 			match: null,
 			player: null,
 			playerLastSeason: null,
-			rankTable: PkPlay.rankTable,
 			pkrule: pkrule,
 			showConfirmNotice: false,
 			playFilter: {
@@ -196,6 +195,7 @@
 		},
 		
 		onLoad() {
+			this.setData({ rankTable: PkPlay.rankTable });
 			$.Wui.content('content-player-list').bindLoad(this.loadPlayerList);
 			$.Wui.content('content-play-list').bindLoad(this.loadPlayList);
 			$.Wui.content('content-weekly-list').bindLoad(this.loadWeeklyList);
