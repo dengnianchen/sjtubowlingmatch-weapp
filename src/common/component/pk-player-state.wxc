@@ -3,20 +3,16 @@
 	<view class="pk-player-state">
 		<block wx:if="{{showRank}}">
 			<view class="__item">
-				<block wx:if="{{rankTable[playerState['rank']].name}}">
-					<image src="/images/pk/rank{{playerState['rank']}}.png" class="__rank-icon"></image>
-					{{rankTable[playerState['rank']].name}}
-				</block>
-				<block wx:else>-</block>
+				<app-rank match="{{match}}" rank="{{state.rank}}"></app-rank>
 			</view>
 			<view class="__item {{vertical?'__vertical':''}}">
 				<app-icon class="__icon" name="star" color="#FFB900"></app-icon>
-				{{util.valOr(playerState.stars,'-')}}
+				{{util.valOr(state.stars,'-')}}
 			</view>
 		</block>
 		<view wx:if="{{showCoin}}" class="__item {{vertical?'__vertical':''}}">
 			<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>
-			{{util.valOr(playerState.coins,'-')}}
+			{{util.valOr(state.coins,'-')}}
 		</view>
 	</view>
 </template>
@@ -25,16 +21,17 @@
 	export default {
 		config: {
 			usingComponents: {
-				'app-icon': './icon'
+				'app-icon': './icon',
+				'app-rank': './rank'
 			},
 		},
 		behaviors: [],
 		properties: {
-			playerState: {
+			match: {
 				type: Object
 			},
-			rankTable: {
-				type: Array
+			state: {
+				type: Object
 			},
 			showRank: {
 				type: Boolean,
@@ -50,13 +47,6 @@
 			}
 		},
 		data: {},
-		lifetimes: {
-			attached() {
-				this.setData({
-					rankTable: $.AppData.matches['pk'][0].detail['rank_table']
-				});
-			}
-		},
 		methods: {},
 	};
 </script>

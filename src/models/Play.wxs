@@ -4,6 +4,12 @@ var getParticipant = function(_this, index) {
 		null;
 };
 
+var getParticipantName = function(_this, index) {
+	var p = getParticipant(_this, index);
+	return p ? (p.player_nick ? '【' + p.player_nick + '】' : p.player_name) : null;
+};
+
 module.exports = {
-	getParticipant: getParticipant
-}
+	getParticipant: getParticipant,
+	getParticipantName: getParticipantName
+};

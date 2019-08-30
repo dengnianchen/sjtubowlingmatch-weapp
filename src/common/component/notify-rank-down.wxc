@@ -1,6 +1,6 @@
 <template>
 	<wui-dialog id="notify-dialog" title="Sorry，你掉段啦！">
-		<view style="text-align: center">{{rankTable[detail.from]['name']}} → {{rankTable[detail.to]['name']}}</view>
+		<view style="text-align: center">{{match.detail.rank_table[detail.from]['name']}} → {{match.detail.rank_table[detail.to]['name']}}</view>
 	</wui-dialog>
 </template>
 
@@ -13,8 +13,8 @@
 		},
 		behaviors: [],
 		properties: {
-			rankTable: {
-				type: Array
+			match: {
+				type: Object
 			}
 		},
 		data: {
@@ -25,14 +25,7 @@
 				this.setData({ detail });
 				return $.Wui.Dialog.show('#notify-dialog', this);
 			}
-		},
-		lifetimes: {
-			attached() {
-				this.setData({
-					rankTable: $.AppData.matches['pk'][0].detail['rank_table']
-				});
-			}
-		},
+		}
 	};
 </script>
 

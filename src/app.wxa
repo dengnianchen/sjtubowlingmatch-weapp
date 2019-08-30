@@ -12,7 +12,8 @@
 	require('welib');
 	require('./error');
 	
-	const MatchList = require('./models/MatchList');
+	const Match = require('./models/Match');
+	const Item = require('./models/Item');
 	const User = require('./models/User');
 	
 	const style = require('./style');
@@ -67,8 +68,6 @@
 		 * @author Deng Nianchen
 		 */
 		async beforePageLoad(page) {
-			if (!$.AppData.matches)
-				$.AppData.matches = await MatchList.getList();
 			let redirectToBind = async () => await Page.redirectTo({
 				url: '../bind/index',
 				data: { from: page.getPath() }
@@ -94,7 +93,8 @@
 		},
 		
 		async onLaunch() {
-			//$.AppData.matches = await MatchList.getList();
+			Match.loadAll();
+			Item.loadAll();
 		},
 		
 		onShow() { },

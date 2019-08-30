@@ -1,4 +1,4 @@
-import ShopItem from './ShopItem';
+import ShopItem from './Shop';
 
 /**
  * @property        {Number}    id

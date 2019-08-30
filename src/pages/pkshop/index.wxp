@@ -1,10 +1,13 @@
 <template>
-	<wxs src="../../models/ShopItem.wxs" module="ShopItem"></wxs>
+	<wxs src="../../models/Shop.wxs" module="Shop"></wxs>
 	
 	<view class="page__banner">
 		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
-		<text class="__elem __name">{{$.me.name}}</text>
-		<app-pk-player-state class="__elem __status" player-state="{{player.state}}"></app-pk-player-state>
+		<view class="__elem __name">
+			{{$.me.name}}
+			<view wx:if="{{player.effects.Nick}}" class="__nickname">显示名称：{{player.effects.Nick.detail.nickname}}</view>
+		</view>
+		<app-pk-player-state class="__elem __status" match="{{match}}" state="{{player.state}}"></app-pk-player-state>
 	</view>
 	
 	<view class="pkhome__tabs">
@@ -20,14 +23,14 @@
 					<wxc-notice wx:if="{{!player.state_confirmed}}"
 					            notice="你的上一场比赛尚未被确认，无法兑换道具。"
 					            color="#ff5777" bgColor="#ffe8ee"></wxc-notice>
-					<wui-panel wx:for="{{itemsOrganized}}" wx:key="index" wx:for-item="items"
+					<wui-panel wx:for="{{shopItems}}" wx:key="index" wx:for-item="items"
 					           title="{{index}}">
 						<view class="shop_list">
 							<view wx:for="{{items}}" wx:key="index" class="__item"
-							      bindtap="onItemClicked" data-item="{{item}}">
+							      bindtap="onItemClicked" data-id="{{item.id}}">
 								<image class="__image" src="/images/pk/shop_{{item.identifier}}.png" mode="aspectFill"></image>
 								<view class="__name">{{item.item_name}}</view>
-								<app-pk-cost class="__cost" cost="{{item.detail['cost']}}" affordable="{{item.affordable}}"></app-pk-cost>
+								<app-pk-cost class="__cost" cost="{{item.detail['cost']}}" affordable="{{buyCheck[item.id].affordable}}"></app-pk-cost>
 							</view>
 						</view>
 					</wui-panel>
@@ -83,7 +86,7 @@
 				<view class="__basic">
 					<view class="__title">
 						<text class="__title-text">{{itemDetail.item_name}}</text>
-						<app-pk-cost cost="{{itemDetail.detail['cost']}}" affordable="{{itemDetail.affordable}}"></app-pk-cost>
+						<app-pk-cost cost="{{itemDetail.detail['cost']}}" affordable="{{buyCheck[itemDetail.id].affordable}}"></app-pk-cost>
 					</view>
 					<view class="__desc">{{itemDetail.description}}</view>
 				</view>
@@ -91,18 +94,18 @@
 			<view class="__limit-list">
 				<view class="__label">限制条件：</view>
 				<view wx:for="{{itemDetail.detail['buy_constraints']}}" wx:key="index" wx:for-item="buy_constraint"
-					  class="__limit-item {{itemDetail.violates[index]?'__danger':'__success'}}">
-					<wui-icon wx:if="{{itemDetail.violates[index]}}" name="fas fa-times"></wui-icon>
+					  class="__limit-item {{buyCheck[itemDetail.id].violates[index]?'__danger':'__success'}}">
+					<wui-icon wx:if="{{buyCheck[itemDetail.id].violates[index]}}" name="fas fa-times"></wui-icon>
 					<wui-icon wx:else name="fas fa-check"></wui-icon>
 					{{buy_constraint}}
 				</view>
 			</view>
 			<wxc-button class="__button" value="兑换"
 			            size="large"
-			            type="{{ShopItem.canBuy(itemDetail, player)?'primary':'disabled'}}"
+			            type="{{Shop.canBuy(itemDetail, player)?'primary':'disabled'}}"
 			            btn-style="width: 600rpx"
 			            bind:submit="onBuyClicked"
-			            data-item="{{itemDetail}}"
+			            data-id="{{itemDetail.id}}"
 			></wxc-button>
 		</view>
 	</wxc-mask>
@@ -167,9 +170,12 @@
 </template>
 
 <script>
-	import ShopItem from '../../models/ShopItem';
+	import MultipleMap from '../../util/MultipleMap';
+	import Item from '../../models/Item';
+	import Shop from '../../models/Shop';
 	import OwnedItem from '../../models/OwnedItem';
 	import Player from '../../models/Player';
+	import Match from '../../models/Match';
 	
 	export default {
 		auth: true,
@@ -193,6 +199,10 @@
 			},
 		},
 		data: {
+			match: null,
+			player: null,
+			shopItems: null,
+			buyCheck: null,
 			applyData: {}
 		},
 		
@@ -202,22 +212,18 @@
 		},
 		
 		async onShow() {
-			var player = await Player.getInMatch('pk', $.AppData.me, true);
-			this.setData({ player });
+			var player = await Player.getInMatch('pk', $.AppData.me);
+			var match = player.match_info;
+			this.setData({ player, match });
 			$.Wui.content('content-shop-items').load();
 			$.Wui.content('content-my-pack').load();
 		},
 		
 		async loadShopItems() {
-			var items = await ShopItem.listAll('pk');
-			var itemsOrganized = {};
-			for (var item of items) {
-				if (!itemsOrganized[item.detail['category']])
-					itemsOrganized[item.detail['category']] = [ item ];
-				else
-					itemsOrganized[item.detail['category']].push(item);
-			}
-			this.setData({ itemsOrganized });
+			let buyCheck = await Shop.buyCheck(this.data.match);
+			var items = Item.getNewestOfMatch(this.data.match, 'shop');
+			var shopItems = new MultipleMap(items, function(item) { return item.detail['category']; });
+			this.setData({ shopItems, buyCheck });
 		},
 		
 		async loadMyPack() {
@@ -237,8 +243,7 @@
 		},
 		
 		onItemClicked(e) {
-			var item = e.currentTarget.dataset['item'];
-			this.setData({ itemDetail: item });
+			this.setData({ itemDetail: Item.get(e.currentTarget.dataset['id']) });
 		},
 		
 		onOwnedItemClicked(e) {
@@ -250,11 +255,11 @@
 		},
 		
 		async onBuyClicked(e) {
-			var item = e.currentTarget.dataset['item'];
+			var id = e.currentTarget.dataset['id'];
 			this.setData({ itemDetail: null });
 			try {
 				$.Modal.showBusy("正在处理");
-				var op = await ShopItem.prototype.buy.call(item, e);
+				var op = await Shop.buy(e, Item.get(id));
 				$.Modal.hideToast();
 				this.setData({ lastBuy: op });
 				$.Wui.Dialog.show('#dialog-share');
@@ -321,8 +326,16 @@
 <style lang="less">
 	@import "../../style";
 	
-	.page__banner .__status {
-		text-align: right;
+	.page__banner {
+		
+		.__status {
+			text-align: right;
+		}
+		
+		.__nickname {
+			font-size: 0.8em;
+			color: @color__subDesc;
+		}
 	}
 	
 	.shop_list {
@@ -421,7 +434,5 @@
 			flex-grow: 1;
 		}
 	}
-	
-
 
 </style>

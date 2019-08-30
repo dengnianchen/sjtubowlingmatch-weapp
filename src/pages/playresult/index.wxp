@@ -2,7 +2,7 @@
 	<view class="page__hd">
 		<text class="page__title">比赛结果</text>
 	</view>
-	<app-pkinit-result id="pkInit"></app-pkinit-result>
+	<app-pkinit-result id="pkInit" match="{{match}}"></app-pkinit-result>
 	<app-pknormal-result id="pkNormal"></app-pknormal-result>
 	<app-pknormal-result id="pkFriendly"></app-pknormal-result>
 	<view wx:if="{{enableJudgeConfirm}}" class="menu">
@@ -37,14 +37,17 @@
 				'wui-dialog': '../../common/component/dialog'
 			},
 		},
-		data: {},
+		data: {
+			play: null,
+			enableJudgeConfirm: false,
+			enablePlayerConfirm: false
+		},
 		
 		async onLoad(options) {
 			if (!options.id)
 				throw new $.Err.NO_RESOURCE('找不到指定比赛场次');
 			let play = await Play.getPlay(options.match, options.id);
-			let matchCategory = play.match_info.category;
-			this.selectComponent(`#${matchCategory}${play.type}`).initial(play);
+			this.selectComponent(`#${play.match_info.category}${play.type}`).initial(play);
 			
 			let enableJudgeConfirm = play.status === Play.S_PLAYER_ACCEPTED &&
 				play.judge_id === $.AppData.me.id;
@@ -90,9 +93,8 @@
 		
 		onShareAppMessage(res) {
 			$.Wui.Dialog.hide('#dialog-share');
-			let matchCategory = this.data.play.match_info.category;
 			return {
-				title: this.selectComponent(`#${matchCategory}${this.data.play.type}`).getShareTitle(),
+				title: this.selectComponent(`#${this.data.play.match_info.category}${this.data.play.type}`).getShareTitle(),
 				path: `pages/playresult/index?id=${this.data.play.id}`
 			};
 		},

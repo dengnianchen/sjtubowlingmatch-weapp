@@ -4,26 +4,22 @@
 		<text class="__elem __name">{{$.me.name}}，欢迎光临！</text>
 	</view>
 	<view class="home-menu">
-		<view class="__item __desc">正在进行</view>
-		<block wx:for="{{$.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
-			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
-					wx:if="{{match.status==='active'}}"
-					class="__item" size="large" btn-style="{{itemButtonStyle}}"
-					data-entry="active-{{match.category}}"
-					bind:submit="onMenuEntryClicked">
-				<view class="__dot __dot--active"></view>{{match.name}}
-			</wxc-button>
-		</block>
-		<view class="__item __desc">已结束</view>
-		<block wx:for="{{$.matches}}" wx:key="index" wx:for-item="matchesOfCategory">
-			<wxc-button wx:for="{{matchesOfCategory}}" wx:key="index" wx:for-item="match"
-			            wx:if="{{match.status==='finished'}}"
-			            class="__item" size="large" btn-style="{{itemButtonStyle}}"
-			            data-entry="finished-{{match.id}}"
-			            bind:submit="onMenuEntryClicked">
-				<view class="__dot"></view>{{match.name}}
-			</wxc-button>
-		</block>
+		<view class="__desc">正在进行</view>
+		<wxc-button wx:for="{{matches}}" wx:key="index" wx:for-item="match"
+				wx:if="{{match.status==='active'}}"
+				class="__item" size="large" btn-style="{{itemButtonStyle}}"
+				data-entry="active-{{match.category}}"
+				bind:submit="onMenuEntryClicked">
+			<view class="__dot __dot--active"></view>{{match.name}}
+		</wxc-button>
+		<view class="__desc">已结束</view>
+		<wxc-button wx:for="{{matches}}" wx:key="index" wx:for-item="match"
+		            wx:if="{{match.status==='finished'}}"
+		            class="__item" size="large" btn-style="{{itemButtonStyle}}"
+		            data-entry="finished-{{match.id}}"
+		            bind:submit="onMenuEntryClicked">
+			<view class="__dot"></view>{{match.name}}
+		</wxc-button>
 	</view>
 	<view class="home-version" bindtap="_onVersionClicked">当前版本：{{currentVersion.id}}</view>
 	<view class="home-co">上海交通大学中路保龄球馆@2019</view>
@@ -32,6 +28,7 @@
 
 <script>
 	const versions = require('../../versions');
+	import Match from '../../models/Match';
 	
 	export default {
 		auth: true,
@@ -54,7 +51,13 @@
 				display: flex;
 				align-items: center;
 				margin: auto;
+				margin-bottom: 27rpx;
 				padding: 0`
+		},
+		onLoad() {
+			this.setData({
+				matches: Match.all
+			});
 		},
 		onMenuEntryClicked(e) {
 			$.Http.submit(e);
@@ -81,7 +84,6 @@
 		padding: 80px 32px;
 		
 		.__item {
-			margin-bottom: 27px;
 			
 			.__dot {
 				color: #455B63;
@@ -100,6 +102,7 @@
 			font-size: @fontSize__desc;
 			color: @color__desc;
 			margin-top: 60px;
+			margin-bottom: 27px;
 		}
 		
 	}

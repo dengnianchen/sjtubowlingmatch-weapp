@@ -2,21 +2,23 @@ import PlayerParticipate from './PlayerParticipate';
 import User from './User';
 import Game from './Game';
 import PlayBrief from './PlayBrief';
+import Match from './Match';
+import SimpleMap from '../util/SimpleMap';
 
 /**
- * @property        {number}              id
- * @property        {string}              match          赛事名称
- * @property        {string}              type           比赛类型
- * @property        {string}              status         比赛状态（new:未登记, filled:已登记, player_accepted：选手已接受，accepted: 已接受，player_refused：被选手拒绝，refused：被裁判拒绝）
- * @property        {string}              play_date      比赛日期
- * @property        {number}              judge_id       裁判ID
- * @property        {string}              create_time    创建时间
- * @property        {string}              update_time    更新时间
- * @property-read   {User}                judge          [关联]裁判
- * @property-read   {PlayerParticipate[]} participants   [关联]参与方
- * @property-read   {Game[]}              games          [关联]比赛球局
- * @property-read   {Match}               match_info     [关联]赛事信息
- 
+ * @property {number}       id
+ * @property {string}       match           赛事名称
+ * @property {string}       type            比赛类型
+ * @property {string}       status          比赛状态（new:未登记, filled:已登记, player_accepted：选手已接受，accepted: 已接受，player_refused：被选手拒绝，refused：被裁判拒绝）
+ * @property {string}       play_date       比赛日期
+ * @property {number}       judge_id        裁判ID
+ * @property {string}       create_time     创建时间
+ * @property {string}       update_time     更新时间
+ * @property {User}         judge           裁判
+ * @property {SimpleMap}    participants    参与方，player_id => participant
+ * @property {Game[]}       games           比赛球局
+ *
+ * @author Deng Nianchen
  */
 class Play extends $.Model {
 	
@@ -26,7 +28,6 @@ class Play extends $.Model {
 			participants: PlayerParticipate,
 			games: Game
 		});
-		this.match_info = $.AppData.matches[this.match];
 		this.status_names = {
 			'new': '待录入',
 			'filled': '等待参赛选手确认',
@@ -34,14 +35,18 @@ class Play extends $.Model {
 			'accepted': '已确认',
 			'player_refused': '被参赛选手拒绝',
 			'refused': '被裁判拒绝'
-		}
-		let participants = {};
-		this.player_ids = [];
-		for (let participant of this.participants) {
-			this.player_ids.push(participant.player.id);
-			participants[participant.player.id] = participant;
-		}
-		this.participants = participants;
+		};
+		this.participants = new SimpleMap (this.participants, 'player_id');
+	}
+	
+	/**
+	 * 获取关联的赛事信息
+	 *
+	 * @return {Match}
+	 * @author Deng Nianchen
+	 */
+	get match_info() {
+		return Match.get(this.match);
 	}
 	
 	/**

@@ -4,15 +4,18 @@ const Game = require('./Game');
 
 /**
  * @property {number}   id
- * @property {number}   user_id     所属用户ID
- * @property {string}   match       所属比赛
- * @property {object}   state       状态
+ * @property {number}   user_id         所属用户ID
+ * @property {string}   match           所属比赛
+ * @property {Object}   state           状态
  * @property {boolean}  state_confirmed 状态是否确认
- * @property {string}   create_time 创建时间
- * @property {string}   update_time 更新时间
- * @property-read {string}  name    选手姓名
- * @property-read {number}  gender  选手性别
- * @property-read {string}  avatar  选手头像
+ * @property {number}   plays           参与比赛场次数
+ * @property {boolean}  holdon          是否处于挂机状态
+ * @property {string}   create_time     创建时间
+ * @property {string}   update_time     更新时间
+ * @property {string}   name            选手姓名
+ * @property {number}   gender          选手性别
+ * @property {string}   avatar          选手头像
+ * @property {Object}   $effects        选手当前生效的效果
  */
 class Player extends $.Model {
 	
@@ -20,6 +23,16 @@ class Player extends $.Model {
 		super(data, {
 			user: User
 		});
+	}
+	
+	/**
+	 * 获取关联的赛事信息
+	 *
+	 * @return {Match}
+	 * @author Deng Nianchen
+	 */
+	get match_info() {
+		return Match.get(this.match);
 	}
 	
 	/**
@@ -39,17 +52,15 @@ class Player extends $.Model {
 	 *
 	 * @param {string|Match}    match   指定赛事
 	 * @param {number|User}     user    指定用户
-	 * @param {boolean}         brief   是否仅获取摘要信息
 	 * @returns {Promise<Player>} 选手信息
 	 * @author Deng Nianchen
 	 */
-	static async getInMatch(match, user, brief = false) {
+	static async getInMatch(match, user) {
 		if (!match || !user)
 			throw $.Err.FAIL('参数不能为空');
 		match = $.Model.id(match);
 		user =  $.Model.id(user);
-		return await $.Http.request(`/${match}/player/uid/${user}`,
-			{ brief }, {}, Player);
+		return await $.Http.request(`/${match}/player/uid/${user}`, {}, {}, Player);
 	}
 	
 	/**

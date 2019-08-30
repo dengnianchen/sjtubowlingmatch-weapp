@@ -1,20 +1,21 @@
 <template>
-	<wxs src="../../models/Game.wxs" module="game"></wxs>
+	<wxs src="../../models/Play.wxs" module="Play"></wxs>
+	<wxs src="../../models/Game.wxs" module="Game"></wxs>
 	<view wx:if="{{play}}">
 		<wui-panel title="基本信息">
-			<wui-field type="custom" label="比赛类型">{{play.match_info.name}} - {{play.match_info.detail.type_table[play.type].name}}</wui-field>
-			<wui-field type="custom" label="参与选手">{{play.participants[play.player_ids[0]].player.name}}</wui-field>
-			<wui-field type="custom" label="两局总分">{{play.participants[play.player_ids[0]].detail.score}}（均分：{{play.participants[play.player_ids[0]].detail.score / 2}}）</wui-field>
-			<wui-field type="custom" label="赛后段位"><app-pk-player-state player-state="{{play.participants[play.player_ids[0]].state1}}"></app-pk-player-state></wui-field>
+			<wui-field type="custom" label="比赛类型">{{match.name}} - {{match.detail.type_table[play.type].name}}</wui-field>
+			<wui-field type="custom" label="参与选手">{{Play.getParticipant(play, 0).player.name}}</wui-field>
+			<wui-field type="custom" label="两局总分">{{Play.getParticipant(play, 0).detail.score}}（均分：{{Play.getParticipant(play, 0).detail.score / 2}}）</wui-field>
+			<wui-field type="custom" label="赛后段位"><app-pk-player-state match="{{match}}" state="{{Play.getParticipant(play, 0).state1}}"></app-pk-player-state></wui-field>
 			<wui-field type="custom" label="比赛日期">{{play.play_date}}</wui-field>
 			<wui-field type="custom" label="当前状态">
 				<text style="color:{{playStatusColor[play.status]}}">{{play.status_names[play.status]}}</text>
 			</wui-field>
 		</wui-panel>
-		<wui-panel title="第一局：{{game.formatScore(play.games[0])}}">
+		<wui-panel title="第一局：{{Game.formatScore(play.games[0])}}">
 			<app-game games="{{[ play.games[0] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
-		<wui-panel title="第二局：{{game.formatScore(play.games[1])}}">
+		<wui-panel title="第二局：{{Game.formatScore(play.games[1])}}">
 			<app-game games="{{[ play.games[1] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
 		<wui-panel title="其他信息">
@@ -56,7 +57,10 @@
 		},
 		methods: {
 			initial(play) {
-				this.setData({ play });
+				this.setData({
+					play,
+					match: play.match_info
+				});
 			},
 			getShareTitle() {
 				return `${this.data.play.participants[this.data.play.player_ids[0]].player.name}的定级赛：${this.data.play.participants[this.data.play.player_ids[0]].detail.score}分`;

@@ -1,8 +1,11 @@
 <template>
 	<view class="page__banner">
 		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
-		<text class="__elem __name">{{$.me.name}}</text>
-		<app-pk-player-state class="__elem __status" player-state="{{player.state}}"></app-pk-player-state>
+		<view class="__elem __name">
+			{{$.me.name}}
+			<view wx:if="{{player.effects.Nick}}" class="__nickname">显示名称：{{player.effects.Nick.detail.nickname}}</view>
+		</view>
+		<app-pk-player-state class="__elem __status" match="{{match}}" state="{{player.state}}"></app-pk-player-state>
 	</view>
 	<view class="pkhome__week">当前为本赛季第{{match.week + 1}}周</view>
 	<view wx:if="{{!player || (player.state_confirmed && !player.state)}}" class="cc pkhome__menu">
@@ -56,7 +59,7 @@
 			<wxc-tab-panel tab-index="0" component-id="c1" label="段位表">
 				<wui-content id="content-player-list">
 					<app-playerlist wx:for="{{players}}" wx:key="index" wx:for-item="player"
-					                index="{{index}}" player="{{player}}"
+					                match="{{match}}" index="{{index}}" player="{{player}}"
 					                mode="{{index===players.length-1?'last':''}}"
 					></app-playerlist>
 				</wui-content>
@@ -73,7 +76,7 @@
 					></app-switch>
 				</view>
 				<wui-content id="content-play-list">
-					<app-playlist wx:for="{{plays}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
+					<app-playlist wx:for="{{plays}}" wx:key="index" wx:for-item="play" match="{{match}}" play="{{play}}"></app-playlist>
 				</wui-content>
 			</wxc-tab-panel>
 			<wxc-tab-panel tab-index="2" component-id="c1" label="本周榜单">
@@ -129,14 +132,14 @@
 	</view>
 	
 	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-btn="继承" cancel-btn="再想想">
-		<app-pk-player-state player-state="{{playerLastSeason.state}}" rank-table="{{$.matches['pk'][1].detail.rank_table}}"></app-pk-player-state>
+		<app-pk-player-state match="{{lastSeasonMatch}}" state="{{playerLastSeason.state}}"></app-pk-player-state>
 		<text>↓</text>
-		<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
+		<app-pk-player-state state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
 	<wui-dialog id="dialog-inherit-success" title="成功继承段位">
-		当前段位：<app-pk-player-state player-state="{{inheritCalc}}"></app-pk-player-state>
+		当前段位：<app-pk-player-state match="{{match}}" state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
-	<app-notify-rank-up id="notify-PK_RANK_UP"></app-notify-rank-up>
+	<app-notify-rank-up id="notify-PK_RANK_UP" match="{{match}}"></app-notify-rank-up>
 </template>
 
 <script>
@@ -144,6 +147,7 @@
 	import Player from '../../models/Player';
 	import Play from '../../models/Play';
 	import Notify from '../../models/Notify';
+	import Match from '../../models/Match';
 	
 	const pkrule = require('../../pkrules');
 	
@@ -195,7 +199,6 @@
 		},
 		
 		onLoad() {
-			this.setData({ rankTable: PkPlay.rankTable });
 			$.Wui.content('content-player-list').bindLoad(this.loadPlayerList);
 			$.Wui.content('content-play-list').bindLoad(this.loadPlayList);
 			$.Wui.content('content-weekly-list').bindLoad(this.loadWeeklyList);
@@ -219,7 +222,7 @@
 			}
 			
 			// 获取当前赛季的比赛信息
-			let match = $.AppData.matches.pk[0];
+			let match = Match.get('pk')[0];
 			if (!match || match.status !== 'active') {
 				wx.setNavigationBarTitle({ title: 'PK赛关闭中' });
 				throw $.Err.NO_RESOURCE('当前没有正在进行的赛季');
@@ -231,9 +234,13 @@
 			
 			// 如需要，获取当前用户在上赛季中的选手信息（用于判断段位继承）
 			let playerLastSeason = (playerMe && playerMe.status) ? null :
-				await Player.getInMatch($.AppData.matches.pk[1], $.AppData.me, true);
+				await Player.getInMatch(Match.get('pk')[1], $.AppData.me, true);
 
-			this.setData({ match, player: playerMe, playerLastSeason });
+			this.setData({
+				match, playerLastSeason,
+				player: playerMe,
+				lastSeasonMatch: Match.get('pk')[1]
+			});
 			
 			// 加载其他内容
 			$.Wui.content('content-player-list').load();
@@ -265,7 +272,7 @@
 		async onPlayInitButtonClicked(e) {
 			let r = await $.Modal.show('开始定级赛',
 				`今天是本赛季的第${this.data.match.week + 1}周，` +
-				`将按${this.data.match.isBeginning() ? '赛季初' : '赛季中'}的规则计算初始段位`,
+				`将按${this.data.match.is_begin ? '赛季初' : '赛季中'}的规则计算初始段位`,
 				{
 					confirmBtn: '开始',
 					cancelBtn: '再想想'
@@ -282,7 +289,7 @@
 		},
 		async onNormalPlayButtonClicked(e) {
 			$.Http.submit(e);
-			if (this.data.match.isBeginning()) {
+			if (this.data.match.is_begin) {
 				$.Modal.show('开启常规赛', `常规赛将于赛季第${this.data.match.detail.begin_weeks + 1}周起开放`);
 				return;
 			}
@@ -318,11 +325,11 @@
 		},
 		async onFriendlyPlayButtonClicked(e) {
 			$.Http.submit(e);
-			if (this.data.match.isBeginning()) {
+			if (this.data.match.is_begin) {
 				$.Modal.show('开启友谊赛', `友谊赛将于赛季第${this.data.match.detail.begin_weeks + 1}周起开放`);
 				return;
 			}
-			if (!this.data.player.detail_confirmed) {
+			if (!this.data.player.state_confirmed) {
 				$.Modal.show('开启友谊赛', '前一场比赛尚未被确认，无法开启新赛');
 				return;
 			}
@@ -420,9 +427,6 @@
 			for (let notification of notifications) {
 				await this.selectComponent(`#notify-${notification.identifier}`).show(notification.detail);
 			}
-		},
-		_getMatch() {
-			return $.AppData.matches.pk[0];
 		}
 	};
 </script>
@@ -440,7 +444,12 @@
 			text-align: right;
 		}
 		
+		.__nickname {
+			font-size: 0.8em;
+			color: @color__subDesc;
+		}
 	}
+	
 	
 	.pkhome__week {
 		font-size: @fontSize__desc;

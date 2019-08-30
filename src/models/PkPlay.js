@@ -1,19 +1,10 @@
 import User from './User';
 import UserBrief from './UserBrief';
-import Player from './Player';
-import Play from './Play';
 import Game from './Game';
 
+
+
 class PkPlay extends $.Model {
-	
-	/**
-	 * 段位表信息
-	 *
-	 * @return {*[]}
-	 */
-	static get rankTable() {
-		return $.AppData.matches['pk'][0].detail['rank_table'];
-	}
 	
 	/**
 	 * 加分信息

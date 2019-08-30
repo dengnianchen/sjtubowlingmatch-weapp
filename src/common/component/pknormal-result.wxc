@@ -3,7 +3,7 @@
 	<wxs src="../../models/Play.wxs" module="Play"></wxs>
 	<view wx:if="{{play}}">
 		<wui-panel title="基本信息">
-			<wui-field type="custom" label="比赛类型">{{play.match_info.name}} - {{play.match_info.detail.type_table[play.type].name}}</wui-field>
+			<wui-field type="custom" label="比赛类型">{{match.name}} - {{match.detail.type_table[play.type].name}}</wui-field>
 			<wui-field type="custom" label="参与选手">
 				<view class="flex-field">
 					<view class="flex-field__1">{{Play.getParticipant(play, 0).player.name}}</view>
@@ -27,30 +27,30 @@
 			</wui-field>
 			<wui-field wx:if="{{play.type!=='friendly'}}" type="custom" label="赛前段位">
 				<view class="flex-field">
-					<app-pk-player-state class="flex-field__1" player-state="{{Play.getParticipant(play, 0).state0}}" show-coin="{{false}}"></app-pk-player-state>
+					<app-pk-player-state class="flex-field__1" match="{{match}}" state="{{Play.getParticipant(play, 0).state0}}" show-coin="{{false}}"></app-pk-player-state>
 					<view class="flex-field__2"></view>
-					<app-pk-player-state class="flex-field__3" player-state="{{Play.getParticipant(play, 1).state0}}" show-coin="{{false}}"></app-pk-player-state>
+					<app-pk-player-state class="flex-field__3" match="{{match}}" state="{{Play.getParticipant(play, 1).state0}}" show-coin="{{false}}"></app-pk-player-state>
 				</view>
 			</wui-field>
 			<wui-field wx:if="{{play.type!=='friendly'}}" type="custom" label="赛后段位">
 				<view class="flex-field">
-					<app-pk-player-state class="flex-field__1" player-state="{{Play.getParticipant(play, 0).state1}}" show-coin="{{false}}"></app-pk-player-state>
+					<app-pk-player-state class="flex-field__1" match="{{match}}" state="{{Play.getParticipant(play, 0).state1}}" show-coin="{{false}}"></app-pk-player-state>
 					<view class="flex-field__2"></view>
-					<app-pk-player-state class="flex-field__3" player-state="{{Play.getParticipant(play, 1).state1}}" show-coin="{{false}}"></app-pk-player-state>
+					<app-pk-player-state class="flex-field__3" match="{{match}}" state="{{Play.getParticipant(play, 1).state1}}" show-coin="{{false}}"></app-pk-player-state>
 				</view>
 			</wui-field>
 			<wui-field type="custom" label="积分变化">
 				<view class="flex-field">
 					<view class="flex-field__1 flex-field__coin-change">
-						<app-pk-player-state player-state="{{Play.getParticipant(play, 0).state0}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
+						<app-pk-player-state match="{{match}}" state="{{Play.getParticipant(play, 0).state0}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
 						<text decode="{{true}}">&nbsp;&nbsp;>&nbsp;&nbsp;</text>
-						<app-pk-player-state player-state="{{Play.getParticipant(play, 0).state1}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
+						<app-pk-player-state match="{{match}}" state="{{Play.getParticipant(play, 0).state1}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
 					</view>
 					<view class="flex-field__2"></view>
 					<view class="flex-field__3 flex-field__coin-change">
-						<app-pk-player-state player-state="{{Play.getParticipant(play, 1).state0}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
+						<app-pk-player-state match="{{match}}" state="{{Play.getParticipant(play, 1).state0}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
 						<text decode="{{true}}">&nbsp;&nbsp;>&nbsp;&nbsp;</text>
-						<app-pk-player-state player-state="{{Play.getParticipant(play, 1).state1}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
+						<app-pk-player-state match="{{match}}" state="{{Play.getParticipant(play, 1).state1}}" show-rank="{{false}}" vertical="{{true}}"></app-pk-player-state>
 					</view>
 				</view>
 			</wui-field>
@@ -124,9 +124,8 @@
 			}
 		},
 		lifetimes: {
-			attached() {
+			ready() {
 				this.setData({
-					$: $.AppData,
 					playStatusColor: {
 						'new': $.AppData.style.dangerColor,
 						'filled': $.AppData.style.warnColor,
@@ -140,12 +139,15 @@
 		},
 		methods: {
 			initial(play) {
-				this.setData({ play });
+				this.setData({
+					play,
+					match: play.match_info
+				});
 			},
 			getShareTitle() {
 				let playerNameA = this.data.play.participants[this.data.play.player_ids[0]].player.name;
 				let playerNameB = this.data.play.participants[this.data.play.player_ids[1]].player.name;
-				let playType = $.AppData.matches.pk[0].detail.type_table[this.data.play.type].name;
+				let playType = this.data.match.detail.type_table[this.data.play.type].name;
 				let scoreA = this.data.play.participants[this.data.play.player_ids[0]].detail.score;
 				let scoreB = this.data.play.participants[this.data.play.player_ids[1]].detail.score;
 				return `【${playType}】${playerNameA} VS ${playerNameB}：比分${scoreA}:${scoreB}`;

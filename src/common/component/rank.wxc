@@ -1,0 +1,42 @@
+<template>
+	<view class="rank">
+		<block wx:if="{{match.detail.rank_table[rank].name}}">
+			<image src="/images/pk/rank{{rank}}.png" class="__rank-icon"></image>
+			{{match.detail.rank_table[rank].name}}
+		</block>
+		<block wx:else>-</block>
+	</view>
+</template>
+
+<script>
+	
+	export default {
+		config: {
+			usingComponents: { }
+		},
+		behaviors: [ ],
+		properties: {
+			match: {
+				type: Object
+			},
+			rank: {
+				type: Number
+			}
+		},
+		data: { }
+	}
+	
+</script>
+
+<style lang="less">
+	.rank {
+		display: flex;
+		align-items: center;
+		
+		.__rank-icon {
+			width: 1.2em;
+			height: 1.2em;
+			margin-right: 5px;
+		}
+	}
+</style>

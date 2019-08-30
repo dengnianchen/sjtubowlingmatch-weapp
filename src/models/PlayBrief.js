@@ -1,4 +1,5 @@
 import SimpleMap from '../util/SimpleMap.js';
+import Match from './Match';
 
 /**
  * @property {Number}       id
@@ -6,15 +7,17 @@ import SimpleMap from '../util/SimpleMap.js';
  * @property {String}       type
  * @property {String}       status
  * @property {String}       play_date
- * @property {Match}        match_info
  * @property {SimpleMap}    participants    player_id => participant
  */
 class PlayBrief extends $.Model {
 	
 	constructor(data = null) {
 		super(data);
-		this.match_info = $.AppData.matches[this.match];
 		this.participants = new SimpleMap (this.participants, 'player_id');
+	}
+	
+	get match_info() {
+		return Match.get(this.match);
 	}
 	
 }

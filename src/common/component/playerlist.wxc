@@ -6,16 +6,22 @@
 				<view class="__avatar">
 					<app-avatar src="{{player.avatar}}" mode="round-square"></app-avatar>
 				</view>
-				<view class="__name">{{player.name}}</view>
+				<view class="__name">
+					<block wx:if="{{player.effects.Nick}}">
+						{{player.effects.Nick.detail.nickname}}<view class="__name-mark">({{player.name}})</view>
+					</block>
+					<block wx:else>
+						{{player.name}}
+					</block>
+				</view>
 				<view class="__rank">
-					<image src="/images/pk/rank{{player.state['rank']}}.png" class="__rank-icon"></image>
-					{{rankTable[player.state['rank']].name}}
+					<app-rank match="{{match}}" rank="{{player.state.rank}}"></app-rank>
 				</view>
 				<view class="__stars">
-					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.state['stars']}}
+					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>{{player.state.stars}}
 				</view>
 				<view class="__coins">
-					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.state['coins']}}
+					<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>{{player.state.coins}}
 				</view>
 			</view>
 		</button>
@@ -28,11 +34,15 @@
 		config: {
 			usingComponents: {
 				'app-icon': './icon',
-				'app-avatar': './avatar'
+				'app-avatar': './avatar',
+				'app-rank': './rank'
 			}
 		},
 		behaviors: [ ],
 		properties: {
+			match: {
+				type: Object
+			},
 			index: {
 				type: Number
 			},
@@ -42,29 +52,12 @@
 			mode: {
 				type: String,
 				value: 'normal' // 有边框和无边框 normal, none
-			},
-			rankTable: {
-				type: Array
 			}
 		},
-		data: {
-		},
-		lifetimes: {
-			attached() {
-				this.setData({
-					rankTable: $.AppData.matches['pk'][0].detail['rank_table']
-				});
-			}
-		},
+		data: { },
 		methods: {
 			_onItemClicked(e) {
 				$.Http.submit(e);
-				Page.navigateToDialog({
-					url: '/pages/playresult/index',
-					data: {
-						id: this.data.play.id
-					}
-				});
 			}
 		}
 	}
@@ -121,16 +114,14 @@
 			
 			.__name {
 				flex-grow: 1;
+				
+				.__name-mark {
+					color: @color__subDesc;
+					font-size: 0.8em;
+				}
 			}
 			
 			.__rank {
-				display: flex;
-				align-items: center;
-				.__rank-icon {
-					width: 1.2em;
-					height: 1.2em;
-					margin-right: 5px;
-				}
 				width: 5.5em;
 			}
 			

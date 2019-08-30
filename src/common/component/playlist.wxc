@@ -5,21 +5,26 @@
 			<view class="list__body list__{{mode}}">
 				<view class="list__title">
 					<view class="list__title--main">
-						<wui-icon wx:if="{{play.status==='accepted'}}" class="icon-accepted" name="fas fa-check-circle"></wui-icon>
-						<wui-icon wx:elif="{{play.status==='refused'||play.status==='player_refused'}}" class="icon-refused" name="fas fa-times-circle"></wui-icon>
-						<wui-icon wx:else class="icon-unconfirmed" name="fas fa-question-circle"></wui-icon>
-						PK | {{play.match_info.detail.type_table[play.type].name}} |
+						<wui-icon wx:if="{{play.status==='accepted'}}" class="__icon-state icon-accepted" name="fas fa-check-circle"></wui-icon>
+						<wui-icon wx:elif="{{play.status==='refused'||play.status==='player_refused'}}" class="__icon-state icon-refused" name="fas fa-times-circle"></wui-icon>
+						<wui-icon wx:else class="__icon-state icon-unconfirmed" name="fas fa-question-circle"></wui-icon>
 						<block wx:if="{{play.participants.keys.length === 1}}">
-							{{Play.getParticipant(play, 0).player_name}} {{Play.getParticipant(play, 0).score}}分
+							{{Play.getParticipantName(play, 0)}}的{{match.detail.type_table[play.type].name}}：{{Play.getParticipant(play, 0).score}}分
 						</block>
 						<block wx:else>
-							{{Play.getParticipant(play, 0).player_name}} VS {{Play.getParticipant(play, 1).player_name}}
+							{{Play.getParticipantName(play, 0)}}
+							<app-icon wx:if="{{play.type==='Normal'}}" class="__versus-icon" name="pk"></app-icon>
+							<app-icon wx:elif="{{play.type==='Friendly'}}" class="__versus-icon" name="friendly"></app-icon>
+							{{Play.getParticipantName(play, 1)}}
 						</block>
 					</view>
 					<view class="list__title--sub">
-						比赛日期：{{play.play_date}}
-						<block wx:if="{{play.player_ids.length === 2}}">
-							，比分：{{Play.getParticipant(play, 0).score}}:{{Play.getParticipant(play, 1).score}}
+						比赛日期：{{play.play_date}}，总分：
+						<block wx:if="{{play.participants.keys.length === 1}}">
+							{{Play.getParticipant(play, 0).score}}
+						</block>
+						<block wx:elif="{{play.participants.keys.length === 2}}">
+							{{Play.getParticipant(play, 0).score}} : {{Play.getParticipant(play, 1).score}}
 						</block>
 					</view>
 				</view>
@@ -34,11 +39,15 @@
 	export default {
 		config: {
 			usingComponents: {
-				'wui-icon': '@yapple/wui-icon'
+				'wui-icon': '@yapple/wui-icon',
+				'app-icon': './icon'
 			}
 		},
 		behaviors: [ ],
 		properties: {
+			match: {
+				type: Object,
+			},
 			play: {
 				type: Object,
 			},
@@ -92,6 +101,10 @@
 	.list__title {
 		flex: 1;
 	}
+	.list__title--main {
+		display: flex;
+		align-items: center;
+	}
 	.list__title--sub {
 		margin-top: 14rpx;
 		font-size: @fontSize__desc;
@@ -112,5 +125,15 @@
 	}
 	.icon-refused {
 		color: @dangerColor;
+	}
+	.__nick-icon {
+		width: 1.2em;
+		height: 1.2em;
+	}
+	.__versus-icon {
+		margin: 0 0.5em;
+	}
+	.__icon-state {
+		margin-right: 0.5em;
 	}
 </style>
