@@ -1,0 +1,63 @@
+<template>
+	<block wx:if="{{participant}}">
+		<view wx:if="{{participant.detail.extra_effects.Nick}}" class="nick">
+			<text class="__text">{{participant.detail.extra_effects.Nick.nickname}}</text>
+			<text class="__remark">({{participant.player.name}})</text>
+		</view>
+		<view wx:else style="{{keepAlign?'height:2.2em':''}}">{{participant.player.name}}</view>
+	</block>
+	<block wx:else>
+		<view wx:if="{{player.nick}}" class="nick">
+			<text class="__text">{{player.nick}}</text>
+			<text class="__remark">({{player.name}})</text>
+		</view>
+		<view wx:else style="{{keepAlign?'height:2.2em':''}}">{{player.name}}</view>
+	</block>
+</template>
+
+<script>
+	
+	export default {
+		config: {
+			usingComponents: { }
+		},
+		properties: {
+			player: {
+				type: Object
+			},
+			participant: {
+				type: Object
+			},
+			keepAlign: {
+				type: Boolean,
+				value: true
+			}
+		},
+		data: { }
+	}
+	
+</script>
+
+<style lang="less">
+	@import '../../../style.less';
+	
+	.nick {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		
+		.__text {
+			height: 1.2em;
+		}
+		
+		.__remark {
+			font-size: 0.7em;
+			color: @color__subDesc;
+		}
+	}
+	
+	.name {
+		height: 2.2em;
+	}
+	
+</style>

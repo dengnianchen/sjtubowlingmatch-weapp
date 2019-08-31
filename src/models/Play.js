@@ -36,7 +36,7 @@ class Play extends $.Model {
 			'player_refused': '被参赛选手拒绝',
 			'refused': '被裁判拒绝'
 		};
-		this.participants = new SimpleMap (this.participants, 'player_id');
+		this.participants = new SimpleMap (this.participants, function(item) { return item.player.id; });
 	}
 	
 	/**

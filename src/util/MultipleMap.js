@@ -8,11 +8,13 @@ class MultipleMap {
 		let key_func = (key_name instanceof Function)
 			? key_name
 			: function(item) { return item[key_name]; };
-		for (let item of array) {
-			let key = key_func(item);
+		for (let index in array) {
+			if (!array.hasOwnProperty(index))
+				continue;
+			let key = key_func(array[index]);
 			if (!this[key])
 				this[key] = [];
-			this[key].push(item);
+			this[key].push(array[index]);
 		}
 	}
 	

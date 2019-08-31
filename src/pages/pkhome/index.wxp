@@ -87,7 +87,7 @@
 							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
 								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
 								<image class="__award" src="/images/award{{index}}.png"></image>
-								<view class="__name">{{player.name}}</view>
+								<pk-player-name class="__name" player="{{player}}"></pk-player-name>
 								<view class="__value">{{item.value}}分</view>
 							</view>
 						</block>
@@ -102,7 +102,7 @@
 							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
 								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
 								<image class="__award" src="/images/award{{index}}.png"></image>
-								<view class="__name">{{player.name}}</view>
+								<pk-player-name class="__name" player="{{player}}"></pk-player-name>
 								<view class="__value">{{item.value}}分</view>
 							</view>
 						</block>
@@ -117,7 +117,7 @@
 							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
 								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
 								<image class="__award" src="/images/award{{index}}.png"></image>
-								<view class="__name">{{player.name}}</view>
+								<pk-player-name class="__name" player="{{player}}"></pk-player-name>
 								<view class="__value">{{item.value}}个</view>
 							</view>
 						</block>
@@ -172,7 +172,8 @@
 				'app-tab': '../../common/component/tab',
 				'app-avatar': '../../common/component/avatar',
 				'app-switch': '../../common/component/switch',
-				'app-notify-rank-up': '../../common/component/notify-rank-up'
+				'app-notify-rank-up': '../../common/component/notify-rank-up',
+				'pk-player-name': '../../common/component/pk/player-name'
 			},
 		},
 		data: {
@@ -541,6 +542,7 @@
 			.__name {
 				font-size: @fontSize__text;
 				color: @color__text;
+				margin-top: 10px;
 			}
 			
 			.__value {

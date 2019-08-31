@@ -13,7 +13,7 @@ class PlayBrief extends $.Model {
 	
 	constructor(data = null) {
 		super(data);
-		this.participants = new SimpleMap (this.participants, 'player_id');
+		this.participants = new SimpleMap (this.participants, function(item) { return item.player.id; });
 	}
 	
 	get match_info() {

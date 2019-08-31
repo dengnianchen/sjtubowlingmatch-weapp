@@ -102,7 +102,7 @@
 			</view>
 			<wxc-button class="__button" value="兑换"
 			            size="large"
-			            type="{{Shop.canBuy(itemDetail, player)?'primary':'disabled'}}"
+			            type="{{Shop.canBuy(buyCheck[itemDetail.id], player)?'primary':'disabled'}}"
 			            btn-style="width: 600rpx"
 			            bind:submit="onBuyClicked"
 			            data-id="{{itemDetail.id}}"

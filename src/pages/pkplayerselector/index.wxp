@@ -16,7 +16,7 @@
 			             class="user-selector__userlist__content"
 			             scroll-y="{{true}}">
 				<wxc-list wx:for="{{players}}" wx:key="index" wx:for-item="player"
-				          title="{{player.name}} | {{$.matches['pk'][0].detail['rank_table'][player.state['rank']]['name']}}"
+				          title="{{player.name}} | {{match.detail['rank_table'][player.state['rank']]['name']}}"
 				          arrow="{{false}}"
 				          data-index="{{index}}"
 				          bindclick="_onPlayerClicked"
@@ -48,7 +48,12 @@
 			if (options.title)
 				wx.setNavigationBarTitle({ title: options.title });
 			allPlayers = options.players;
-			this.setData({ players: allPlayers });
+			if (options.players.length) {
+				this.setData({
+					match: options.players[0].match_info,
+					players: allPlayers
+				});
+			}
 		},
 		_onSearchInput(e) {
 			if (!allPlayers)

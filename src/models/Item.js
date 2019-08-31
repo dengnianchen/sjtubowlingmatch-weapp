@@ -51,11 +51,11 @@ class Item extends $.Model {
 	 * @author Deng Nianchen
 	 */
 	static getNewestOfMatch(match, type = null) {
-		let r = [];
+		let r = {};
 		for (let item of Item._items.toArray()) {
 			if (item.match === $.Model.id(match) && item.newest &&
 				(!type || item.type === type))
-				r.push(item);
+				r[item.identifier] = item;
 		}
 		return r;
 	}

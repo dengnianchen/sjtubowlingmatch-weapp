@@ -6,14 +6,8 @@
 				<view class="__avatar">
 					<app-avatar src="{{player.avatar}}" mode="round-square"></app-avatar>
 				</view>
-				<view class="__name">
-					<block wx:if="{{player.effects.Nick}}">
-						{{player.effects.Nick.detail.nickname}}<view class="__name-mark">({{player.name}})</view>
-					</block>
-					<block wx:else>
-						{{player.name}}
-					</block>
-				</view>
+				<pk-player-name class="__name" player="{{player}}" keep-align="{{false}}"></pk-player-name>
+				<view class="__spacing"></view>
 				<view class="__rank">
 					<app-rank match="{{match}}" rank="{{player.state.rank}}"></app-rank>
 				</view>
@@ -35,7 +29,8 @@
 			usingComponents: {
 				'app-icon': './icon',
 				'app-avatar': './avatar',
-				'app-rank': './rank'
+				'app-rank': './rank',
+				'pk-player-name': './pk/player-name'
 			}
 		},
 		behaviors: [ ],
@@ -113,12 +108,11 @@
 			}
 			
 			.__name {
+				//flex-grow: 1;
+			}
+			
+			.__spacing {
 				flex-grow: 1;
-				
-				.__name-mark {
-					color: @color__subDesc;
-					font-size: 0.8em;
-				}
 			}
 			
 			.__rank {

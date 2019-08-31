@@ -6,9 +6,15 @@
 			<wui-field type="custom" label="比赛类型">{{match.name}} - {{match.detail.type_table[play.type].name}}</wui-field>
 			<wui-field type="custom" label="参与选手">
 				<view class="flex-field">
-					<view class="flex-field__1">{{Play.getParticipant(play, 0).player.name}}</view>
+					<pk-player-name class="flex-field__1"
+					                keep-align="{{false}}"
+					                participant="{{Play.getParticipant(play, 0)}}"
+					></pk-player-name>
 					<view class="flex-field__2">VS</view>
-					<view class="flex-field__3">{{Play.getParticipant(play, 1).player.name}}</view>
+					<pk-player-name class="flex-field__3"
+					                keep-align="{{false}}"
+					                participant="{{Play.getParticipant(play, 1)}}"
+					></pk-player-name>
 				</view>
 			</wui-field>
 			<wui-field type="custom" label="两局总分">
@@ -20,9 +26,9 @@
 			</wui-field>
 			<wui-field wx:if="{{play.type!=='friendly'}}" type="custom" label="比赛结果">
 				<view class="flex-field">
-					<view class="flex-field__1">{{$.enums.pk.result[Play.getParticipant(play, 0).result]}}</view>
+					<pk-result-text class="flex-field__1" result="{{Play.getParticipant(play, 0).result}}"></pk-result-text>
 					<view class="flex-field__2"></view>
-					<view class="flex-field__3">{{$.enums.pk.result[Play.getParticipant(play, 1).result]}}</view>
+					<pk-result-text class="flex-field__3" result="{{Play.getParticipant(play, 1).result}}"></pk-result-text>
 				</view>
 			</wui-field>
 			<wui-field wx:if="{{play.type!=='friendly'}}" type="custom" label="赛前段位">
@@ -67,30 +73,36 @@
 			<app-game games="{{[ play.games[2], play.games[3] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
 		<wui-panel title="其他信息">
-			<wui-field wx:for="{{basicBonus}}" wx:key="identify" wx:for-index="identify" wx:for-item="label"
-			           type="custom" label="{{label}}">
+			<wui-field wx:for="{{basicItems}}" wx:for-index="identifier" wx:for-item="item"
+			           wx:key="identifier" type="custom" label="{{item.item_name}}">
 				<view class="flex-field">
-					<view class="flex-field__1"><app-pk-dstate dstate="{{Play.getParticipant(play, 0).detail.basic_effects[identify].detail.dstate}}"></app-pk-dstate></view>
+					<view class="flex-field__1"><app-pk-dstate dstate="{{Play.getParticipant(play, 0).detail.basic_effects[identifier].dstate}}"></app-pk-dstate></view>
 					<view class="flex-field__2"></view>
-					<view class="flex-field__3"><app-pk-dstate dstate="{{Play.getParticipant(play, 1).detail.basic_effects[identify].detail.dstate}}"></app-pk-dstate></view>
+					<view class="flex-field__3"><app-pk-dstate dstate="{{Play.getParticipant(play, 1).detail.basic_effects[identifier].dstate}}"></app-pk-dstate></view>
 				</view>
 			</wui-field>
 			<wui-field type="custom" label="道具效果">
 				<view class="flex-field">
 					<view class="flex-field__1">
-						<view wx:if="{{!Play.getParticipant(play, 0).detail.extra_effects.length}}">无</view>
+						<view wx:if="{{!Play.getParticipant(play, 0).detail.extra_effects}}">无</view>
 						<block wx:else>
-							<view wx:for="{{Play.getParticipant(play, 0).detail.extra_effects}}" wx:key="index" wx:for-index="index" wx:for-item="effect">
-								effect.name <app-pk-dstate dstate="{{effect.detail.dstate}}"></app-pk-dstate>
+							<view wx:for="{{Play.getParticipant(play, 0).detail.extra_effects}}"
+							      wx:for-index="identifier" wx:for-item="effect" wx:key="identifier"
+								  class="effect_item">
+								<image class="__image" src="/images/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
+								{{extraItems[identifier].item_name}} <app-pk-dstate wx:if="{{effect.dstate}}" dstate="{{effect.dstate}}"></app-pk-dstate>
 							</view>
 						</block>
 					</view>
 					<view class="flex-field__2"></view>
 					<view class="flex-field__3">
-						<view wx:if="{{!Play.getParticipant(play, 1).detail.extra_effects.length}}">无</view>
+						<view wx:if="{{!Play.getParticipant(play, 1).detail.extra_effects}}">无</view>
 						<block wx:else>
-							<view wx:for="{{Play.getParticipant(play, 1).detail.extra_effects}}" wx:key="index" wx:for-index="index" wx:for-item="effect">
-								effect.name <app-pk-dstate dstate="{{effect.detail.dstate}}"></app-pk-dstate>
+							<view wx:for="{{Play.getParticipant(play, 1).detail.extra_effects}}"
+							      wx:for-index="identifier" wx:for-item="effect" wx:key="identifier"
+								  class="effect_item">
+								<image class="__image" src="/images/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
+								{{extraItems[identifier].item_name}} <app-pk-dstate wx:if="{{effect.dstate}}" dstate="{{effect.dstate}}"></app-pk-dstate>
 							</view>
 						</block>
 					</view>
@@ -101,6 +113,7 @@
 </template>
 
 <script>
+	import Item from '../../models/Item';
 	
 	export default {
 		config: {
@@ -109,7 +122,9 @@
 				'app-pk-player-state': './pk-player-state',
 				'app-pk-dstate': './pk-dstate',
 				'wui-panel': '@yapple/wui-panel',
-				'wui-field': '@yapple/wui-field'
+				'wui-field': '@yapple/wui-field',
+				'pk-player-name': './pk/player-name',
+				'pk-result-text': './pk/result-text'
 			},
 		},
 		behaviors: [],
@@ -117,11 +132,8 @@
 		},
 		data: {
 			play: null,
-			basicBonus: {
-				'CoinBonusHighScore': '高分奖励',
-				'CoinBonusSplit': '分屏奖励',
-				'CoinBonusLowScore': '低分惩罚'
-			}
+			basicItems: null,
+			extraItems: null
 		},
 		lifetimes: {
 			ready() {
@@ -141,7 +153,9 @@
 			initial(play) {
 				this.setData({
 					play,
-					match: play.match_info
+					match: play.match_info,
+					basicItems: Item.getNewestOfMatch(play.match, 'play_pk'),
+					extraItems: Item.getNewestOfMatch(play.match, 'shop')
 				});
 			},
 			getShareTitle() {
@@ -175,5 +189,17 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+	}
+	.effect_item {
+		font-size: 0.7em;
+		display: flex;
+		justify-content: start;
+		align-items: center;
+		
+		.__image {
+			width: 1.5em;
+			height: 1.5em;
+			margin-right: 0.5em;
+		}
 	}
 </style>

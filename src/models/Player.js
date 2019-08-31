@@ -15,7 +15,7 @@ const Game = require('./Game');
  * @property {string}   name            选手姓名
  * @property {number}   gender          选手性别
  * @property {string}   avatar          选手头像
- * @property {Object}   $effects        选手当前生效的效果
+ * @property {Object}   effects         选手当前生效的效果
  */
 class Player extends $.Model {
 	
@@ -23,6 +23,7 @@ class Player extends $.Model {
 		super(data, {
 			user: User
 		});
+		this.nick = this.effects.Nick ? this.effects.Nick.detail.nickname : null;
 	}
 	
 	/**

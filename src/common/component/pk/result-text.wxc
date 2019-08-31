@@ -1,0 +1,24 @@
+<template>
+	<text wx:if="{{result==='win'}}">胜</text>
+	<text wx:elif="{{result==='draw'}}">平</text>
+	<text wx:else>负</text>
+</template>
+
+<script>
+	export default {
+		config: {
+			usingComponents: {
+			},
+		},
+		properties: {
+			result: {
+				type: String
+			}
+		},
+		data: {},
+		methods: {},
+	};
+</script>
+
+<style lang="less">
+</style>

@@ -9,10 +9,12 @@ class SimpleMap {
 			? key_name
 			: function(item) { return item[key_name]; };
 		this.keys = [];
-		for (let item of array) {
-			let key = key_func(item);
+		for (let index in array) {
+			if (!array.hasOwnProperty(index))
+				continue;
+			let key = key_func(array[index]);
 			this.keys.push(key);
-			this[key] = item;
+			this[key] = array[index];
 		}
 	}
 	

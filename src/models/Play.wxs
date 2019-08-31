@@ -6,7 +6,7 @@ var getParticipant = function(_this, index) {
 
 var getParticipantName = function(_this, index) {
 	var p = getParticipant(_this, index);
-	return p ? (p.player_nick ? '【' + p.player_nick + '】' : p.player_name) : null;
+	return p ? (p.player.nick ? '【' + p.player.nick + '】' : p.player.name) : null;
 };
 
 module.exports = {

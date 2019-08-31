@@ -1,16 +1,21 @@
 <template>
 	<wui-panel title="待审核的比赛" wui-style="left-padding:false">
-		<app-playlist wx:for="{{playsTodo}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
+		<app-playlist wx:for="{{playsTodo}}" wx:key="index" wx:for-item="play"
+		              match="{{match}}" play="{{play}}"
+		></app-playlist>
 		<wui-abnor wx:if="{{!playsTodo.length}}" error="无比赛"></wui-abnor>
 	</wui-panel>
 	<wui-panel title="已审核的比赛" wui-style="left-padding:false">
-		<app-playlist wx:for="{{playsDone}}" wx:key="index" wx:for-item="play" play="{{play}}"></app-playlist>
+		<app-playlist wx:for="{{playsDone}}" wx:key="index" wx:for-item="play"
+		              match="{{match}}" play="{{play}}"
+		></app-playlist>
 		<wui-abnor wx:if="{{!playsDone.length}}" error="无比赛"></wui-abnor>
 	</wui-panel>
 </template>
 
 <script>
 	import Play from '../../models/Play';
+	import Match from '../../models/Match';
 	
 	export default {
 		auth: true,
@@ -25,9 +30,14 @@
 				'app-playlist': '../../common/component/playlist'
 			},
 		},
-		data: {},
+		data: {
+			match: null,
+			playsTodo: null,
+			playsDone: null
+		},
 		async onShow() {
-			let plays = await Play.judgeByMe('pk');
+			let match = Match.get('pk')[0];
+			let plays = await Play.judgeByMe(match);
 			let playsTodo = [];
 			let playsDone = [];
 			for (let play of plays) {
@@ -41,7 +51,7 @@
 						break;
 				}
 			}
-			this.setData({ playsTodo, playsDone });
+			this.setData({ match, playsTodo, playsDone });
 		},
 		async _onPlayItemClicked(e) {
 			Page.navigateToDialog({
