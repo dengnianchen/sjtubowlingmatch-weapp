@@ -4,7 +4,7 @@
 	             scroll-y="{{true}}" scroll-with-animation="{{true}}" scroll-top="{{scrollTop}}rpx">
 		<view class="pkinit__hd">
 			<view class="pkinit__hd__player">{{play.players[play.player_ids[0]].name}} VS {{play.players[play.player_ids[1]].name}}</view>
-			<view>比赛类型：{{$.matches.pk[0].detail.type_table[play.type].name}}</view>
+			<view>比赛类型：{{match.detail.type_table[play.type].name}}</view>
 		</view>
 		<wui-panel>
 			<wui-field type="picker" label="首局先手"

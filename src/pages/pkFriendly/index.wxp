@@ -4,7 +4,7 @@
 	             scroll-y="{{true}}" scroll-with-animation="{{true}}" scroll-top="{{scrollTop}}rpx">
 		<view class="pkinit__hd">
 			<view class="pkinit__hd__player">{{play.players[play.player_ids[0]].name}} VS {{play.players[play.player_ids[1]].name}}</view>
-			<view>比赛类型：{{$.matches.pk[0].detail.type_table[play.type].name}}</view>
+			<view>比赛类型：{{match.detail.type_table[play.type].name}}</view>
 		</view>
 		<wui-panel>
 			<wui-field type="picker" label="首局先手"
@@ -59,6 +59,7 @@
 	import PkPlay from '../../models/PkPlay';
 	import Game from '../../models/Game';
 	import Player from '../../models/Player';
+	import Match from '../../models/Match';
 	
 	export default {
 		auth: true,
@@ -81,6 +82,7 @@
 		
 		async onLoad(options) {
 			
+			this.setData({ match: Match.get('pk')[0] });
 			let play = wx.getStorageSync('pk');
 			if (!play) {
 				let player_me = options.me;
@@ -91,8 +93,8 @@
 					throw $.Err.FAIL('缺少页面参数player_opponent');
 				if (player_me.id === player_opponent.id)
 					throw $.Err.FAIL('不能指定自己作为对手');
-				if (player_me.match !== $.AppData.matches.pk[0].id ||
-					player_opponent.match !== $.AppData.matches.pk[0].id)
+				if (player_me.match !== this.data.match.id ||
+					player_opponent.match !== this.data.match.id)
 					throw $.Err.FAIL('指定的选手不属于PK赛');
 				let bonus_me = player_me.gender === 2 ? PkPlay.bonus : 0;
 				let bonus_opponent = player_opponent.gender === 2 ? PkPlay.bonus : 0;
