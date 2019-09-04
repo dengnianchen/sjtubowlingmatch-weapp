@@ -1,6 +1,7 @@
 const Match = require('./Match');
 const User = require('./User');
 const Game = require('./Game');
+import PlayerItemEffect from './PlayerItemEffect';
 
 /**
  * @property {number}   id
@@ -21,9 +22,14 @@ class Player extends $.Model {
 	
 	constructor(data = null) {
 		super(data, {
-			user: User
+			user: User,
+			effects: {
+				'*': PlayerItemEffect
+			}
 		});
-		this.nick = this.effects.Nick ? this.effects.Nick.detail.nickname : null;
+		this.nick = this.effects && this.effects.Nick ?
+			this.effects.Nick.detail.nickname :
+			null;
 	}
 	
 	/**

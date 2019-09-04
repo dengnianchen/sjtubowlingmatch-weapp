@@ -3,7 +3,7 @@
 	<view class="pk-player-state">
 		<block wx:if="{{showRank}}">
 			<view class="__item">
-				<app-rank match="{{match}}" rank="{{state.rank}}"></app-rank>
+				<app-rank match="{{match}}" rank="{{state.rank}}" vertical="{{vertical}}"></app-rank>
 			</view>
 			<view class="__item {{vertical?'__vertical':''}}">
 				<app-icon class="__icon" name="star" color="#FFB900"></app-icon>

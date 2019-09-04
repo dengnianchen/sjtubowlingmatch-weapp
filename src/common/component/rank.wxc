@@ -1,5 +1,5 @@
 <template>
-	<view class="rank">
+	<view class="rank {{vertical?'-vertical':''}}">
 		<block wx:if="{{match.detail.rank_table[rank].name}}">
 			<image src="/images/pk/rank{{rank}}.png" class="__rank-icon"></image>
 			{{match.detail.rank_table[rank].name}}
@@ -21,6 +21,10 @@
 			},
 			rank: {
 				type: Number
+			},
+			vertical: {
+				type: Boolean,
+				value: false
 			}
 		},
 		data: { }
@@ -37,6 +41,13 @@
 			width: 1.2em;
 			height: 1.2em;
 			margin-right: 5px;
+		}
+	}
+	.rank.-vertical {
+		flex-direction: column;
+		
+		.__rank-icon {
+			margin: 4rpx 0 3rpx 0;
 		}
 	}
 </style>

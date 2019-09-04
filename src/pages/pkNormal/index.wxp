@@ -1,52 +1,83 @@
 <template>
 	<wxs src="../../models/Game.wxs" module="Game"></wxs>
-	<scroll-view class="play_main {{keyboardShow?'play_main_small':''}}"
-	             scroll-y="{{true}}" scroll-with-animation="{{true}}" scroll-top="{{scrollTop}}rpx">
-		<view class="pkinit__hd">
-			<view class="pkinit__hd__player">{{play.players[play.player_ids[0]].name}} VS {{play.players[play.player_ids[1]].name}}</view>
-			<view>比赛类型：{{match.detail.type_table[play.type].name}}</view>
+	<view class="play-pk__left-panel">
+		<view class="__head">
+			<view class="__play-type">
+				<app-icon wx:if="{{play.type==='Normal'}}" name="pk"></app-icon>
+				<app-icon wx:elif="{{play.type==='Friendly'}}" name="friendly"></app-icon>
+				{{match.detail.type_table[play.type].name}}
+			</view>
+			<view class="__player">
+				<view class="__name_and_avatar">
+					<app-avatar class="__avatar" src="{{play.players[play.player_ids[0]].avatar}}" mode="square"></app-avatar>
+					<pk-player-name player="{{play.players[play.player_ids[0]]}}" keep-align="{{false}}"></pk-player-name>
+				</view>
+				<view class="__score">{{scores[0]}}</view>
+			</view>
+			<view class="__versus">VS</view>
+			<view class="__player">
+				<view class="__name_and_avatar">
+					<app-avatar class="__avatar" src="{{play.players[play.player_ids[1]].avatar}}"></app-avatar>
+					<pk-player-name player="{{play.players[play.player_ids[1]]}}" keep-align="{{false}}"></pk-player-name>
+				</view>
+				<view class="__score">{{scores[1]}}</view>
+			</view>
 		</view>
-		<wui-panel>
-			<wui-field type="picker" label="首局先手"
-			           range="{{[ play.players[play.player_ids[0]].name, play.players[play.player_ids[1]].name ]}}"
-			           placeholder="请选择首局先手"
-			           value="{{play.first_hand_index}}"
-			           bindconfirm="onFirstHandSelected"
-			></wui-field>
+		<view class="__score-sheet-title">
+			<text class="__text">局分记录</text>
+			<view class="__swap-firsthand-button" bindtap="onFirstHandSwap">
+				<wui-icon name="fas fa-random"></wui-icon>
+				切换先手
+			</view>
+		</view>
+		<wui-panel class="__score-sheet" wui-style="bottom-margin:false;left-padding:false">
+			<app-score-sheet id="score-sheet"
+			                 players="{{play.players}}"
+			                 rounds="{{play.rounds}}"
+			                 bindframeselected="onFrameSelected"
+			></app-score-sheet>
 		</wui-panel>
-		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第一局：{{play.players[play.rounds[0][0].player_id].name}}先手，当前局分 {{Game.formatScore(play.rounds[0][0])}} : {{Game.formatScore(play.rounds[0][1])}}">
-			<app-game id="game-round0"
-			          players="{{play.players}}"
-			          games="{{play.rounds[0]}}"
-			          bindframeselected="onFrameSelected"
-			          data-round="0"
-			></app-game>
-		</wui-panel>
-		
-		<wui-panel wx:if="{{play.first_hand_index!==null}}" title="第二局：{{play.players[play.rounds[1][0].player_id].name}}先手，当前局分 {{Game.formatScore(play.rounds[1][0])}} : {{Game.formatScore(play.rounds[1][1])}}">
-			<app-game id="game-round1"
-			          players="{{play.players}}"
-			          games="{{play.rounds[1]}}"
-			          bindframeselected="onFrameSelected"
-			          data-round="1"
-			></app-game>
-		</wui-panel>
-	
-		<wui-panel>
-			<wui-field type="custom" label="裁判">
-				<view class="pkinit__judge-picker" bindtap="onSelectJudgeClicked">
-					<text wx:if="{{play.judge}}" class="pkinit__judge-picker__label">{{play.judge.name}}</text>
-					<text wx:else class="pkinit__judge-picker__label" style="color:#999">请选择裁判</text>
+	</view>
+	<view class="play-pk__right-panel">
+		<view wx:for="{{play.players}}" wx:key="index" wx:for-item="player" class="__player-status">
+			<view class="__head">
+				<view class="__name-and-avatar">
+					<app-avatar class="__avatar" src="{{player.avatar}}" mode="square"></app-avatar>
+					<pk-player-name player="{{player}}" keep-align="{{false}}"></pk-player-name>
+				</view>
+				<pk-player-state class="__state" match="{{match}}" state="{{player.state}}" vertical="{{true}}"></pk-player-state>
+			</view>
+			<view class="__effect-list">
+				<view wx:if="{{!player.effects}}" class="__no-effect-tip">无道具效果</view>
+				<block wx:else>
+					<view wx:for="{{player.effects}}" wx:key="identifier"
+					      wx:for-index="identifier" wx:for-item="effect"
+					      class="__effect-item">
+						<image class="__image" src="/images/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
+						{{effect.item_name}}
+					</view>
+				</block>
+			</view>
+		</view>
+		<view class="__submit-panel">
+			<wui-field class="__judge-picker" type="custom" label="裁判">
+				<view class="__picker" bindtap="onSelectJudgeClicked">
+					<text wx:if="{{play.judge}}" class="__picker-label">{{play.judge.name}}</text>
+					<text wx:else class="__picker-label" style="color:#999">请选择裁判</text>
 					<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
 				</view>
 			</wui-field>
-		</wui-panel>
-		<view class="cc">
-			<wxc-button size="large" type="primary" bind:submit="onSubmitButtonClicked">提交</wxc-button>
+			<wxc-button size="large"
+			            type="primary"
+			            btn-style="width:100%;height:3em;line-height:3em;font-size:1em"
+			            bind:submit="onSubmitButtonClicked"
+			>提交</wxc-button>
 		</view>
-	</scroll-view>
+	</view>
 	<app-game-keyboard id="game-keyboard"
-	                   head="选手：{{play.players[play.rounds[activeFrame.round][activeFrame.gameIndex].player_id].name}}（第{{activeFrame.round+1}}局第{{activeFrame.round+1}}格）"
+	                   head="第{{activeFrame.roundIndex+1}}局第{{activeFrame.frameIndex+1}}格"
+	                   side="right"
+	                   size="30vmax"
 	                   bindswitchnext="switchToNextFrame"
 	                   bindswitchprev="switchToPrevFrame"
 	                   bindchanged="onKeyboardInput"
@@ -65,23 +96,36 @@
 		auth: true,
 		config: {
 			navigationBarTitleText: 'PK赛 - 常规赛',
+			pageOrientation: "landscape",
 			usingComponents: {
 				'wui-panel': '@yapple/wui-panel',
 				'wui-field': '@yapple/wui-field',
 				'wui-icon': '@yapple/wui-icon',
 				'wxc-list': '@minui/wxc-list',
 				'wxc-button': '@minui/wxc-button',
+				'app-avatar': '../../common/component/avatar',
+				'app-icon': '../../common/component/icon',
 				'app-game': '../../common/component/game',
-				'app-game-keyboard': '../../common/component/game-keyboard'
+				'app-game-keyboard': '../../common/component/game-keyboard',
+				'app-score-sheet': '../../common/component/score-sheet',
+				'pk-player-name': '../../common/component/pk/player-name',
+				'pk-player-state': '../../common/component/pk-player-state'
 			}
 		},
 		data: {
+			match: null,
+			play: null,
+			scores: null,
 			activeFrame: null,
 			scrollTop: 0
 		},
 		
 		async onLoad(options) {
-			
+			wx.createSelectorQuery().selectViewport().fields({
+				size: true,
+			}, function (res) {
+				console.log(`OnResize: width=${res.width}, height=${res.height}`);
+			}).exec();
 			this.setData({ match: Match.get('pk')[0] });
 			let play = wx.getStorageSync('pk');
 			if (!play) {
@@ -129,17 +173,13 @@
 			this.updatePlay(play);
 			$.Modal.show('注意！', '每局的先手填写在第一行，后手填写在第二行。决定首局的先手后，次局交换先手。请注意计分行的填写顺序。');
 		},
-		onFirstHandSelected(e) {
-			this.data.play.first_hand_index = e.detail.value;
-			let first_hand_player_id = this.data.play.player_ids[this.data.play.first_hand_index];
-			if (this.data.play.rounds[0][0].player_id !== first_hand_player_id) {
-				let temp = this.data.play.rounds[0][0];
-				this.data.play.rounds[0][0] = this.data.play.rounds[0][1];
-				this.data.play.rounds[0][1] = temp;
-				temp = this.data.play.rounds[1][0];
-				this.data.play.rounds[1][0] = this.data.play.rounds[1][1];
-				this.data.play.rounds[1][1] = temp;
-			}
+		onFirstHandSwap(e) {
+			let temp = this.data.play.rounds[0][0];
+			this.data.play.rounds[0][0] = this.data.play.rounds[0][1];
+			this.data.play.rounds[0][1] = temp;
+			temp = this.data.play.rounds[1][0];
+			this.data.play.rounds[1][0] = this.data.play.rounds[1][1];
+			this.data.play.rounds[1][1] = temp;
 			this.updatePlay(this.data.play);
 		},
 		async onSelectJudgeClicked() {
@@ -186,16 +226,24 @@
 			}
 		},
 		updatePlay(play) {
-			this.setData({ play });
+			let scores = [];
+			for(let player_id of play.player_ids) {
+				let score = 0;
+				for(let games of play.rounds) {
+					for (let game of games)
+						if (game.player_id === player_id)
+							score += game.score;
+				}
+				scores.push(score);
+			}
+			this.setData({ play, scores });
 			wx.setStorageSync('pk', $(play).toPlainObject());
 		},
 		onFrameSelected(e) {
-			let frameRef = e.detail.frameRef;
-			frameRef.round = parseInt(e.target.id.substr('game-round'.length));
-			this._switchToFrame(frameRef);
+			this._switchToFrame(e.detail.frameRef);
 		},
 		onKeyboardInput(e) {
-			this.data.play.rounds[this.data.activeFrame.round][this.data.activeFrame.gameIndex].calcScore();
+			this.data.play.rounds[this.data.activeFrame.roundIndex][this.data.activeFrame.gameIndex].calcScore();
 			this.updatePlay(this.data.play);
 		},
 		onKeyboardShow() {
@@ -206,53 +254,27 @@
 		},
 		switchToPrevFrame() {
 			let frameRef = this.data.activeFrame;
-			if (frameRef) {
-				frameRef.gameIndex--;
-				if (frameRef.gameIndex < 0) {
-					frameRef.frameIndex--;
-					frameRef.gameIndex = this.data.play.rounds[frameRef.round].length - 1;
-				}
-				if (frameRef.frameIndex < 0) {
-					frameRef.round--;
-					if (frameRef.round < 0)
-						frameRef = null;
-					else {
-						frameRef.frameIndex = 9;
-						frameRef.gameIndex = this.data.play.rounds[frameRef.round].length - 1;
-					}
-				}
-			}
-			this._switchToFrame(frameRef);
+			if (frameRef)
+				this._switchToFrame(frameRef.getPrevFrame(
+					this.data.play.rounds.length, this.data.play.rounds[0].length));
 		},
 		switchToNextFrame() {
 			let frameRef = this.data.activeFrame;
-			if (frameRef) {
-				frameRef.gameIndex++;
-				if (frameRef.gameIndex >= this.data.play.rounds[frameRef.round].length) {
-					frameRef.gameIndex = 0;
-					frameRef.frameIndex++;
-				}
-				if (frameRef.frameIndex === 10) {
-					frameRef.frameIndex = 0;
-					frameRef.gameIndex = 0;
-					frameRef.round++;
-				}
-				if (frameRef.round >= this.data.play.rounds.length)
-					frameRef = null;
-			}
-			this._switchToFrame(frameRef);
+			if (frameRef)
+				this._switchToFrame(frameRef.getNextFrame(
+					this.data.play.rounds.length, this.data.play.rounds[0].length));
 		},
 		_switchToFrame(frameRef) {
 			this.setData({ activeFrame: frameRef });
-			for (let i = 0; i < this.data.play.rounds.length; ++i)
-				this.selectComponent(`#game-round${i}`).selectFrame(
-					(frameRef && frameRef.round === i) ? frameRef :null);
+			this.selectComponent(`#score-sheet`).selectFrame(frameRef);
 			this.selectComponent('#game-keyboard').show(this._getFrame(frameRef),
-				frameRef && !frameRef.round && !frameRef.gameIndex && !frameRef.frameIndex);
-			this.setData({ scrollTop: !frameRef || frameRef.round === 0 ? 0 : 150 });
+				frameRef && !frameRef.roundIndex && !frameRef.gameIndex && !frameRef.frameIndex);
 		},
 		_getFrame(fr) {
-			return !fr ? null : this.data.play.rounds[fr.round][fr.gameIndex].frames[fr.frameIndex];
+			return !fr ? null : this.data.play.rounds[fr.roundIndex][fr.gameIndex].frames[fr.frameIndex];
+		},
+		onResize(res) {
+			console.log(`OnResize: width=${res.size.windowWidth}, height=${res.size.windowHeight}`);
 		}
 	};
 </script>
@@ -260,33 +282,156 @@
 <style lang="less">
 	@import "../../style";
 	
-	.pkinit__hd {
-		display: flex;
-		padding: 10px;
-	}
-	
-	.pkinit__hd__player {
-		flex-grow: 1;
-	}
-	
-	.pkinit__judge-picker {
-		flex-grow: 1;
-		display: flex;
-	}
-	
-	.pkinit__judge-picker__label {
-		flex-grow: 1;
-	}
-	
-	.play_main {
+	.play-pk__left-panel {
 		position: fixed;
-		top: 0;
-		right: 0;
-		bottom: 0;
 		left: 0;
+		top: 0;
+		height: 100vmin;
+		width: 70vmax;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		
+		.__head {
+			display: flex;
+			align-items: center;
+			padding: 0.5em;
+			font-size: 1.5em;
+			
+			.__play-type {
+				flex: 1
+			}
+			
+			.__player {
+				display: flex;
+				flex-direction: column;
+				align-items: stretch;
+				
+				.__name_and_avatar {
+					display: flex;
+					align-items: center;
+					font-size: 0.6em;
+					
+					.__avatar {
+						width: 64*@px;
+						height: 64*@px;
+						margin-right: 10*@px;
+					}
+				}
+				
+				.__score {
+					font-size: 1em;
+					font-weight: bold;
+					text-align: right;
+				}
+			}
+			
+			.__versus {
+				font-weight: bold;
+				margin: 0 1em;
+			}
+		}
+		.__score-sheet-title {
+			line-height: 2.5em;
+			height: 2.5em;
+			display: flex;
+			background: white;
+			color: @color__subDesc;
+			border-top: solid 1*@px @color__splitLine2;
+			
+			.__text {
+				flex: 1;
+			}
+			
+			.__swap-firsthand-button {
+				height: 100%;
+				display: flex;
+				align-items: center;
+				padding: 0 0.5em;
+				color: @color__text;
+			}
+		}
+		
+		.__score-sheet {
+			flex: 1;
+		}
 	}
-	.play_main_small {
-		bottom: 500px;
+	
+	.play-pk__right-panel {
+		position: fixed;
+		right: 0;
+		top: 0;
+		width: 30vmax;
+		height: 100vmin;
+		border-left: solid 1*@px #AAAAAA;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		background: white;
+		
+		.__player-status {
+			flex: 1;
+			border-bottom: solid 1*@px @color__splitLine2;
+			
+			.__head {
+				display: flex;
+				align-items: center;
+				padding: 10*@px 0;
+				margin: 0 0 0 10*@px;
+				border-bottom: solid 1*@px @color__splitLine2;
+				
+				.__name-and-avatar {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					
+					.__avatar {
+						width: 72*@px;
+						height: 72*@px;
+						margin-right: 15*@px;
+					}
+				}
+				
+				.__state {
+					font-size: 0.8em;
+				}
+			}
+			
+			.__effect-list {
+				margin: 10*@px;
+				
+				.__no-effect-tip {
+					text-align: center;
+				}
+				
+				.__effect-item {
+					display: flex;
+					align-items: center;
+					
+					.__image {
+						width: 1.5em;
+						height: 1.5em;
+						margin-right: 10*@px;
+					}
+				}
+			}
+		}
+		
+		.__submit-panel {
+			
+			.__judge-picker {
+				font-size: 0.8em;
+				
+				.__picker {
+					flex: 1;
+					display: flex;
+					
+					.__picker-label {
+						flex: 1;
+					}
+				}
+			}
+		}
 	}
 	
 </style>

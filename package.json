@@ -19,10 +19,10 @@
 		"@minui/wxc-tab": "^1.0.8",
 		"@yapple/wui-abnor": "^1.0.4",
 		"@yapple/wui-cc": "^1.0.5",
-		"@yapple/wui-content": "^1.0.12",
-		"@yapple/wui-field": "^1.0.3",
+		"@yapple/wui-content": "^1.0.14",
+		"@yapple/wui-field": "^1.0.5",
 		"@yapple/wui-list": "^1.0.4",
-		"@yapple/wui-panel": "^1.0.5",
+		"@yapple/wui-panel": "^1.0.7",
 		"@yapple/wui-submit": "^1.0.1",
 		"md5": "^2.2.1",
 		"welib": "git+https://github.com/dengnianchen/welib.git"

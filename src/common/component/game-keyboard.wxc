@@ -1,10 +1,18 @@
 <template>
-	<view class="game-keyboard {{!showKeyboard?'game-keyboard--hide':''}}">
-		<view class="game-keyboard__mask" bindtap="_onKeyboardMaskClicked"></view>
-		<view class="game-keyboard__main">
-			<view class="game-keyboard__head">{{head}}</view>
+	<view class="game-keyboard {{!showKeyboard?'-hide':''}}">
+		<view class="__mask" bindtap="_onKeyboardMaskClicked"></view>
+		<view class="__main -keyboard-{{side}} {{showKeyboard<2?'-hide':'-show'}}"
+		      style="{{side==='bottom'?'height:'+size:'width:'+size}}"
+		      bindtransitionend="_onAnimationEnd">
+			<view class="__head">
+				<view wx:if="{{side==='right'}}" class="__hide-button" bindtap="_onGameKeyClicked" data-key="H">
+					<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
+				</view>
+				{{head}}
+			</view>
 			<button wx:for="{{keys}}" wx:key="item"
-			        class="game-keyboard__key {{keyboardSplitMode&&keyProperties[item].splitStyle?'game-keyboard__key--split':''}} {{keyProperties[item].style}}"
+			        class="__key {{keyboardSplitMode&&keyProperties[item].splitStyle?'-split':''}} {{keyProperties[item].style}}"
+			        hover-class="-hover"
 			        bindtap="_onGameKeyClicked"
 			        data-key="{{item}}"
 			        disabled="{{!keyProperties[item].enable}}">
@@ -18,6 +26,7 @@
 	export default {
 		config: {
 			usingComponents: {
+				'wui-icon': '@yapple/wui-icon'
 			}
 		},
 		behaviors: {
@@ -26,19 +35,43 @@
 		properties: {
 			head: {
 				type: String
+			},
+			size: {
+				type: String,
+				value: "35vmax"
+			},
+			side: {
+				type: String,
+				value: "bottom",
+				observer(val) {
+					if (val === 'bottom')
+						this.setData({
+							keys: [
+								'-', 'X', '/', 'H',
+								'1', '2', '3', 'S',
+								'4', '5', '6', 'C',
+								'7', '8', '9', 'P'
+							]
+						});
+					else
+						this.setData({
+							keys: [
+								'-', 'X', '/',
+								'1', '2', '3',
+								'4', '5', '6',
+								'7', '8', '9',
+								'S', 'C', 'P'
+							]
+						});
+				}
 			}
 		},
 		data: {
-			keys: [
-				'-', 'X', '/', 'H',
-				'1', '2', '3', 'S',
-				'4', '5', '6', 'C',
-				'7', '8', '9', 'P',
-			],
+			keys: [],
 			keyProperties: {
 				'X': { label: 'X', enable: true },
 				'/': { label: '/', enable: true },
-				'S': { label: '分屏', enable: true, style: 'game-keyboard__key--split' },
+				'S': { label: '分屏', enable: true, style: '-split' },
 				'-': { label: '-', enable: true },
 				'1': { label: '1', enable: true },
 				'2': { label: '2', enable: true, splitStyle: true },
@@ -53,7 +86,7 @@
 				'P': { label: '上一格', enable: true },
 				'H': { label: '隐藏', enable: true },
 			},
-			showKeyboard: false,
+			showKeyboard: 0,
 			keyboardSplitMode: false,
 			frame: null
 		},
@@ -63,17 +96,17 @@
 				if (!frame)
 					this.hide();
 				else {
-					this.setData({ showKeyboard: true, isFirst });
+					this.setData({ showKeyboard: 2, isFirst });
 					this._updateKeyboardStatus();
 					this.triggerEvent('show');
 				}
 			},
 			hide() {
-				this.setData({ showKeyboard: false });
-				this.triggerEvent('hide');
+				if (this.data.showKeyboard === 2)
+					this.setData({ showKeyboard: 1 });
 			},
 			_onGameKeyClicked(e) {
-				let key = e.target.dataset.key;
+				let key = e.currentTarget.dataset.key;
 				
 				if (key === 'H' || !this.frame) { // 隐藏键盘
 					this.hide();
@@ -119,12 +152,24 @@
 				if (this.frame.data.length !== 0)
 					acceptable += 'C';
 				this._updateKeyStatus(acceptable, this.frame.data.endsWith('S'));
+			},
+			_onAnimationEnd(e) {
+				if (this.data.showKeyboard < 2) {
+					this.setData({ showKeyboard: 0 });
+					this.triggerEvent('hide');
+				}
+				/*if (e.detail.animationName.startsWith('slideout')) {
+					this.setData({ showKeyboard: 0 });
+					this.triggerEvent('hide');
+					
+				}*/
 			}
 		}
 	};
 </script>
 
 <style lang="less">
+	@import "../../style";
 	
 	.game-keyboard {
 		position: fixed;
@@ -133,70 +178,158 @@
 		left: 0;
 		right: 0;
 		z-index: 100;
+		
+		.__mask {
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			background: none;
+		}
+		
+		.__main {
+			position: absolute;
+			padding: 15*@px;
+			display: grid;
+			grid-gap: 15*@px;
+			background: white;
+			box-shadow: 0 0 20*@px 10*@px rgba(136, 136, 136, 0.25);
+			box-sizing: border-box;
+			
+			.__head {
+				display: flex;
+				align-items: center;
+				//padding-left: 10*@px;
+				
+				.__hide-button {
+					width: 3em;
+					height: 100%;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+			}
+			
+			.__key {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 0;
+				padding: 0;
+				border-bottom: solid 4*@px #AAA;
+			}
+			
+			.__key.-hover {
+				border-bottom: none;
+			}
+			
+			.__key:not([disabled]) {
+				border-bottom-color: #6ac2ff;
+			}
+			
+			.__key.-split:not([disabled]) {
+				background: #fff5f5;
+				border-bottom-color: #d9534f;
+			}
+			
+			.__key.-split.-hover {
+				background: #e6dada;
+			}
+			
+		}
+		
+		.__main.-keyboard-bottom {
+			left: 0;
+			right: 0;
+			bottom: 0;
+			grid-template-columns: repeat(3, 1fr) 1.2fr;
+			grid-template-rows: repeat(5, 1fr);
+
+			.__head {
+				grid-column-start: 1;
+				grid-column-end: 5;
+				grid-row-start: 1;
+				grid-row-end: 2;
+			}
+		}
+		
+		.__main.-keyboard-right {
+			top: 0;
+			bottom: 0;
+			right: 0;
+			grid-template-columns: repeat(3, 1fr);
+			grid-template-rows: repeat(6, 1fr);
+			
+			.__head {
+				grid-column-start: 1;
+				grid-column-end: 4;
+				grid-row-start: 1;
+				grid-row-end: 2;
+			}
+		}
+		
+		.__main.-keyboard-bottom.-show {
+			animation-duration: 0.3s;
+			animation-name: slidein-bottom;
+			//transition: bottom 1s;
+		}
+		
+		.__main.-keyboard-right.-show {
+			animation-duration: 0.3s;
+			animation-name: slidein-right;
+			//transition: right 1s;
+		}
+		
+		.__main.-keyboard-bottom.-hide {
+			bottom: -100%;
+			transition: bottom 0.7s;
+		}
+		
+		.__main.-keyboard-right.-hide {
+			right: -100%;
+			transition: right 0.7s;
+		}
 	}
 	
-	.game-keyboard--hide {
+	.game-keyboard.-hide {
 		display: none;
 	}
 	
-	.game-keyboard__mask {
-		position: absolute;
-		left: 0;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		background: none;
+	@keyframes slidein-bottom {
+		from {
+			bottom: -100%;
+		}
+		to {
+			bottom: 0;
+		}
 	}
 	
-	.game-keyboard__main {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		height: 500px;
-		padding: 15px;
-		display: grid;
-		grid-template-columns: repeat(3, 1fr) 1.2fr;
-		grid-template-rows: repeat(5, 1fr);
-		grid-gap: 15px;
-		background: white;
-		box-shadow: 0 0 20px 10px rgba(136, 136, 136, 0.25);
+	@keyframes slidein-right {
+		from {
+			right: -100%;
+		}
+		to {
+			right: 0;
+		}
 	}
 	
-	.game-keyboard__head {
-		display: flex;
-		align-items: center;
-		grid-column-start: 1;
-		grid-column-end: 5;
-		grid-row-start: 1;
-		grid-row-end: 2;
-		padding-left: 10px;
+	@keyframes slideout-bottom {
+		from {
+			bottom: 0;
+		}
+		to {
+			bottom: -100%;
+		}
 	}
 	
-	.game-keyboard__key {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin: 0;
-		padding: 0;
-		border-bottom: solid 4px #AAA;
-	}
-	
-	.game-keyboard__key:not([disabled]) {
-		border-bottom-color: #6ac2ff;
-	}
-	
-	.game-keyboard__key.button-hover {
-		border-bottom: none;
-	}
-	
-	.game-keyboard__key--split:not([disabled]) {
-		background: #fff5f5;
-		border-bottom-color: #d9534f;
-	}
-	
-	.game-keyboard__key--split.button-hover {
-		background: #e6dada;
+	@keyframes slideout-right {
+		from {
+			right: 0;
+		}
+		to {
+			right: -100%;
+		}
 	}
 
 </style>

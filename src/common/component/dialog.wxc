@@ -148,18 +148,18 @@
 	.wui-dialog {
 		background: @color__darkGray;
 		color: white;
-		width: 655px;
-		border-radius: 27px;
+		width: 655*@px;
+		border-radius: 27*@px;
 		display: flex;
 		flex-flow: column nowrap;
 		align-items: stretch;
-		padding: 42px 50px;
+		padding: 42*@px 50*@px;
 		box-sizing: border-box;
 		
 		.__title {
 			display: flex;
 			align-items: center;
-			margin-bottom: 42px;
+			margin-bottom: 42*@px;
 			font-size: @fontSize__title;
 			color: white;
 			
@@ -167,8 +167,8 @@
 				position: absolute;
 				top: 0;
 				bottom: 0;
-				right: -60px;
-				width: 60px;
+				right: -60*@px;
+				width: 60*@px;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -188,16 +188,16 @@
 			flex-flow: row nowrap;
 			justify-content: flex-end;
 			align-items: center;
-			font-size: 36px;
-			margin-top: 42px;
+			font-size: 36*@px;
+			margin-top: 42*@px;
 			
 			.__btn {
-				width: 105px;
-				height: 105px;
+				width: 105*@px;
+				height: 105*@px;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				margin-left: 20px;
+				margin-left: 20*@px;
 			}
 			
 			.__btn--cancel {
@@ -213,7 +213,7 @@
 			.__btn--text {
 				width: auto;
 				padding: 0 1em;
-				border-radius: 27px;
+				border-radius: 27*@px;
 			}
 			
 		}

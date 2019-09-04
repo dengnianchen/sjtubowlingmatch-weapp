@@ -1,0 +1,123 @@
+<template>
+	<wxs src="../../util/index.wxs" module="Util"></wxs>
+	<wxs module="This">
+		module.exports.toFrameId = function(rindex, gindex, findex) {
+			return 'Frame.' + rindex + '.' + gindex + '.' + findex;
+		};
+	</wxs>
+	<view class="score-sheet" style="grid-template-rows: repeat({{rounds.length*(rounds[0].games.length+1)}}, 1fr)">
+		<block wx:for="{{rounds}}" wx:for-index="rindex" wx:for-item="games" wx:key="rindex">
+			<view class="__frame -head-row">第{{rindex + 1}}局</view>
+			<view wx:for="1234567890" wx:for-index="findex" wx:key="findex" class="__frame -head-row">
+				{{findex + 1}}
+			</view>
+			<view class="__frame -head-row">加分</view>
+			<view class="__frame -head-row -last-col">局分</view>
+			<block wx:for="{{games}}" wx:for-index="gindex" wx:for-item="game" wx:key="gindex">
+				<pk-player-name class="__frame"
+				                player="{{players[games[gindex].player_id]}}"
+				                keep-align="{{false}}"></pk-player-name>
+				<view wx:for="{{game.frames}}" wx:for-index="findex" wx:key="findex"
+				      id="{{This.toFrameId(rindex, gindex, findex)}}"
+				      class="__frame {{Util.valIf(activeFrame===This.toFrameId(rindex,gindex,findex),'-active')}}"
+				      bindtap="_onFrameClicked">
+					{{item.data}}
+				</view>
+				<view class="__frame">{{game.bonus}}</view>
+				<view class="__frame -last-col">{{game.score}}</view>
+			</block>
+		</block>
+	</view>
+</template>
+
+<script>
+	
+	import FrameRef from '../../models/FrameRef';
+	
+	export default {
+		config: {
+			usingComponents: {
+				'wui-panel': '@yapple/wui-panel',
+				'wui-icon': '@yapple/wui-icon',
+				'app-icon': './icon',
+				'pk-player-name': './pk/player-name'
+			}
+		},
+		behaviors: {
+		
+		},
+		properties: {
+			editable: {
+				type: Boolean,
+				value: true
+			},
+			players: {
+				type: Object
+			},
+			rounds: {
+				type: Array,
+			},
+			activeFrame: {
+				type: String
+			}
+		},
+		data: {
+		},
+		methods: {
+			/**
+			 *
+			 * @param {FrameRef} frameRef
+			 */
+			selectFrame(frameRef) {
+				if (!this.data.editable)
+					return;
+				this.setData({
+					activeFrame: !frameRef ? null : frameRef.id
+				});
+			},
+			_onFrameClicked(e) {
+				if (!this.data.editable)
+					return;
+				let frameRef = FrameRef.createFromId(e.target.id);
+				this.selectFrame(frameRef);
+				this.triggerEvent('frameselected', { frameRef });
+			},
+			
+		}
+	};
+
+</script>
+
+<style lang="less">
+	@import "../../style";
+	
+	.score-sheet {
+		display: grid;
+		grid-template-columns: 2.5fr repeat(9, 1fr) 1.5fr repeat(2, 1.2fr);
+		
+		.__frame {
+			display: flex;
+			border-bottom: solid 1px black;
+			border-right: solid 1px @color__splitLine;
+			align-items: center;
+			justify-content: center;
+			height: 2.2em;
+		}
+		.__frame.-head-row {
+			height: 1.8em;
+			background: #F5F5F5;
+			border-right: none;
+			font-size: 0.8em;
+			font-weight: bold;
+			
+		}
+		.__frame.-last-col {
+			border-right: none;
+		}
+		
+		.__frame.-active {
+			background: #CCC;
+		}
+	}
+	
+</style>
