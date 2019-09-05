@@ -15,8 +15,7 @@
 						</block>
 						<block wx:else>
 							<pk-player-name player="{{Play.getParticipant(play, 0).player}}" keep-align="{{true}}"></pk-player-name>
-							<app-icon wx:if="{{play.type==='Normal'}}" class="__versus-icon" name="pk"></app-icon>
-							<app-icon wx:elif="{{play.type==='Friendly'}}" class="__versus-icon" name="friendly"></app-icon>
+							<app-icon class="__versus-icon" name="pk{{play.type}}"></app-icon>
 							<pk-player-name player="{{Play.getParticipant(play, 1).player}}" keep-align="{{true}}"></pk-player-name>
 						</block>
 					</view>
@@ -64,7 +63,7 @@
 			_onItemClicked(e) {
 				$.Http.submit(e);
 				Page.navigateTo({
-					url: '/pages/playresult/index',
+					url: '/pages/pkResult/index',
 					data: {
 						id: this.data.play.id,
 						match: this.data.play.match

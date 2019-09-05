@@ -29,12 +29,12 @@
 	<view wx:else class="pkhome__gridmenu">
 		<wxc-button btn-style="{{gridMenuItemStyle}} background:{{$.style.color.num1}}"
 		            bind:submit="onNormalPlayButtonClicked">
-			<app-icon class="__icon" name="pk"></app-icon>
+			<app-icon class="__icon" name="pkNormal"></app-icon>
 			<view>常规赛</view>
 		</wxc-button>
 		<wxc-button btn-style="{{gridMenuItemStyle}} background:{{$.style.color.num2}}"
 		            bind:submit="onFriendlyPlayButtonClicked">
-			<app-icon class="__icon" name="friendly"></app-icon>
+			<app-icon class="__icon" name="pkFriendly"></app-icon>
 			<view>友谊赛</view>
 		</wxc-button>
 		<wxc-button btn-style="{{gridMenuItemStyle}} background:{{$.style.color.num3}}"
@@ -217,9 +217,7 @@
 				if (!r)
 					wx.removeStorageSync('pk');
 				else
-					Page.navigateTo({
-						url: `/pages/pk${playing.type}/index`
-					});
+					Page.navigateTo({ url: playing.url });
 			}
 			
 			// 获取当前赛季的比赛信息
@@ -320,8 +318,8 @@
 			});
 			if (!r) return;
 			Page.navigateTo({
-				url: '../pkNormal/index',
-				richData: { me: this.data.player, opponent }
+				url: '../pkPlay/index',
+				richData: { me: this.data.player, type: 'Normal', opponent }
 			});
 		},
 		async onFriendlyPlayButtonClicked(e) {
@@ -357,13 +355,13 @@
 			if (!r) return;
 			Page.navigateTo({
 				url: '../pkFriendly/index',
-				richData: { me: this.data.player, opponent }
+				richData: { me: this.data.player, type: 'Friendly', opponent }
 			});
 		},
 		onShopButtonClicked(e) {
 			$.Http.submit(e);
 			Page.navigateTo({
-				url: '../pkshop/index'
+				url: '../pkShop/index'
 			});
 		},
 		onPlayFilterOnlyThisWeekChanged(e) {
@@ -411,7 +409,7 @@
 			/*if (playTodo) {
 				await $.Modal.show('确认比赛', '有一场比赛等待你的确认。');
 				Page.navigateTo({
-					url: '/pages/playresult/index',
+					url: '/pages/pkResult/index',
 					data: {
 						id: playTodo.id
 					}
@@ -424,7 +422,7 @@
 			this.setData({ weeklyList });
 		},
 		async showNotifications() {
-			let notifications = await Notify.get('pkhome');
+			let notifications = await Notify.get('pkHome');
 			for (let notification of notifications) {
 				await this.selectComponent(`#notify-${notification.identifier}`).show(notification.detail);
 			}

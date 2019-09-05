@@ -19,6 +19,7 @@
 		"@minui/wxc-tab": "^1.0.8",
 		"@yapple/wui-abnor": "^1.0.4",
 		"@yapple/wui-cc": "^1.0.5",
+		"@yapple/wui-common": "^1.0.2",
 		"@yapple/wui-content": "^1.0.14",
 		"@yapple/wui-field": "^1.0.5",
 		"@yapple/wui-list": "^1.0.4",

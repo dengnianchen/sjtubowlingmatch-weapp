@@ -11,6 +11,8 @@ import Match from './Match';
  * @property {Number}   version             版本号
  * @property {Boolean}  newest              是否最新
  * @property {Object}   detail              详情（内含字段与具体赛事有关）
+ * @property {String[]} buy_constraints     兑换限制
+ * @property {String[]} action_constraints  使用限制
  * @property {String}   item_create_time    创建时间
  *
  * @author Deng Nianchen

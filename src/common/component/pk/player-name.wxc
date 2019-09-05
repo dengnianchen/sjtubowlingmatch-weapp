@@ -1,17 +1,17 @@
 <template>
 	<block wx:if="{{participant}}">
-		<view wx:if="{{participant.detail.extra_effects.Nick}}" class="nick">
+		<view wx:if="{{participant.detail.extra_effects.Nick}}" class="nick -align-{{horizontalAlign}}">
 			<text class="__text">{{participant.detail.extra_effects.Nick.nickname}}</text>
 			<text class="__remark">({{participant.player.name}})</text>
 		</view>
-		<view wx:else style="{{keepAlign?'height:2.2em':''}}">{{participant.player.name}}</view>
+		<view wx:else style="{{keepAlign?'height:2.2em':''}}" class="nick -align-{{horizontalAlign}}">{{participant.player.name}}</view>
 	</block>
 	<block wx:else>
-		<view wx:if="{{player.nick}}" class="nick">
+		<view wx:if="{{player.nick}}" class="nick -align-{{horizontalAlign}}">
 			<text class="__text">{{player.nick}}</text>
 			<text class="__remark">({{player.name}})</text>
 		</view>
-		<view wx:else style="{{keepAlign?'height:2.2em':''}}">{{player.name}}</view>
+		<view wx:else style="{{keepAlign?'height:2.2em':''}}" class="nick -align-{{horizontalAlign}}">{{player.name}}</view>
 	</block>
 </template>
 
@@ -31,6 +31,10 @@
 			keepAlign: {
 				type: Boolean,
 				value: true
+			},
+			horizontalAlign: {
+				type: String,
+				value: 'center'
 			}
 		},
 		data: { }
@@ -54,6 +58,14 @@
 			font-size: 0.7em;
 			color: @color__subDesc;
 		}
+	}
+	
+	.nick.-align-left {
+		align-items: start;
+	}
+	
+	.nick.-align-right {
+		align-items: end;
 	}
 	
 	.name {

@@ -65,7 +65,7 @@
 			if (entry.startsWith('active-')) {
 				let match = entry.substr(7);
 				Page.navigateTo({
-					url: `../${match}home/index`
+					url: `../${match}Home/index`
 				});
 			}
 		},

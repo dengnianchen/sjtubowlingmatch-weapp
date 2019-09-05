@@ -52,14 +52,6 @@
 				}
 			}
 			this.setData({ match, playsTodo, playsDone });
-		},
-		async _onPlayItemClicked(e) {
-			Page.navigateToDialog({
-				url: '../playresult/index',
-				data: {
-					id: e.target.dataset['id']
-				}
-			});
 		}
 	};
 </script>

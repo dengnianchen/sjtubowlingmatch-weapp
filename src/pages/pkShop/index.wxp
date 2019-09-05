@@ -93,21 +93,21 @@
 			</view>
 			<view class="__limit-list">
 				<view class="__label">兑换限制条件：</view>
-				<view wx:if="{{!itemDetail.detail['buy_constraints']}}" class="__limit-null">无</view>
-				<view wx:for="{{itemDetail.detail['buy_constraints']}}" wx:key="index" wx:for-item="buy_constraint"
+				<view wx:if="{{!itemDetail.buy_constraints}}" class="__limit-null">无</view>
+				<view wx:for="{{itemDetail.buy_constraints}}" wx:key="index" wx:for-item="constraint"
 					  class="__limit-item {{buyCheck[itemDetail.id].violates[index]?'__danger':'__success'}}">
 					<wui-icon wx:if="{{buyCheck[itemDetail.id].violates[index]}}" name="fas fa-times"></wui-icon>
 					<wui-icon wx:else name="fas fa-check"></wui-icon>
-					{{buy_constraint}}
+					{{constraint}}
 				</view>
 			</view>
 			<view class="__limit-list">
 				<view class="__label">使用限制条件：</view>
-				<view wx:if="{{!itemDetail.detail['apply_constraints']}}" class="__limit-null">无</view>
-				<view wx:for="{{itemDetail.detail['apply_constraints']}}" wx:key="index" wx:for-item="apply_constraint"
+				<view wx:if="{{!itemDetail.action_constraints}}" class="__limit-null">无</view>
+				<view wx:for="{{itemDetail.action_constraints}}" wx:key="index" wx:for-item="constraint"
 				      class="__limit-item">
 					<wui-icon name="fas fa-exclamation-triangle" color="{{$.style.warnColor}}"></wui-icon>
-					{{apply_constraint}}
+					{{constraint}}
 				</view>
 			</view>
 			<wxc-button class="__button" value="兑换"
@@ -135,12 +135,12 @@
 					<view class="__desc">{{ownedDetail.item.description}}</view>
 				</view>
 			</view>
-			<view wx:if="{{ownedDetail.item.detail['apply_constraints']}}" class="__limit-list">
+			<view wx:if="{{ownedDetail.item.action_constraints}}" class="__limit-list">
 				<view class="__label">限制条件：</view>
-				<view wx:for="{{ownedDetail.item.detail['apply_constraints']}}" wx:key="index" wx:for-item="apply_constraint"
+				<view wx:for="{{ownedDetail.item.action_constraints}}" wx:key="index" wx:for-item="constraint"
 				      class="__limit-item">
 					<wui-icon name="fas fa-exclamation-triangle" color="{{$.style.warnColor}}"></wui-icon>
-					{{apply_constraint}}
+					{{constraint}}
 				</view>
 			</view>
 			<view>

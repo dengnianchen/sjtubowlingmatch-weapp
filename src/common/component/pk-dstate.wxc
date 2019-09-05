@@ -1,9 +1,11 @@
 <template>
 	<view class="pk-dstate__item" wx:if="{{dstate.stars}}">
-		<app-icon class="__icon" name="star" color="#FFB900"></app-icon> {{dstate.stars>0?'+':''}}{{dstate.stars}}
+		<app-icon class="__icon" name="star" color="#FFB900"></app-icon>
+		<text>{{dstate.stars>0?'+':''}}{{dstate.stars}}</text>
 	</view>
 	<view class="pk-dstate__item" wx:if="{{dstate.coins}}">
-		<app-icon class="__icon" name="coin" color="#FF9057"></app-icon> {{dstate.coins>0?'+':''}}{{dstate.coins}}
+		<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>
+		<text>{{dstate.coins>0?'+':''}}{{dstate.coins}}</text>
 	</view>
 	<view class="pk-dstate__item" wx:if="{{!dstate.coins&&!dstate.stars}}">-</view>
 </template>
@@ -30,10 +32,8 @@
 
 <style lang="less">
 	.pk-dstate__item {
-		flex-grow: 1;
-		text-align: center;
 	}
 	.pk-dstate__item .__icon {
-		margin-right: 0.3em;
+		//margin-right: 0.1em;
 	}
 </style>
