@@ -1,5 +1,5 @@
 <template>
-	<view class="page__banner">
+	<view class="page__banner" bindtap="onBannerClicked">
 		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
 		<view class="__elem __name">
 			{{$.me.name}}
@@ -140,6 +140,7 @@
 		当前段位：<app-pk-player-state match="{{match}}" state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
 	<app-notify-rank-up id="notify-PK_RANK_UP" match="{{match}}"></app-notify-rank-up>
+	<app-notify-achieve id="notify-ACHIEVE_GET"></app-notify-achieve>
 </template>
 
 <script>
@@ -173,6 +174,7 @@
 				'app-avatar': '../../common/component/avatar',
 				'app-switch': '../../common/component/switch',
 				'app-notify-rank-up': '../../common/component/notify-rank-up',
+				'app-notify-achieve': '../../common/component/notify-achieve',
 				'pk-player-name': '../../common/component/pk/player-name'
 			},
 		},
@@ -229,11 +231,11 @@
 			wx.setNavigationBarTitle({ title: match.name });
 			
 			// 获取当前用户在本赛季中的选手信息
-			let playerMe = await Player.getInMatch(match, $.AppData.me, true);
+			let playerMe = await Player.getInMatch(match, $.AppData.me);
 			
 			// 如需要，获取当前用户在上赛季中的选手信息（用于判断段位继承）
-			let playerLastSeason = (playerMe && playerMe.status) ? null :
-				await Player.getInMatch(Match.get('pk')[1], $.AppData.me, true);
+			let playerLastSeason = (playerMe && playerMe.state) ? null :
+				await Player.getInMatch(Match.get('pk')[1], $.AppData.me);
 
 			this.setData({
 				match, playerLastSeason,
@@ -424,8 +426,21 @@
 		async showNotifications() {
 			let notifications = await Notify.get('pkHome');
 			for (let notification of notifications) {
-				await this.selectComponent(`#notify-${notification.identifier}`).show(notification.detail);
+				let component =this.selectComponent(`#notify-${notification.identifier}`);
+				if (component)
+					await component.show(notification.detail);
+				else
+					console.warn('No component found for notification: ' + notification.identifier);
 			}
+		},
+		onBannerClicked() {
+			Page.navigateTo({
+				url: '/pages/pkPlayer/index',
+				data: {
+					id: this.data.player.id,
+					match: this.data.player.match
+				}
+			});
 		}
 	};
 </script>

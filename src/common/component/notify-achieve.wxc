@@ -1,0 +1,56 @@
+<template>
+	<wui-dialog id="notify-dialog" title="获得成就！" confirm-btn="{{false}}">
+		<view class="content">
+			<image class="__image" src="/images/pk/achieve_{{item.identifier}}_{{level}}.png"></image>
+			<view class="__name">{{item.item_name}}</view>
+		</view>
+	</wui-dialog>
+</template>
+
+<script>
+	import Item from '../../models/Item';
+	
+	export default {
+		config: {
+			usingComponents: {
+				'wui-dialog': '../../common/component/dialog'
+			},
+		},
+		behaviors: [],
+		properties: {
+			match: {
+				type: Object
+			}
+		},
+		data: {
+			item: null,
+			level : 0
+		},
+		methods: {
+			show(detail) {
+				let item = Item.get(detail.achieve_id);
+				let level = detail.level;
+				this.setData({ item, level });
+				return $.Wui.Dialog.show('#notify-dialog', this);
+			}
+		}
+	};
+</script>
+
+<style lang="less">
+	@import "../../style";
+	
+	.content {
+		.cc;
+		
+		.__image {
+			width: 300*@px;
+			height: 300*@px;
+		}
+		
+		.__name {
+			font-size: 1.5em;
+			font-weight: bold;
+		}
+	}
+</style>

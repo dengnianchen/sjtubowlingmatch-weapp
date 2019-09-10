@@ -52,9 +52,31 @@
 					"scene": null
 				},
 				{
+					"id": 1,
+					"name": "PK SHOP",
+					"pathName": "pages/pkShop/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 2,
+					"name": "PK ACHIEVE",
+					"pathName": "pages/pkAchieve/index",
+					"query": "match=pk_2019autumn",
+					"scene": null
+				},
+				{
 					"id": -1,
-					"name": "pages/pkshop/index",
-					"pathName": "pages/pkshop/index",
+					"name": "PK HOME",
+					"pathName": "pages/pkHome/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 4,
+					"name": "PK PLAYER",
+					"pathName": "pages/pkPlayer/index",
+					"query": "match=pk_2019autumn&player_id=81",
 					"scene": null
 				}
 			]

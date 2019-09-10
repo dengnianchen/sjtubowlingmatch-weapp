@@ -85,15 +85,16 @@ class Player extends $.Model {
 	/**
 	 * 获取指定ID的选手
 	 *
+	 * @param {Match|String} match
 	 * @param {number|number[]}  id
 	 * @returns {Promise<Player>}
 	 * @author Deng Nianchen
 	 */
-	static async get(id) {
+	static async get(match, id) {
 		if (id instanceof Array)
-			return await $.Http.request(`/player`, { ids: id }, {}, Player);
+			return await $.Http.request(`/${$.Model.id(match)}/player`, { ids: id }, {}, Player);
 		else
-			return await $.Http.request(`/player/${id}`, {}, {}, Player);
+			return await $.Http.request(`/${$.Model.id(match)}/player/${id}`, {}, {}, Player);
 	}
 	
 }

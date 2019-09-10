@@ -1,6 +1,6 @@
 <template>
-	<wxc-popup animation-mode="none" align="center" locked="true" class="popup">
-		<view class="wui-dialog" catchtap="_onContentTap">
+	<view class="dialog-mask {{status==='hide' ? '-hide' : ''}}" style="z-index:{{zIndex}};" bindtap="_onMaskTap">
+		<view class="dialog-panel" catchtap="_onContentTap">
 			<view class="__title" wx:if="{{title}}">{{title}}</view>
 			<view class="__content">
 				<text wx:if="{{content}}" class="__content__text" decode="{{true}}">{{content}}</text>
@@ -9,18 +9,22 @@
 			<view class="__btns">
 				<slot wx:if="{{customBtns}}" name="btns"></slot>
 				<block wx:else>
-					<view class="__btn __btn--cancel" wx:if="{{cancelBtn===true}}" bindtap="_onCancel">
-						<app-icon name="cancel"></app-icon>
+					<view wx:if="{{cancelBtn}}"
+					      class="__btn -cancel {{cancelBtn!==true ? '-text' : ''}}"
+					      bindtap="_onCancel">
+						<app-icon wx:if="{{cancelBtn===true}}" name="cancel"></app-icon>
+						<text wx:else>{{cancelBtn}}</text>
 					</view>
-					<view class="__btn __btn--cancel __btn--text" wx:elif="{{cancelBtn}}" bindtap="_onCancel">{{cancelBtn}}</view>
-					<view class="__btn __btn--confirm" wx:if="{{confirmBtn===true}}" bindtap="_onConfirm">
-						<app-icon name="confirm"></app-icon>
+					<view wx:if="{{confirmBtn}}"
+					      class="__btn -confirm {{confirmBtn!==true ? '-text' : ''}}"
+					      bindtap="_onConfirm">
+						<app-icon wx:if="{{confirmBtn===true}}" name="confirm"></app-icon>
+						<text wx:else>{{confirmBtn}}</text>
 					</view>
-					<view class="__btn __btn--confirm __btn--text" wx:elif="{{confirmBtn}}" bindtap="_onConfirm">{{confirmBtn}}</view>
 				</block>
 			</view>
 		</view>
-	</wxc-popup>
+	</view>
 </template>
 
 <script>
@@ -55,7 +59,6 @@
 	export default {
 		config: {
 			usingComponents: {
-				'wxc-popup': '@minui/wxc-popup',
 				'wui-icon': '@yapple/wui-icon',
 				'app-icon': './icon'
 			},
@@ -96,17 +99,16 @@
 				cancelBtn: false,
 				showHelpIcon: false,
 				customBtns: false
-			}
+			},
+			zIndex: 1000,
+			status: 'hide'
 		},
 		methods: {
 			async show() {
 				let _this = this;
-				
-				let popupComponent = this.selectComponent('.popup');
-				if (!popupComponent)
-					return null;
-				popupComponent.show();
-				
+				let zIndex = ($.AppData._zIndex || 1000) + 1;
+				$.AppData._zIndex = zIndex;
+				this.setData({ zIndex, status: 'show' });
 				return new Promise((resolve, reject) => {
 					_this._resolve = resolve;
 					_this._reject = reject;
@@ -117,8 +119,7 @@
 				if (this._resolve)
 					this._resolve(confirmed);
 				this._resolve = null;
-				let popupComponent = this.selectComponent('.popup');
-				popupComponent && popupComponent.hide();
+				this.setData({ status: 'hide' });
 			},
 			
 			_onContentTap () {},
@@ -136,6 +137,12 @@
 					this.data.bindhelp();
 				else
 					this.trigger('help');
+			},
+			
+			_onMaskTap() {
+				if (this.data.customBtns || this.data.confirmBtn || this.data.cancelBtn)
+					return;
+				this.hide();
 			}
 			
 		}
@@ -145,7 +152,20 @@
 <style lang="less">
 	@import "../../style";
 	
-	.wui-dialog {
+	.dialog-mask {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0,0,0,0.6);
+		.cc;
+	}
+	.dialog-mask.-hide {
+		display: none;
+	}
+	
+	.dialog-panel {
 		background: @color__darkGray;
 		color: white;
 		width: 655*@px;
@@ -200,17 +220,17 @@
 				margin-left: 20*@px;
 			}
 			
-			.__btn--cancel {
+			.__btn.-cancel {
 				border-radius: 50%;
 				background: @color__purple;
 			}
 			
-			.__btn--confirm {
+			.__btn.-confirm {
 				border-radius: 50%;
 				background: @color__num1;
 			}
 			
-			.__btn--text {
+			.__btn.-text {
 				width: auto;
 				padding: 0 1em;
 				border-radius: 27*@px;

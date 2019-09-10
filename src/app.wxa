@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<layout-loading wx:if="{{loading}}" text="{{loading}}"></layout-loading>
 		<layout-error wx:if="{{loadingError}}" error="{{loadingError}}" bindclick="reloadPage"></layout-error>
 		<page></page>
@@ -165,14 +165,7 @@
 		color: @subHeadingColor;
 		text-align: left;
 	}
-	
-	.cc {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-	}
-	
+
 	.wxc-dialog-content {
 		display: flex;
 		flex-direction: column;

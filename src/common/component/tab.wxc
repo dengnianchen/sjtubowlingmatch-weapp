@@ -1,38 +1,41 @@
 <template>
-	<view class="tab {{fullScreen? 'tab--full' : ''}}">
+	<view class="tab">
 		
 		<!-- defalut tab-label -->
-		<block wx:if="{{type === 'simple'}}">
-			<scroll-view scroll-x="{{true}}"
-			             class="tab__navbar"
-			             scroll-left="{{(move-width*2.1) / 2}}"
-			             scroll-with-animation="{{animate}}">
-				<view class="tab__navbar-wrap">
-					<view wx:for="{{tabs}}" wx:for-item="tab" wx:key="index"
-						  class="tab__navbar-item {{index===activeKey?'tab__navbar-item--active':''}} {{index===tabs.length-1?'tab__navbar-item--last':''}}"
-						  style="width:{{width}}rpx;"
-						  bindtap="onSwitch" data-key="{{tab.key}}" data-idx="{{index}}">
-						<label class="tab__navbar-title">{{tab.label}}</label>
-					</view>
-					
-					<view class="tab__line {{!animate ? '' : 'tab__line--animate'}}"
-					      style="left:{{move-2}}rpx;width:{{width+2}}rpx;">
-						<view style="width:25%; background:#665EFF"></view>
-						<view style="width:25%; background:#5773FF"></view>
-						<view style="width:25%; background:#3497FD"></view>
-						<view style="width:25%; background:#3ACCE1"></view>
-					</view>
-				
+		<scroll-view scroll-x="{{true}}"
+		             class="tab__navbar"
+		             scroll-left="{{(move-width*2.1) / 2}}"
+		             scroll-with-animation="{{animate}}">
+			<view class="tab__navbar-wrap">
+				<view wx:for="{{tabs}}" wx:for-item="tab" wx:key="index"
+					  class="tab__navbar-item {{index===activeKey?'tab__navbar-item--active':''}} {{index===tabs.length-1?'tab__navbar-item--last':''}}"
+					  style="width:{{width}}rpx;"
+					  bindtap="onSwitch" data-key="{{tab.key}}" data-idx="{{index}}">
+					<label class="tab__navbar-title">{{tab.label}}</label>
 				</view>
-			</scroll-view>
-		</block>
+				
+				<view class="tab__line {{!animate ? '' : 'tab__line--animate'}}"
+				      style="left:{{move-2}}rpx;width:{{width+2}}rpx;">
+					<view style="width:25%; background:#665EFF"></view>
+					<view style="width:25%; background:#5773FF"></view>
+					<view style="width:25%; background:#3497FD"></view>
+					<view style="width:25%; background:#3ACCE1"></view>
+				</view>
+			
+			</view>
+		</scroll-view>
 		
 		<!-- tab-panel -->
-		<view class="tab__content-wrap" style="border-top: 2rpx solid {{lineColor}}; {{fullScreen?'height: 100%;':''}}">
+		<view class="tab__content-wrap" style="border-top: 2rpx solid {{lineColor}};">
+			<scroll-view scroll-y="{{true}}" class="tab__content">
+				<slot></slot>
+			</scroll-view>
+		</view>
+		<!--<view class="tab__content-wrap" style="border-top: 2rpx solid {{lineColor}}; {{fullScreen?'height: 100%;':''}}">
 			<view class="tab__content" style="{{fullScreen?'height: 100%;':''}}">
 				<slot></slot>
 			</view>
-		</view>
+		</view>-->
 	
 	</view>
 </template>
@@ -176,11 +179,11 @@
 	@import "../../style.less";
 	
 	.tab {
-		&--full {
-			position: fixed;
-			width: 100%;
-			height: 100%;
-		}
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		height: 100%;
+		background: white;
 		
 		&__navbar-wrap {
 			position: relative;
@@ -190,6 +193,7 @@
 			width: 100%;
 			background: white;
 			box-shadow: 0 4px 14px rgba(69,91,99,0.08);
+			z-index: 10;
 		}
 		&__navbar-item {
 			text-align: center;
@@ -223,11 +227,12 @@
 			}
 		}
 		&__content-wrap {
-			width: 100%;
+			//width: 100%;
 			overflow: hidden;
 		}
 		&__content {
 			width: 100%;
+			height: 100%;
 		}
 	}
 </style>

@@ -1,0 +1,129 @@
+<template>
+	<view class="page__banner">
+		<app-avatar class="__elem __avatar" src="{{$.me.avatar}}" mode="round-square"></app-avatar>
+		<view class="__elem __name">
+			{{$.me.name}}
+			<view wx:if="{{player.effects.Nick}}" class="__nickname">显示名称：{{player.effects.Nick.detail.nickname}}</view>
+		</view>
+		<view class="__elem __achieve-points">成就点数：{{playerAchieve.points}}点</view>
+	</view>
+	<view class="achieves_grid">
+		<view wx:for="{{playerAchieve.detail}}" wx:for-item="achieve"
+		      wx:key="index"
+		      class="__achieve-item">
+			<image class="__image"
+			       src="/images/pk/achieve_{{achieve.identifier}}_{{achieve.level}}.png"
+			       mode="aspectFill"
+			></image>
+			<view wx:if="{{achieve.level < 0}}" class="__lock">
+				<wui-icon name="fas fa-lock"></wui-icon>
+				未解锁
+			</view>
+			<view class="__name">{{achieve.name}}</view>
+			<view class="__progress">
+				<wxc-progress class="__progress-bar"
+				              percent="{{achieve.progress_percent}}"
+				              stroke-width="30"
+				></wxc-progress>
+				{{achieve.target ? achieve.progress + '/' + achieve.target : '最高等级'}}
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import PlayerAchieve from '../../models/PlayerAchieve';
+	import Player from '../../models/Player';
+	
+	export default {
+		auth: true,
+		
+		config: {
+			navigationBarTitleText: 'PK成就展示',
+			usingComponents: {
+				'wxc-progress': '@minui/wxc-progress',
+				'wui-icon': '@yapple/wui-icon',
+				'app-avatar': '../../common/component/avatar'
+			},
+		},
+		data: {
+			player: null,
+			playerAchieve: null
+		},
+		
+		async onLoad(options) {
+			let player = await Player.getInMatch(options.match, $.AppData.me);
+			let playerAchieve = await PlayerAchieve.get(player);
+			this.setData({ player, playerAchieve });
+		}
+	};
+</script>
+
+<style lang="less">
+	@import "../../style.less";
+	
+	.page__banner {
+		
+		.__achieve-points {
+			text-align: right;
+		}
+		
+		.__nickname {
+			font-size: 0.8em;
+			color: @color__subDesc;
+		}
+	}
+
+	.achieves_grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-gap: 30*@px;
+		padding: 20*@px;
+		
+		.__achieve-item {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			
+			.__image {
+				width: 200*@px;
+				height: 200*@px;
+			}
+			
+			.__lock {
+				position: absolute;
+				width: 100%;
+				left: 0;
+				top: 60*@px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				color: white;
+			}
+			
+			.__name {
+			
+			}
+			
+			.__progress {
+				position: relative;
+				width: 100%;
+				height: 30*@px;
+				line-height: 30*@px;
+				text-align: center;
+				font-size: 0.7em;
+				
+				.__progress-bar {
+					position: absolute;
+					left: 0;
+					top: 0;
+					right: 0;
+					bottom: 0;
+					z-index: -100;
+				}
+			}
+		}
+	}
+</style>

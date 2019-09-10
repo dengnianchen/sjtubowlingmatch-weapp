@@ -49,7 +49,7 @@ class Item extends $.Model {
 	 * @param {Match|string}    match   赛事对象或名称
 	 * @param {string|null}     type    （可选）道具类型，若不指定则获取 所有类型
 	 *
-	 * @return {Item[]}
+	 * @return {{[String]:Item}}
 	 * @author Deng Nianchen
 	 */
 	static getNewestOfMatch(match, type = null) {

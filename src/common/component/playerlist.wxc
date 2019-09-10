@@ -53,6 +53,13 @@
 		methods: {
 			_onItemClicked(e) {
 				$.Http.submit(e);
+				Page.navigateTo({
+					url: '/pages/pkPlayer/index',
+					data: {
+						id: this.data.player.id,
+						match: this.data.player.match
+					}
+				});
 			}
 		}
 	}
