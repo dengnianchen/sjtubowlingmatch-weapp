@@ -1,0 +1,326 @@
+<template>
+	<view class="page__banner">
+		<app-avatar class="__elem __avatar" src="{{player.avatar}}" mode="round-square"></app-avatar>
+		<view class="__elem __name">
+			{{player.name}}
+			<view wx:if="{{player.effects.Nick}}" class="__nickname">显示名称：{{player.effects.Nick.detail.nickname}}</view>
+		</view>
+		<app-pk-player-state class="__elem __status" match="{{match}}" state="{{player.state}}"></app-pk-player-state>
+	</view>
+	<view class="page__tab">
+		<app-tab default-index="0"
+		         active-text-color="#108ee9"
+		         active-line-color="none"
+		         line-color="none"
+		         component-id="c1"
+		         animate="{{true}}">
+			<wxc-tab-panel tab-index="0" component-id="c1" label="数据统计">
+				<view class="stat-panel">
+					<wui-content id="content-pkPlayer-basic">
+						<view class="basic-stat">
+							<view>本赛季共进行{{basic_stat.all['Total']}}场PK（其中常规赛{{basic_stat.all['Normal']}}场）</view>
+							<view>本周已进行{{basic_stat.this_week['Total']}}场PK（其中常规赛{{basic_stat.this_week['Normal']}}场）</view>
+						</view>
+					</wui-content>
+					<wui-content id="content-pkPlayer-play">
+						<view class="play-stat">
+							<view wx:for="{{play_stat}}" wx:key="label"
+							      wx:for-index="label" wx:for-item="value"
+							      class="__data-item">
+								<view class="__label">{{label}}：</view>
+								<view class="__value">{{value}}</view>
+							</view>
+						</view>
+					</wui-content>
+				</view>
+			</wxc-tab-panel>
+			<wxc-tab-panel tab-index="1" component-id="c1" label="成就">
+				<view class="achieves-panel">
+					<wui-content id="content-pkPlayer-achieve">
+						<view class="achieve-points">成就点数：{{player_achieve.points}}点</view>
+						<view class="achieves-grid">
+							<block wx:for="{{player_achieve.detail}}" wx:for-item="achieve"
+							       wx:key="index">
+								<view wx:if="{{is_me || achieve.level >= 0}}"
+								      class="__achieve-item"
+								      bindtap="onAchieveItemClick"
+								      data-index="{{index}}">
+									<view class="__image"
+									      style="background-image: url('{{$.config.host}}/static/pk/achieve_{{achieve.identifier}}.png');background-position: -{{achieve.level + 1}}em 0;"
+									      mode="aspectFill">
+										<view wx:if="{{achieve.level < 0}}" class="__image-lock">
+											<wui-icon name="fas fa-lock"></wui-icon>
+											<text>未解锁</text>
+										</view>
+									</view>
+									<view class="__name">{{achieve.name}}</view>
+									<view wx:if="{{is_me}}" class="__progress">
+										<wxc-progress class="__progress-bar"
+										              percent="{{achieve.progress_percent}}"
+										              stroke-width="30"
+										></wxc-progress>
+										<text class="__progress-text">{{achieve.target ? achieve.progress + '/' + achieve.target : '最高等级'}}</text>
+									</view>
+								</view>
+							</block>
+						</view>
+					</wui-content>
+				</view>
+			</wxc-tab-panel>
+		</app-tab>
+	</view>
+	
+	<wxc-mask status="{{achieve_detail?'show':'hide'}}" content-align="cc">
+		<view class="achieve-detail">
+			<view class="__image" style="background-image: url('{{$.config.host}}/static/pk/achieve_{{achieve_detail.identifier}}.png');background-position: -{{achieve_detail.level + 1}}em 0;">
+				<wui-icon wx:if="{{achieve_detail.level < 0}}" class="__image-lock" name="fas fa-lock"></wui-icon>
+			</view>
+			<view class="__title">{{achieve_detail.name}}</view>
+			<view wx:if="{{achieve_detail.level >= 0 && achieve_detail.target}}" class="__level">（{{achieve_detail.level + 1}}级）</view>
+			<view wx:elif="{{!achieve_detail.target}}" class="__level">（最高级）</view>
+			<view wx:else class="__level">（未解锁）</view>
+			<view wx:if="{{achieve_detail.desc}}" class="__desc">{{achieve_detail.desc}}</view>
+			<view wx:if="{{achieve_detail.points}}" class="__points">+{{achieve_detail.points}}成就点数</view>
+			<block wx:if="{{is_me && achieve_detail.target}}">
+				<view wx:if="{{achieve_detail.level >= 0}}" class="__label-next-level">—————————— 下一等级 ——————————</view>
+				<view wx:else class="__label-next-level">—————————— 解锁条件 ——————————</view>
+				<view class="__desc">{{achieve_detail.target_desc}}</view>
+				<view class="__points">+{{achieve_detail.target_points}}成就点数</view>
+				<view class="__progress">
+					<wxc-progress class="__progress-bar"
+					              percent="{{achieve_detail.progress_percent}}"
+					              stroke-width="30"
+					></wxc-progress>
+					<text class="__progress-text">{{achieve_detail.target ? achieve_detail.progress + '/' + achieve_detail.target : '最高等级'}}</text>
+				</view>
+			</block>
+		</view>
+	</wxc-mask>
+	
+</template>
+
+<script>
+	import Player from '../../models/Player';
+	import PkStatistics from '../../models/PkStatistics';
+	import Match from '../../models/Match';
+	import PlayerAchieve from '../../models/PlayerAchieve';
+	
+	export default {
+		auth: true,
+		config: {
+			navigationBarTitleText: '选手信息',
+			usingComponents: {
+				'app-avatar': '../../common/component/avatar',
+				'app-pk-player-state': '../../common/component/pk-player-state',
+				'app-tab': '../../common/component/tab',
+				'wui-panel': '@yapple/wui-panel',
+				'wui-content': '@yapple/wui-content',
+				'wui-field': '@yapple/wui-field',
+				'wui-icon': '@yapple/wui-icon',
+				'wxc-tab-panel': '@minui/wxc-tab/panel',
+				'wxc-progress': '@minui/wxc-progress',
+				'wxc-mask': '@minui/wxc-mask',
+			},
+		},
+		data: {
+			match: null,
+			player_id: null,
+			player: null,
+			basic_stat: null,
+			play_stat: null,
+			player_achieve: null,
+			achieve_detail: null,
+			is_me: false
+		},
+		onLoad(options) {
+			this.setData({
+				match: Match.get(options.match),
+				player_id: options.id
+			});
+			$.Wui.content('content-pkPlayer-basic').bindLoad(this.loadBasicStat);
+			$.Wui.content('content-pkPlayer-play').bindLoad(this.loadPlayStat);
+			$.Wui.content('content-pkPlayer-achieve').bindLoad(this.loadAchieve);
+		},
+		async onShow() {
+			let player = await Player.get(this.data.match, this.data.player_id);
+			this.setData({ player, is_me: player.user_id === $.AppData.me.id });
+			$.Wui.content('content-pkPlayer-basic').load();
+			$.Wui.content('content-pkPlayer-play').load();
+			$.Wui.content('content-pkPlayer-achieve').load();
+		},
+		async loadBasicStat() {
+			let basic_stat = await PkStatistics.getBasic(this.data.player);
+			this.setData({ basic_stat });
+		},
+		async loadPlayStat() {
+			let play_stat = await PkStatistics.getPlay(this.data.player);
+			this.setData({ play_stat });
+		},
+		async loadAchieve() {
+			let player_achieve = await PlayerAchieve.get(this.data.player);
+			this.setData({ player_achieve });
+		},
+		onAchieveItemClick(e) {
+			let index = parseInt(e.currentTarget.dataset['index']);
+			this.setData({ achieve_detail: this.data.player_achieve.getDetail(index) });
+		}
+	};
+</script>
+
+<style lang="less">
+	@import "../../style.less";
+	
+	.page {
+		.fix-page;
+	}
+	
+	.page__tab {
+		flex: 1;
+		overflow: hidden;
+	}
+	
+	.stat-panel {
+		padding: 20*@px;
+	}
+	
+	.basic-stat {
+		padding: 0.5em 0;
+	}
+	.play-stat {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-gap: 0.5em 1em;
+		padding: 0.5em 0;
+		
+		.__data-item {
+			display: flex;
+			align-items: center;
+			
+			.__label {
+				width: 70%;
+				font-weight: bold;
+			}
+			
+			.__value {
+				flex: 1;
+				text-align: right;
+			}
+		}
+	}
+	
+	.achieves-panel {
+		padding: 20*@px;
+	}
+	
+	.achieves-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-gap: 30*@px;
+		padding: 20*@px;
+		
+		.__achieve-item {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			
+			.__image {
+				font-size: 200*@px;
+				width: 1em;
+				height: 1em;
+				background-size: auto 100%;
+				.cc;
+				
+				.__image-lock {
+					font-size: 0.15em;
+					color: #FFFFFFFF;
+					.cc;
+				}
+			}
+			
+			.__name {
+			
+			}
+			
+			.__progress {
+				position: relative;
+				width: 100%;
+				margin-top: 10*@px;
+				
+				.__progress-text {
+					position: absolute;
+					left: 0;
+					top: 0;
+					right: 0;
+					bottom: 0;
+					font-size: 0.7em;
+					.cc;
+				}
+			}
+		}
+	}
+	
+	.achieve-detail {
+		width: 600*@px;
+		border-radius: 10*@px;
+		background: white;
+		padding: 30*@px;
+		.cc;
+		
+		.__image {
+			font-size: 240*@px;
+			width: 1em;
+			height: 1em;
+			background-size: auto 100%;
+			.cc;
+			
+			.__image-lock {
+				font-size: 0.35em;
+				color: #FFFFFFAA;
+			}
+		}
+		
+		.__title {
+			font-size: @fontSize__subTitle;
+		}
+		
+		.__level {
+			font-size: @fontSize__desc;
+			color: @color__desc;
+		}
+		
+		.__desc {
+			font-size: @fontSize__text;
+			color: @color__text;
+			margin-top: 10px;
+		}
+
+		.__points {
+			font-size: @fontSize__desc;
+			color: @color__desc;
+		}
+		
+		.__progress {
+			position: relative;
+			width: 100%;
+			margin-top: 10*@px;
+
+			.__progress-text {
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				font-size: 0.7em;
+				.cc;
+			}
+		}
+		
+		.__label-next-level {
+			margin-top: 20*@px;
+			font-size: @fontSize__desc;
+			font-weight: bold;
+		}
+	}
+	
+</style>
