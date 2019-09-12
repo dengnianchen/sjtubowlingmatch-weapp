@@ -441,6 +441,10 @@
 					match: this.data.player.match
 				}
 			});
+		},
+		onShareAppMessage(e) {
+			console.log(e);
+			// https://imgx.sinacloud.net/sjtubowling/c_fill,w_512,h_512,x_512/match/pk/achieve_Bomb.png
 		}
 	};
 </script>

@@ -12,9 +12,9 @@
 		         active-text-color="#108ee9"
 		         active-line-color="none"
 		         line-color="none"
-		         component-id="c1"
+		         component-id="pkPlayer-tab"
 		         animate="{{true}}">
-			<wxc-tab-panel tab-index="0" component-id="c1" label="数据统计">
+			<wxc-tab-panel tab-index="0" component-id="pkPlayer-tab" label="数据统计">
 				<view class="stat-panel">
 					<wui-content id="content-pkPlayer-basic">
 						<view class="basic-stat">
@@ -34,11 +34,12 @@
 					</wui-content>
 				</view>
 			</wxc-tab-panel>
-			<wxc-tab-panel tab-index="1" component-id="c1" label="成就">
+			<wxc-tab-panel tab-index="1" component-id="pkPlayer-tab" label="成就">
 				<view class="achieves-panel">
 					<wui-content id="content-pkPlayer-achieve">
 						<view class="achieve-points">成就点数：{{player_achieve.points}}点</view>
-						<view class="achieves-grid">
+						<wui-abnor wx:if="{{!player_achieve.points}}" error="无成就"></wui-abnor>
+						<view wx:else class="achieves-grid">
 							<block wx:for="{{player_achieve.detail}}" wx:for-item="achieve"
 							       wx:key="index">
 								<view wx:if="{{is_me || achieve.level >= 0}}"
@@ -46,7 +47,7 @@
 								      bindtap="onAchieveItemClick"
 								      data-index="{{index}}">
 									<view class="__image"
-									      style="background-image: url('{{$.config.host}}/static/pk/achieve_{{achieve.identifier}}.png');background-position: -{{achieve.level + 1}}em 0;"
+									      style="background-image: url('https://sinacloud.net/sjtubowling/match/pk/achieve_{{achieve.identifier}}.png');background-position: -{{achieve.level + 1}}em 0;"
 									      mode="aspectFill">
 										<view wx:if="{{achieve.level < 0}}" class="__image-lock">
 											<wui-icon name="fas fa-lock"></wui-icon>
@@ -72,7 +73,7 @@
 	
 	<wxc-mask status="{{achieve_detail?'show':'hide'}}" content-align="cc">
 		<view class="achieve-detail">
-			<view class="__image" style="background-image: url('{{$.config.host}}/static/pk/achieve_{{achieve_detail.identifier}}.png');background-position: -{{achieve_detail.level + 1}}em 0;">
+			<view class="__image" style="background-image: url('https://sinacloud.net/sjtubowling/match/pk/achieve_{{achieve_detail.identifier}}.png');background-position: -{{achieve_detail.level + 1}}em 0;">
 				<wui-icon wx:if="{{achieve_detail.level < 0}}" class="__image-lock" name="fas fa-lock"></wui-icon>
 			</view>
 			<view class="__title">{{achieve_detail.name}}</view>
@@ -117,6 +118,7 @@
 				'wui-content': '@yapple/wui-content',
 				'wui-field': '@yapple/wui-field',
 				'wui-icon': '@yapple/wui-icon',
+				'wui-abnor': '@yapple/wui-abnor',
 				'wxc-tab-panel': '@minui/wxc-tab/panel',
 				'wxc-progress': '@minui/wxc-progress',
 				'wxc-mask': '@minui/wxc-mask',
@@ -212,6 +214,10 @@
 		padding: 20*@px;
 	}
 	
+	.achieve-points {
+		text-align: right;
+	}
+	
 	.achieves-grid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
@@ -233,7 +239,7 @@
 				
 				.__image-lock {
 					font-size: 0.15em;
-					color: #FFFFFFFF;
+					color: white;
 					.cc;
 				}
 			}
@@ -276,7 +282,7 @@
 			
 			.__image-lock {
 				font-size: 0.35em;
-				color: #FFFFFFAA;
+				color: rgba(255, 255, 255, 0.66);
 			}
 		}
 		
@@ -293,6 +299,7 @@
 			font-size: @fontSize__text;
 			color: @color__text;
 			margin-top: 10px;
+			text-align: center;
 		}
 
 		.__points {

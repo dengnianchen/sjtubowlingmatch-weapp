@@ -115,7 +115,12 @@
 			});
 		},
 		detached() {
-			Event.removeListener();
+			Event.removeListener(`to-label-switch-${this.componentId}`);
+			Event.removeListener(`to-panel-switch-${this.componentId}`);
+			Event.removeListener(`from-label-switch-${this.componentId}`);
+			Event.removeListener(`from-panel-switch-${this.componentId}`);
+			Event.removeListener(`tab-create-${this.componentId}`);
+			Event.removeListener(`label-width-switch-${this.componentId}`);
 		},
 		methods: {
 			
@@ -228,11 +233,11 @@
 		}
 		&__content-wrap {
 			//width: 100%;
+			display: flex;
 			overflow: hidden;
 		}
 		&__content {
-			width: 100%;
-			height: 100%;
+			overflow: hidden;
 		}
 	}
 </style>
