@@ -13,17 +13,20 @@
 			<text class="__item">由于你参加过上一赛季的比赛，你可以选择</text>
 			<wxc-button class="__item" size="large"
 			            btn-style="{{$.style.button.large}} {{$.style.button.primary}}"
-			            bind:submit="onInheritButtonClicked">继承上一赛季的段位</wxc-button>
+			            bind:submit="onInheritButtonClicked">继承上一赛季的段位
+			</wxc-button>
 			<text class="__item">或</text>
 			<wxc-button class="__item" size="large"
 			            btn-style="{{$.style.button.large}} {{$.style.button.secondary}}"
-			            bind:submit="onPlayInitButtonClicked">重新进行定级赛</wxc-button>
+			            bind:submit="onPlayInitButtonClicked">重新进行定级赛
+			</wxc-button>
 		</block>
 		<block wx:else>
 			<text class="__item">要加入PK赛，你可以选择</text>
 			<wxc-button class="__item" size="large"
 			            btn-style="{{$.style.button.large}} {{$.style.button.primary}}"
-			            bind:submit="onPlayInitButtonClicked">开始定级赛</wxc-button>
+			            bind:submit="onPlayInitButtonClicked">开始定级赛
+			</wxc-button>
 		</block>
 	</view>
 	<view wx:else class="pkhome__gridmenu">
@@ -51,11 +54,11 @@
 	</view>
 	<view class="pkhome__tabs">
 		<app-tab default-index="0"
-				 active-text-color="#108ee9"
-				 active-line-color="none"
+		         active-text-color="#108ee9"
+		         active-line-color="none"
 		         line-color="none"
-				 component-id="c1"
-				 animate="{{true}}">
+		         component-id="c1"
+		         animate="{{true}}">
 			<wxc-tab-panel tab-index="0" component-id="c1" label="段位表">
 				<wui-content id="content-player-list">
 					<app-playerlist wx:for="{{players}}" wx:key="index" wx:for-item="player"
@@ -76,7 +79,8 @@
 					></app-switch>
 				</view>
 				<wui-content id="content-play-list">
-					<app-playlist wx:for="{{plays}}" wx:key="index" wx:for-item="play" match="{{match}}" play="{{play}}"></app-playlist>
+					<app-playlist wx:for="{{plays}}" wx:key="index" wx:for-item="play" match="{{match}}"
+					              play="{{play}}"></app-playlist>
 				</wui-content>
 			</wxc-tab-panel>
 			<wxc-tab-panel tab-index="2" component-id="c1" label="本周榜单">
@@ -84,7 +88,8 @@
 					<view class="weekly-list__title">场高分榜</view>
 					<view class="weekly-list__content">
 						<block wx:for="{{weeklyList.playscore}}" wx:key="index">
-							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
+							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player"
+							      class="__item">
 								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
 								<image class="__award" src="/images/award{{index}}.png"></image>
 								<pk-player-name class="__name" player="{{player}}"></pk-player-name>
@@ -99,7 +104,8 @@
 					<view class="weekly-list__title">局高分榜</view>
 					<view class="weekly-list__content">
 						<block wx:for="{{weeklyList.gamescore}}" wx:key="index">
-							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
+							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player"
+							      class="__item">
 								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
 								<image class="__award" src="/images/award{{index}}.png"></image>
 								<pk-player-name class="__name" player="{{player}}"></pk-player-name>
@@ -114,7 +120,8 @@
 					<view class="weekly-list__title">分屏榜</view>
 					<view class="weekly-list__content">
 						<block wx:for="{{weeklyList.split}}" wx:key="index">
-							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player" class="__item">
+							<view wx:for="{{item.player}}" wx:key="index2" wx:for-index="index2" wx:for-item="player"
+							      class="__item">
 								<app-avatar class="__avatar" src="{{player.avatar}}"></app-avatar>
 								<image class="__award" src="/images/award{{index}}.png"></image>
 								<pk-player-name class="__name" player="{{player}}"></pk-player-name>
@@ -137,7 +144,8 @@
 		<app-pk-player-state state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
 	<wui-dialog id="dialog-inherit-success" title="成功继承段位">
-		当前段位：<app-pk-player-state match="{{match}}" state="{{inheritCalc}}"></app-pk-player-state>
+		当前段位：
+		<app-pk-player-state match="{{match}}" state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
 	<app-notify-rank-up id="notify-PK_RANK_UP" match="{{match}}"></app-notify-rank-up>
 	<app-notify-achieve id="notify-ACHIEVE_GET"></app-notify-achieve>
@@ -175,7 +183,8 @@
 				'app-switch': '../../common/component/switch',
 				'app-notify-rank-up': '../../common/component/notify-rank-up',
 				'app-notify-achieve': '../../common/component/notify-achieve',
-				'pk-player-name': '../../common/component/pk/player-name'
+				'app-painter': '../../common/component/painter',
+				'pk-player-name': '../../common/component/pk/player-name',
 			},
 		},
 		data: {
@@ -186,7 +195,7 @@
 			showConfirmNotice: false,
 			playFilter: {
 				onlyThisWeek: true,
-				onlyMe: false
+				onlyMe: false,
 			},
 			gridMenuItemStyle: `
 				width: 250rpx;
@@ -198,23 +207,25 @@
 				color: white;
 				border: none;
 				border-radius: 0;
-				font-size: ${$.AppData.style.fontSize.text};`
+				font-size: ${$.AppData.style.fontSize.text};`,
+			painterTpl: null,
 		},
 		
 		onLoad() {
+			console.log ('pkHome load');
 			$.Wui.content('content-player-list').bindLoad(this.loadPlayerList);
 			$.Wui.content('content-play-list').bindLoad(this.loadPlayList);
 			$.Wui.content('content-weekly-list').bindLoad(this.loadWeeklyList);
 		},
 		
 		async onShow() {
-			
+			console.log ('pkHome show');
 			// 检查是否有未完成录入的比赛，若有，则提示之
 			let playing = wx.getStorageSync('pk');
 			if (playing) {
 				var r = await $.Modal.show('回到比赛', '您有尚未完成录入的比赛，是否继续完成录入？', {
 					confirmBtn: '继续录入',
-					cancelBtn: '放弃'
+					cancelBtn: '放弃',
 				});
 				if (!r)
 					wx.removeStorageSync('pk');
@@ -236,11 +247,11 @@
 			// 如需要，获取当前用户在上赛季中的选手信息（用于判断段位继承）
 			let playerLastSeason = (playerMe && playerMe.state) ? null :
 				await Player.getInMatch(Match.get('pk')[1], $.AppData.me);
-
+			
 			this.setData({
 				match, playerLastSeason,
 				player: playerMe,
-				lastSeasonMatch: Match.get('pk')[1]
+				lastSeasonMatch: Match.get('pk')[1],
 			});
 			
 			// 加载其他内容
@@ -257,14 +268,14 @@
 				$.Modal.showBusy('正在加载');
 				this.setData({ 'inheritCalc': await PkPlay.calcInherit() });
 				$.Modal.hideToast();
-				let r = await $.Wui.Dialog.show("#dialog-inherit-promote");
+				let r = await $.Wui.Dialog.show('#dialog-inherit-promote');
 				if (!r)
 					return;
 				
 				$.Modal.showBusy('正在处理');
 				await PkPlay.joinByInherit();
 				$.Modal.hideToast();
-				await $.Wui.Dialog.show("#dialog-inherit-success");
+				await $.Wui.Dialog.show('#dialog-inherit-success');
 				this.reloadPage();
 			} catch (ex) {
 				$.Modal.showError('继承段位', ex);
@@ -276,8 +287,8 @@
 				`将按${this.data.match.is_begin ? '赛季初' : '赛季中'}的规则计算初始段位`,
 				{
 					confirmBtn: '开始',
-					cancelBtn: '再想想'
-				}
+					cancelBtn: '再想想',
+				},
 			);
 			if (!r)
 				return;
@@ -290,10 +301,6 @@
 		},
 		async onNormalPlayButtonClicked(e) {
 			$.Http.submit(e);
-			if (this.data.match.is_begin) {
-				$.Modal.show('开启常规赛', `常规赛将于赛季第${this.data.match.detail.begin_weeks + 1}周起开放`);
-				return;
-			}
 			if (!this.data.player.state_confirmed) {
 				$.Modal.show('开启常规赛', '前一场比赛尚未被确认，无法开启新赛');
 				return;
@@ -309,27 +316,23 @@
 			let opponent = await Page.navigateToDialog({
 				url: '../pkplayerselector/index',
 				data: {
-					title: '选择对手'
+					title: '选择对手',
 				},
-				richData: { players }
+				richData: { players },
 			});
 			if (!opponent)
 				return;
 			let r = await $.Modal.show('开始常规赛', `确认选择${opponent.name}作为对手？`, {
-				cancelBtn: true
+				cancelBtn: true,
 			});
 			if (!r) return;
 			Page.navigateTo({
 				url: '../pkPlay/index',
-				richData: { me: this.data.player, type: 'Normal', opponent }
+				richData: { me: this.data.player, type: 'Normal', opponent },
 			});
 		},
 		async onFriendlyPlayButtonClicked(e) {
 			$.Http.submit(e);
-			if (this.data.match.is_begin) {
-				$.Modal.show('开启友谊赛', `友谊赛将于赛季第${this.data.match.detail.begin_weeks + 1}周起开放`);
-				return;
-			}
 			if (!this.data.player.state_confirmed) {
 				$.Modal.show('开启友谊赛', '前一场比赛尚未被确认，无法开启新赛');
 				return;
@@ -345,25 +348,25 @@
 			let opponent = await Page.navigateToDialog({
 				url: '../pkplayerselector/index',
 				data: {
-					title: '选择对手'
+					title: '选择对手',
 				},
-				richData: { players }
+				richData: { players },
 			});
 			if (!opponent)
 				return;
 			let r = await $.Modal.show('开始友谊赛', `确认选择${opponent.name}作为对手？`, {
-				cancelBtn: true
+				cancelBtn: true,
 			});
 			if (!r) return;
 			Page.navigateTo({
-				url: '../pkFriendly/index',
-				richData: { me: this.data.player, type: 'Friendly', opponent }
+				url: '../pkPlay/index',
+				richData: { me: this.data.player, type: 'Friendly', opponent },
 			});
 		},
 		onShopButtonClicked(e) {
 			$.Http.submit(e);
 			Page.navigateTo({
-				url: '../pkShop/index'
+				url: '../pkShop/index',
 			});
 		},
 		onPlayFilterOnlyThisWeekChanged(e) {
@@ -406,7 +409,7 @@
 			let plays = await Play.getPlays(this.data.match, filters);
 			plays.reverse();
 			if (!plays.length)
-				throw $.Err.NO_RECORD ();
+				throw $.Err.NO_RECORD();
 			
 			/*if (playTodo) {
 				await $.Modal.show('确认比赛', '有一场比赛等待你的确认。');
@@ -426,11 +429,12 @@
 		async showNotifications() {
 			let notifications = await Notify.get('pkHome');
 			for (let notification of notifications) {
-				let component =this.selectComponent(`#notify-${notification.identifier}`);
+				let component = this.selectComponent(`#notify-${notification.identifier}`);
 				if (component)
-					await component.show(notification.detail);
+					await component.show(notification.detail, this.data.player);
 				else
 					console.warn('No component found for notification: ' + notification.identifier);
+				await notification.markAsRead();
 			}
 		},
 		onBannerClicked() {
@@ -438,14 +442,14 @@
 				url: '/pages/pkPlayer/index',
 				data: {
 					id: this.data.player.id,
-					match: this.data.player.match
-				}
+					match: this.data.player.match,
+				},
 			});
 		},
 		onShareAppMessage(e) {
 			console.log(e);
-			// https://imgx.sinacloud.net/sjtubowling/c_fill,w_512,h_512,x_512/match/pk/achieve_Bomb.png
-		}
+			return $.AppData.share;
+		},
 	};
 </script>
 
@@ -477,10 +481,10 @@
 	}
 	
 	.pkhome__menu {
-		position:relative;
-		padding:27rpx;
-		z-index:10;
-		background:white;
+		position: relative;
+		padding: 27 rpx;
+		z-index: 10;
+		background: white;
 		font-size: @fontSize__desc;
 		color: @color__desc;
 		
@@ -498,12 +502,12 @@
 		}
 		
 		.__abnor {
-			position:absolute;
-			left:0;
-			top:0;
-			right:0;
-			bottom:0;
-			background:rgba(255,255,255,0.85);
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(255, 255, 255, 0.85);
 		}
 	}
 	
@@ -548,12 +552,12 @@
 			}
 			
 			.__award {
-				position:absolute;
-				width:80px;
-				height:80px;
-				top:-20px;
-				right:-20px;
-				transform:rotate(30deg);
+				position: absolute;
+				width: 80px;
+				height: 80px;
+				top: -20px;
+				right: -20px;
+				transform: rotate(30deg);
 			}
 			
 			.__name {
@@ -575,5 +579,5 @@
 		}
 		
 	}
-	
+
 </style>

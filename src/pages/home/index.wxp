@@ -81,7 +81,7 @@
 	@import "../../style";
 	
 	.home-menu {
-		padding: 80px 32px;
+		padding: 0 32*@px;
 		
 		.__item {
 			

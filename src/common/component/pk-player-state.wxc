@@ -1,19 +1,22 @@
 <template>
 	<wxs src="../../util/index.wxs" module="util"></wxs>
 	<view class="pk-player-state">
-		<block wx:if="{{showRank}}">
-			<view class="__item">
-				<app-rank match="{{match}}" rank="{{state.rank}}" vertical="{{vertical}}"></app-rank>
-			</view>
-			<view class="__item {{vertical?'__vertical':''}}">
-				<app-icon class="__icon" name="star" color="#FFB900"></app-icon>
-				{{util.valOr(state.stars,'-')}}
+		<block wx:if="{{!state}}">尚未参赛</block>
+		<block wx:else>
+			<block wx:if="{{showRank}}">
+				<view class="__item">
+					<app-rank match="{{match}}" rank="{{state.rank}}" vertical="{{vertical}}"></app-rank>
+				</view>
+				<view class="__item {{vertical?'__vertical':''}}">
+					<app-icon class="__icon" name="star" color="#FFB900"></app-icon>
+					{{state.stars}}
+				</view>
+			</block>
+			<view wx:if="{{showCoin}}" class="__item {{vertical?'__vertical':''}}">
+				<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>
+				{{state.coins}}
 			</view>
 		</block>
-		<view wx:if="{{showCoin}}" class="__item {{vertical?'__vertical':''}}">
-			<app-icon class="__icon" name="coin" color="#FF9057"></app-icon>
-			{{util.valOr(state.coins,'-')}}
-		</view>
 	</view>
 </template>
 

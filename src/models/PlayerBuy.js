@@ -1,18 +1,19 @@
 import PlayerOperation from './PlayerOperation';
+import Item from './Item';
 
 /**
- * @property        {number}  id
- * @property        {number}  play_id        所参与的比赛场次ID
- * @property        {string}  result         参与结果（含义视具体比赛而定）
- * @property        {array}   detail         参与详情
- * @property        {boolean} accept         是否确认所参与比赛的登记结果，Null表示未操作
- * @property-read   {Play}    play           [关联]所参与的比赛场次信息
+ * @property {number}   id
+ * @property {number}   item_id     兑换的道具ID
+ * @property {string}   create_time 兑换时间
+ * @property {Item}     item        关联的道具信息
  */
 class PlayerBuy extends PlayerOperation {
 	
 	constructor(data = null) {
 		super(data);
+		this.item = Item.get(this.item_id);
 	}
+	
 }
 
 module.exports = PlayerBuy;

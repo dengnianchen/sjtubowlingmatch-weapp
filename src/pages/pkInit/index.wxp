@@ -71,12 +71,13 @@
 			
 			let play = wx.getStorageSync('pk');
 			if (!play) {
-				let player = await Player.getInMatch('pk', $.AppData.me, true);
+				let player = await Player.getInMatch('pk', $.AppData.me);
 				let bonus = $.AppData.me.gender === 2 ? PkPlay.bonus : 0;
 				play = {
 					type: 'Init',
 					player_ids: [ player.id ],
 					players: {},
+					url: this.getPath(),
 					rounds: [
 						[ new Game({ bonus: bonus, player_id: player.id }) ],
 						[ new Game({ bonus: bonus, player_id: player.id }) ]

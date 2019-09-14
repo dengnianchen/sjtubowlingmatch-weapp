@@ -15,6 +15,7 @@ import Item from './Item';
  * @property {number}   target
  * @property {number}   level_percent
  * @property {number}   progress_percent
+ * @property {boolean}  hide
  */
 class AchieveBrief extends $.Model {
 	
@@ -40,6 +41,7 @@ class AchieveBrief extends $.Model {
 		this.target = achieve_item.detail['targets'][this.level + 1] || null;
 		this.level_percent = (this.level + 1) / achieve_item.detail['targets'].length * 100;
 		this.progress_percent = this.target ? this.progress / this.target * 100 : 100;
+		this.hide = achieve_item.detail.hide;
 	}
 	
 }

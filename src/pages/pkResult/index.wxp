@@ -1,7 +1,4 @@
 <template>
-	<view class="page__hd">
-		<text class="page__title">比赛结果</text>
-	</view>
 	<pk-init-result id="pkInit" match="{{match}}"></pk-init-result>
 	<pk-pk-result id="pkNormal"></pk-pk-result>
 	<pk-pk-result id="pkFriendly"></pk-pk-result>
@@ -25,6 +22,7 @@
 
 <script>
 	import Play from '../../models/Play';
+	import Share from '../../models/Share';
 	
 	export default {
 		auth: true,
@@ -93,10 +91,7 @@
 		
 		onShareAppMessage(res) {
 			$.Wui.Dialog.hide('#dialog-share');
-			return {
-				title: this.selectComponent(`#${this.data.play.match_info.category}${this.data.play.type}`).getShareTitle(),
-				path: `pages/playresult/index?id=${this.data.play.id}`
-			};
+			return Share.play(this.data.play);
 		},
 	};
 </script>

@@ -35,18 +35,18 @@
 		</wui-panel>
 	</view>
 	<view class="play-pk__right-panel">
-		<view wx:for="{{play.players}}" wx:key="index" wx:for-item="player" class="__player-status">
+		<view wx:for="{{play.player_ids}}" wx:key="index" wx:for-item="player_id" class="__player-status">
 			<view class="__head">
 				<view class="__name-and-avatar">
-					<app-avatar class="__avatar" src="{{player.avatar}}" mode="square"></app-avatar>
-					<pk-player-name player="{{player}}" keep-align="{{false}}"></pk-player-name>
+					<app-avatar class="__avatar" src="{{play.players[player_id].avatar}}" mode="square"></app-avatar>
+					<pk-player-name player="{{play.players[player_id]}}" keep-align="{{false}}"></pk-player-name>
 				</view>
-				<pk-player-state class="__state" match="{{match}}" state="{{player.state}}" vertical="{{true}}"></pk-player-state>
+				<pk-player-state class="__state" match="{{match}}" state="{{play.players[player_id].state}}" vertical="{{true}}"></pk-player-state>
 			</view>
 			<view class="__effect-list">
-				<view wx:if="{{!player.effects}}" class="__no-effect-tip">无道具效果</view>
+				<view wx:if="{{!play.players[player_id].effects}}" class="__no-effect-tip">无道具效果</view>
 				<block wx:else>
-					<view wx:for="{{player.effects}}" wx:key="identifier"
+					<view wx:for="{{play.players[player_id].effects}}" wx:key="identifier"
 					      wx:for-index="identifier" wx:for-item="effect"
 					      class="__effect-item">
 						<image class="__image" src="/images/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
@@ -269,13 +269,14 @@
 	
 	.play-pk__left-panel {
 		position: fixed;
-		left: 0;
+		left: 4vmax;
 		top: 0;
 		height: 100vmin;
-		width: 70vmax;
+		width: 66vmax;
 		display: flex;
 		flex-direction: column;
 		align-items: stretch;
+		border-left: solid 2px #AAAAAA;
 		
 		.__head {
 			display: flex;
@@ -363,7 +364,7 @@
 				align-items: center;
 				padding: 10*@px 0;
 				margin: 0 0 0 10*@px;
-				border-bottom: solid 1*@px @color__splitLine2;
+				border-bottom: solid 1px @color__splitLine2;
 				
 				.__name-and-avatar {
 					flex: 1;

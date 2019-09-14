@@ -42,7 +42,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 0,
+			"current": 4,
 			"list": [
 				{
 					"id": 0,
@@ -76,7 +76,7 @@
 					"id": 4,
 					"name": "PK PLAYER",
 					"pathName": "pages/pkPlayer/index",
-					"query": "match=pk_2019autumn&player_id=81",
+					"query": "match=pk_2019autumn&id=81&tab=1",
 					"scene": null
 				}
 			]

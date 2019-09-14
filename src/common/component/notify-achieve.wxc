@@ -1,15 +1,16 @@
 <template>
-	<wui-dialog id="notify-dialog" title="获得成就！" confirm-btn="{{false}}">
+	<wui-dialog id="notify-dialog" title="获得成就！" confirm-btn="{{false}}" share-btn="{{true}}">
 		<view class="content">
 			<view class="__image" style="background-image: url('https://sinacloud.net/sjtubowling/match/pk/achieve_{{item.identifier}}.png');background-position: -{{level + 1}}em 0;"></view>
 			<view class="__name">{{item.item_name}}</view>
-			<button open-type="share" data-type="achieve">分享</button>
+			<view class="__level">（{{levelName}}）</view>
 		</view>
 	</wui-dialog>
 </template>
 
 <script>
 	import Item from '../../models/Item';
+	import Share from '../../models/Share';
 	
 	export default {
 		config: {
@@ -25,14 +26,20 @@
 		},
 		data: {
 			item: null,
-			level : 0,
-			host: null
+			level: 0,
+			levelName: null
 		},
 		methods: {
-			show(detail) {
+			show(detail, player) {
 				let item = Item.get(detail.achieve_id);
 				let level = detail.level;
-				this.setData({ item, level, host: $.AppData.config.host });
+				let levelName = `${level + 1}级`;
+				if (item.detail['hide'])
+					levelName = '隐藏成就';
+				else if (item.detail['targets'].length === level + 1)
+					levelName = '最高级';
+				this.setData({ item, level, levelName, host: $.AppData.config.host });
+				$.AppData.share = Share.achieve(item, level, player);
 				return $.Wui.Dialog.show('#notify-dialog', this);
 			}
 		}
@@ -43,6 +50,7 @@
 	@import "../../style";
 	
 	.content {
+		position: relative;
 		.cc;
 		
 		.__image {
@@ -55,6 +63,16 @@
 		.__name {
 			font-size: 1.5em;
 			font-weight: bold;
+		}
+		
+		.__level {
+		
+		}
+		
+		.__share-btn {
+			position: absolute;
+			right: 0;
+			top: -1em;
 		}
 	}
 </style>

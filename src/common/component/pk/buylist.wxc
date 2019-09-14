@@ -1,0 +1,77 @@
+<template>
+	<form bindsubmit="_onItemClicked" report-submit="{{true}}">
+		<button class="fake-button list list--{{mode}}" form-type="submit">
+			<image class="__image" src="/images/pk/shop_{{buy.item.identifier}}.png" mode="aspectFill"></image>
+			<view class="__name">{{buy.item.item_name}}</view>
+			<view class="__time">{{buy_time}}</view>
+		</button>
+	</form>
+</template>
+
+<script>
+	
+	export default {
+		config: {
+			usingComponents: {
+			}
+		},
+		behaviors: [ ],
+		properties: {
+			buy: {
+				type: Object,
+				observer(val) {
+					this.setData({ buy_time: val ? val.create_time.substr(0, 10) : null });
+				}
+			},
+			mode: {
+				type: String,
+				value: 'normal' // 有边框和无边框 normal, none
+			}
+		},
+		data: { },
+		methods: {
+			_onItemClicked(e) {
+				$.Http.submit(e);
+			}
+		}
+	}
+
+
+</script>
+
+<style lang="less">
+	@import "../../../style.less";
+	
+	.list {
+		display: flex;
+		align-items: center;
+		padding: 20*@px 10*@px;
+		font-size: @fontSize__text;
+		color: @color__text;
+		
+		.__image {
+			width: 1.5em;
+			height: 1.5em;
+			margin: 0 0 0 0.5em;
+		}
+		
+		.__name {
+			flex-grow: 1;
+		}
+		
+		.__time {
+			font-size: @fontSize__desc;
+			color: @color__desc;
+		}
+	}
+	
+	.list:after {
+		margin-left: 48rpx;
+		border-bottom: 2px solid @color__splitLine;
+	}
+	
+	.list--last:after {
+		border: none;
+	}
+	
+</style>

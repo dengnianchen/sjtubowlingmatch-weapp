@@ -1,3 +1,5 @@
+import PlayerBuy from './PlayerBuy';
+
 /**
  *
  */
@@ -12,12 +14,15 @@ class Shop extends $.Model {
 		return await $.Http.request(`/${$.Model.id(match)}/shop/buy_check`);
 	}
 	
-	static async loadOwned(includeAll) {
-		return await $.Http.request(`/${$.Model.id(match)}/shop/own_items`);
+	static async buy(e, item, target_id = null, params = null) {
+		let data = {};
+		if (target_id) data['target_id'] = target_id;
+		if (params) data['data'] = params;
+		return await $.Http.submit(e, `POST /${item.match}/shop/buy/${item.identifier}`, data);
 	}
 	
-	static async buy(e, item) {
-		return await $.Http.submit(e, `POST /${item.match}/shop/buy/${item.identifier}`);
+	static async listBuyRecord(match) {
+		return await $.Http.request(`/${$.Model.id(match)}/shop/buy_record`, {}, {}, PlayerBuy);
 	}
 	
 }

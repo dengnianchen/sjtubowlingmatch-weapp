@@ -10,7 +10,7 @@
 		<app-pk-player-state class="__elem __status" match="{{match}}" state="{{player.state}}"></app-pk-player-state>
 	</view>
 	
-	<view class="pkhome__tabs">
+	<view class="page__tab">
 		<app-tab default-index="0"
 		         active-text-color="#108ee9"
 		         active-line-color="none"
@@ -36,46 +36,14 @@
 					</wui-panel>
 				</wui-content>
 			</wxc-tab-panel>
-			
-			<wxc-tab-panel tab-index="1" component-id="c2" label="我的背包">
-				<wui-content id="content-my-pack">
-					<wui-panel title="可用道具">
-						<wui-abnor wx:if="{{!ownedValidItems.length}}" error="无可用道具"></wui-abnor>
-						<view wx:else class="shop_list">
-							<view wx:for="{{ownedValidItems}}" wx:for-item="owned" wx:key="index"
-							      class="__item" bindtap="onOwnedItemClicked" data-item="{{owned}}">
-								<image class="__image" src="/images/pk/shop_{{owned.item.identifier}}.png" mode="aspectFill"></image>
-								<view class="__name">{{owned.item.item_name}}</view>
-								<view class="__expire" style="{{owned.time_left < 3600000 * 24 ? 'color: red' : ''}}">
-									<wui-icon name="far fa-clock"></wui-icon>
-									{{owned.str_time_left}}
-								</view>
-							</view>
-						</view>
-					</wui-panel>
-					<wui-panel title="已用道具">
-						<wui-abnor wx:if="{{!ownedUsedItems.length}}" error="无已用道具"></wui-abnor>
-						<view wx:else class="shop_list">
-							<view wx:for="{{ownedUsedItems}}" wx:for-item="owned" wx:key="index"
-							      class="__item" data-item="{{owned}}">
-								<image class="__image" src="/images/pk/shop_{{owned.item.identifier}}.png" mode="aspectFill"></image>
-								<view class="__name">{{owned.item.item_name}}</view>
-							</view>
-						</view>
-					</wui-panel>
-					<wui-panel title="过期道具">
-						<wui-abnor wx:if="{{!ownedExpiredItems.length}}" error="无过期道具"></wui-abnor>
-						<view wx:else class="shop_list">
-							<view wx:for="{{ownedExpiredItems}}" wx:for-item="owned" wx:key="index"
-							      class="__item" data-item="{{owned}}">
-								<image class="__image" src="/images/pk/shop_{{owned.item.identifier}}.png" mode="aspectFill"></image>
-								<view class="__name">{{owned.item.item_name}}</view>
-							</view>
-						</view>
-					</wui-panel>
+			<wxc-tab-panel tab-index="1" component-id="c2" label="兑换记录">
+				<wui-content id="content-buy-record">
+					<pk-buylist wx:for="{{buys}}" wx:key="index" wx:for-item="buy"
+					            buy="{{buy}}"
+					            mode="{{index===buys.length - 1 ? 'last' : 'normal'}}"
+					></pk-buylist>
 				</wui-content>
 			</wxc-tab-panel>
-			
 		</app-tab>
 	</view>
 	
@@ -91,24 +59,32 @@
 					<view class="__desc">{{itemDetail.description}}</view>
 				</view>
 			</view>
-			<view class="__limit-list">
+			<view class="__limit-list" wx:if="{{itemDetail.buy_constraints}}">
 				<view class="__label">兑换限制条件：</view>
-				<view wx:if="{{!itemDetail.buy_constraints}}" class="__limit-null">无</view>
 				<view wx:for="{{itemDetail.buy_constraints}}" wx:key="index" wx:for-item="constraint"
-					  class="__limit-item {{buyCheck[itemDetail.id].violates[index]?'__danger':'__success'}}">
+					  class="__limit-item {{buyCheck[itemDetail.id].violates[index]?'-danger':'-success'}}">
 					<wui-icon wx:if="{{buyCheck[itemDetail.id].violates[index]}}" name="fas fa-times"></wui-icon>
 					<wui-icon wx:else name="fas fa-check"></wui-icon>
-					{{constraint}}
+					<text>{{constraint}}</text>
 				</view>
 			</view>
-			<view class="__limit-list">
-				<view class="__label">使用限制条件：</view>
-				<view wx:if="{{!itemDetail.action_constraints}}" class="__limit-null">无</view>
+			<view class="__limit-list" wx:if="{{itemDetail.action_constraints}}">
+				<view class="__label">备注：</view>
 				<view wx:for="{{itemDetail.action_constraints}}" wx:key="index" wx:for-item="constraint"
 				      class="__limit-item">
 					<wui-icon name="fas fa-exclamation-triangle" color="{{$.style.warnColor}}"></wui-icon>
-					{{constraint}}
+					<text>{{constraint}}</text>
 				</view>
+			</view>
+			<view wx:if="{{itemDetail.identifier==='Nick'}}">
+				<wui-field type="custom" label="目标">
+					<view class="target-picker" bindtap="onSelectTargetClicked">
+						<text wx:if="{{applyTarget}}" class="__value">{{applyTarget.name}}</text>
+						<text wx:else class="__value" style="color:#999">请选择目标选手</text>
+						<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
+					</view>
+				</wui-field>
+				<wui-field type="text" label="显示名称" bindconfirm="onNicknameChanged"></wui-field>
 			</view>
 			<wxc-button class="__button" value="兑换"
 			            size="large"
@@ -119,58 +95,8 @@
 			></wxc-button>
 		</view>
 	</wxc-mask>
-	
-	<wxc-mask status="{{ownedDetail?'show':'hide'}}" content-align="cc">
-		<view class="item-detail">
-			<view class="__banner">
-				<image class="__image" src="/images/pk/shop_{{ownedDetail.item.identifier}}.png" mode="aspectFill"></image>
-				<view class="__basic">
-					<view class="__title">
-						<text class="__title-text">{{ownedDetail.item.item_name}}</text>
-					</view>
-					<view class="__expire" style="{{owned.time_left < 3600000 * 24 ? 'color: red' : ''}}">
-						<wui-icon name="far fa-clock"></wui-icon>
-						{{ownedDetail.str_time_left}}
-					</view>
-					<view class="__desc">{{ownedDetail.item.description}}</view>
-				</view>
-			</view>
-			<view wx:if="{{ownedDetail.item.action_constraints}}" class="__limit-list">
-				<view class="__label">限制条件：</view>
-				<view wx:for="{{ownedDetail.item.action_constraints}}" wx:key="index" wx:for-item="constraint"
-				      class="__limit-item">
-					<wui-icon name="fas fa-exclamation-triangle" color="{{$.style.warnColor}}"></wui-icon>
-					{{constraint}}
-				</view>
-			</view>
-			<view>
-				<wui-field type="custom" label="目标">
-					<view class="target-picker" bindtap="onSelectTargetClicked">
-						<text wx:if="{{applyTarget}}" class="__value">{{applyTarget.name}}</text>
-						<text wx:else class="__value" style="color:#999">请选择目标选手</text>
-						<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
-					</view>
-				</wui-field>
-				<wui-field type="text" label="显示名称" bindconfirm="onNicknameChanged"></wui-field>
-			</view>
-			<wxc-button class="__button" value="使用"
-			            size="large"
-			            type="primary"
-			            btn-style="width: 600rpx"
-			            bind:submit="onUseClicked"
-			></wxc-button>
-		</view>
-	</wxc-mask>
-	<wui-dialog id="dialog-share" title="道具兑换成功" customBtns="{{true}}">
+	<wui-dialog id="dialog-success" title="道具兑换成功" customBtns="{{true}}">
 		<text>道具兑换成功！</text>
-		<view slot="btns" style="flex-grow:1">
-			<wxc-button type="success" size="large"
-			            btn-style="width:100%; height:105rpx; line-height:105rpx; border-radius:28rpx;"
-			            value="转发到PK赛微信群" open-type="share"></wxc-button>
-		</view>
-	</wui-dialog>
-	<wui-dialog id="dialog-use-success" title="道具使用成功" customBtns="{{true}}">
-		<text>道具使用成功！</text>
 		<view slot="btns" style="flex-grow:1">
 			<wxc-button type="success" size="large"
 			            btn-style="width:100%; height:105rpx; line-height:105rpx; border-radius:28rpx;"
@@ -183,9 +109,8 @@
 	import MultipleMap from '../../util/MultipleMap';
 	import Item from '../../models/Item';
 	import Shop from '../../models/Shop';
-	import OwnedItem from '../../models/OwnedItem';
 	import Player from '../../models/Player';
-	import Match from '../../models/Match';
+	import Share from '../../models/Share';
 	
 	export default {
 		auth: true,
@@ -206,8 +131,7 @@
 				'app-pk-cost': '../../common/component/pk-cost',
 				'app-avatar': '../../common/component/avatar',
 				'app-tab': '../../common/component/tab',
-				'pk-item-meme': '../../common/component/pk/item-meme',
-				'pk-item-nick': '../../common/component/pk/item-nick'
+				'pk-buylist': '../../common/component/pk/buylist'
 			},
 		},
 		data: {
@@ -215,55 +139,40 @@
 			player: null,
 			shopItems: null,
 			buyCheck: null,
-			applyData: {}
+			buys: null
 		},
 		
 		onLoad() {
 			$.Wui.content('content-shop-items').bindLoad(this.loadShopItems);
-			$.Wui.content('content-my-pack').bindLoad(this.loadMyPack);
+			$.Wui.content('content-buy-record').bindLoad(this.loadBuyRecord);
 		},
 		
 		async onShow() {
 			var player = await Player.getInMatch('pk', $.AppData.me);
 			var match = player.match_info;
-			this.setData({ player, match });
+			var items = Item.getNewestOfMatch(match, 'shop');
+			var shopItems = new MultipleMap(items, function(item) { return item.detail['category']; });
+			this.setData({ shopItems, player, match });
 			$.Wui.content('content-shop-items').load();
-			$.Wui.content('content-my-pack').load();
+			$.Wui.content('content-buy-record').load();
 		},
 		
 		async loadShopItems() {
 			let buyCheck = await Shop.buyCheck(this.data.match);
-			var items = Item.getNewestOfMatch(this.data.match, 'shop');
-			var shopItems = new MultipleMap(items, function(item) { return item.detail['category']; });
-			this.setData({ shopItems, buyCheck });
+			this.setData({ buyCheck });
 		},
 		
-		async loadMyPack() {
-			var ownedItems = await OwnedItem.list('pk', true);
-			var ownedValidItems = [];
-			var ownedExpiredItems = [];
-			var ownedUsedItems = [];
-			for (let item of ownedItems) {
-				if (item.use_time)
-					ownedUsedItems.push(item);
-				else if (item.time_left < 0)
-					ownedExpiredItems.push(item);
-				else
-					ownedValidItems.push(item);
-			}
-			this.setData({ ownedValidItems, ownedExpiredItems,ownedUsedItems });
+		async loadBuyRecord() {
+			var buys = await Shop.listBuyRecord(this.data.match);
+			this.setData({ buys });
 		},
 		
 		onItemClicked(e) {
-			this.setData({ itemDetail: Item.get(e.currentTarget.dataset['id']) });
-		},
-		
-		onOwnedItemClicked(e) {
-			var item = e.currentTarget.dataset['item'];
 			this.setData({
-				ownedDetail: item,
-				applyData: {}
+				itemDetail: Item.get(e.currentTarget.dataset['id']),
+				applyTarget: null
 			});
+			this.applyData = {};
 		},
 		
 		async onBuyClicked(e) {
@@ -271,36 +180,26 @@
 			this.setData({ itemDetail: null });
 			try {
 				$.Modal.showBusy("正在处理");
-				var op = await Shop.buy(e, Item.get(id));
+				await Shop.buy(e, Item.get(id),
+					this.data.applyTarget ? this.data.applyTarget.id : null,
+					this.applyData);
+				$.AppData.share = Share.buy({
+					item: Item.get(id),
+					applyTarget: this.data.applyTarget,
+					applyData: this.applyData
+				});
 				$.Modal.hideToast();
-				this.setData({ lastBuy: op });
-				$.Wui.Dialog.show('#dialog-share');
+				$.Wui.Dialog.show('#dialog-success');
 			} catch (ex) {
 				$.Modal.showError('兑换道具', ex);
 			}
 		},
 		
-		async onUseClicked(e) {
-			var item = this.data.ownedDetail;
-			this.setData({ ownedDetail: null });
-			try {
-				$.Modal.showBusy("正在处理");
-				var op = await OwnedItem.prototype.use.call(item, e, { data: this.data.applyData });
-				$.Modal.hideToast();
-				$.Wui.Dialog.show('#dialog-use-success');
-			} catch (ex) {
-				$.Modal.showError('使用道具', ex);
-			}
-		},
-		
 		onShareAppMessage(res) {
-			$.Wui.Dialog.hide('#dialog-share');
-			return {
-				title: `${$.AppData.me.name}兑换了道具：${this.data.lastBuy.item.item_name}`,
-				imageUrl: `/images/pk/shop_${this.data.lastBuy.item.identifier}.png`,
-				path: this.getPath()
-			};
-			return candidates[Math.floor(Math.random() * candidates.length)];
+			$.Wui.Dialog.hide('#dialog-success');
+			let share = $.AppData.share;
+			$.AppData.share = null;
+			return share;
 		},
 		
 		async onSelectTargetClicked() {
@@ -320,24 +219,26 @@
 				},
 				richData: { players: availableTargets }
 			});
-			this.data.applyData.player_id = applyTarget.id;
-			this.setData({
-				applyTarget,
-				applyData: this.data.applyData
-			});
+			this.setData({ applyTarget });
 		},
 		
 		onNicknameChanged(e) {
-			this.data.applyData.nickname = e.detail.value;
-			this.setData({
-				applyData: this.data.applyData
-			});
+			this.applyData.nickname = e.detail.value;
 		}
 	};
 </script>
 
 <style lang="less">
 	@import "../../style";
+	
+	.page {
+		.fix-page;
+	}
+	
+	.page__tab {
+		flex: 1;
+		overflow: hidden;
+	}
 	
 	.page__banner {
 		
@@ -353,18 +254,17 @@
 	
 	.shop_list {
 		display: flex;
-		justify-content: space-around;
 		
 		.__item {
-			padding: 10px 0;
+			margin: 10*@px 20*@px;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			font-size: 0.8em;
 			
 			.__image {
-				width: 180px;
-				height: 180px;
+				width: 180*@px;
+				height: 180*@px;
 			}
 			
 			.__cost {
@@ -382,65 +282,65 @@
 		border-radius: 10px;
 		background: white;
 		padding: 30px;
-	}
-	
-	.item-detail .__banner {
-		display: flex;
-		align-items: flex-start;
-		margin-bottom: 20px;
-	}
-	
-	.item-detail .__image {
-		width: 120px;
-		height: 120px;
-		float: left;
-		margin: 0 10px 0 0;
-		min-width: 120px;
-	}
-	
-	.item-detail .__basic {
-		flex-grow: 1;
-	}
-	
-	.item-detail .__title {
-		font-size: @fontSize__subTitle;
-		display: flex;
-	}
-	
-	.item-detail .__title-text {
-		flex-grow: 1;
-	}
-	
-	.item-detail .__expire {
-		font-size: @fontSize__desc;
-	}
-	
-	.item-detail .__desc {
-		font-size: @fontSize__desc;
-		color: @color__desc;
-		margin-top: 10px;
-	}
-	
-	.item-detail .__label {
-		font-weight: bold;
-	}
-	
-	.item-detail .__limit-list {
-		font-size: @fontSize__desc;
-		border-top: 1px solid @color__splitLine;
-		margin-bottom: 20px;
-	}
-	
-	.item-detail .__limit-null {
-		margin-left: 40px;
-	}
-	
-	.item-detail .__limit-item.__danger {
-		color: @dangerColor;
-	}
-	
-	.item-detail .__limit-item.__success {
-		color: @successColor;
+		
+		.__banner {
+			display: flex;
+			align-items: flex-start;
+			margin-bottom: 20px;
+		}
+		
+		.__image {
+			width: 120px;
+			height: 120px;
+			float: left;
+			margin: 0 10px 0 0;
+			min-width: 120px;
+		}
+		
+		.__basic {
+			flex-grow: 1;
+		}
+		
+		.__title {
+			font-size: @fontSize__subTitle;
+			display: flex;
+		}
+		
+		.__title-text {
+			flex-grow: 1;
+		}
+		
+		.__desc {
+			font-size: @fontSize__desc;
+			color: @color__desc;
+			margin-top: 10px;
+		}
+		
+		.__label {
+			font-weight: bold;
+		}
+		
+		.__limit-list {
+			font-size: @fontSize__desc;
+			border-top: 1px solid @color__splitLine;
+			margin-bottom: 20px;
+		}
+		
+		.__limit-item {
+			display: flex;
+			
+			&.-danger {
+				color: @dangerColor;
+			}
+			
+			&.-success {
+				color: @successColor;
+			}
+			
+			text {
+				margin-left: 0.3em;
+			}
+		}
 	}
 	
 	.target-picker {

@@ -56,9 +56,13 @@
 				type: Boolean,
 				value: false,
 			},
-			defaultIndex: {
+			tabIndex: {
 				type: Number,
 				value: 0,
+				observer(val) {
+					let activeKey = this.minAndMax(val);
+					this.onSwitch(activeKey, 'all');
+				}
 			},
 			componentId: {
 				type: String,
@@ -100,7 +104,7 @@
 			});
 		},
 		ready() {
-			let activeKey = this.minAndMax(this.data.defaultIndex);
+			let activeKey = this.minAndMax(this.data.tabIndex);
 			this.onSwitch(activeKey, 'all');
 			this.listenSwitch();
 			// const width = this.tabs.length < 5 ? (100 / this.tabs.length) : 25;
@@ -148,6 +152,7 @@
 			},
 			
 			onSwitch(activeKey, toNotice) {
+				console.log ('onSwitch' + activeKey + toNotice);
 				if (!toNotice) {
 					activeKey = activeKey.currentTarget.dataset.idx;
 					toNotice = 'to-panel';

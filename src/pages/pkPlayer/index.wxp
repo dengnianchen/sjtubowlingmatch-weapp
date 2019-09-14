@@ -8,13 +8,15 @@
 		<app-pk-player-state class="__elem __status" match="{{match}}" state="{{player.state}}"></app-pk-player-state>
 	</view>
 	<view class="page__tab">
-		<app-tab default-index="0"
+		<app-tab id='tab-pkPlayer'
+		         default-index="0"
 		         active-text-color="#108ee9"
 		         active-line-color="none"
 		         line-color="none"
-		         component-id="pkPlayer-tab"
-		         animate="{{true}}">
-			<wxc-tab-panel tab-index="0" component-id="pkPlayer-tab" label="数据统计">
+		         component-id="tab-pkPlayer"
+		         animate="{{true}}"
+				 tab-index="{{tabIndex}}">
+			<wxc-tab-panel tab-index="0" component-id="tab-pkPlayer" label="数据统计">
 				<view class="stat-panel">
 					<wui-content id="content-pkPlayer-basic">
 						<view class="basic-stat">
@@ -34,15 +36,15 @@
 					</wui-content>
 				</view>
 			</wxc-tab-panel>
-			<wxc-tab-panel tab-index="1" component-id="pkPlayer-tab" label="成就">
+			<wxc-tab-panel tab-index="1" component-id="tab-pkPlayer" label="成就">
 				<view class="achieves-panel">
 					<wui-content id="content-pkPlayer-achieve">
 						<view class="achieve-points">成就点数：{{player_achieve.points}}点</view>
-						<wui-abnor wx:if="{{!player_achieve.points}}" error="无成就"></wui-abnor>
+						<wui-abnor wx:if="{{!is_me && !player_achieve.points}}" error="无成就"></wui-abnor>
 						<view wx:else class="achieves-grid">
 							<block wx:for="{{player_achieve.detail}}" wx:for-item="achieve"
 							       wx:key="index">
-								<view wx:if="{{is_me || achieve.level >= 0}}"
+								<view wx:if="{{(is_me && !achieve.hide) || achieve.level >= 0}}"
 								      class="__achieve-item"
 								      bindtap="onAchieveItemClick"
 								      data-index="{{index}}">
@@ -60,7 +62,7 @@
 										              percent="{{achieve.progress_percent}}"
 										              stroke-width="30"
 										></wxc-progress>
-										<text class="__progress-text">{{achieve.target ? achieve.progress + '/' + achieve.target : '最高等级'}}</text>
+										<text class="__progress-text">{{achieve.target ? achieve.progress + '/' + achieve.target : achieve.hide ? '隐藏成就' : '最高等级'}}</text>
 									</view>
 								</view>
 							</block>
@@ -78,6 +80,7 @@
 			</view>
 			<view class="__title">{{achieve_detail.name}}</view>
 			<view wx:if="{{achieve_detail.level >= 0 && achieve_detail.target}}" class="__level">（{{achieve_detail.level + 1}}级）</view>
+			<view wx:elif="{{achieve_detail.hide}}" class="__level">（隐藏成就）</view>
 			<view wx:elif="{{!achieve_detail.target}}" class="__level">（最高级）</view>
 			<view wx:else class="__level">（未解锁）</view>
 			<view wx:if="{{achieve_detail.desc}}" class="__desc">{{achieve_detail.desc}}</view>
@@ -132,7 +135,8 @@
 			play_stat: null,
 			player_achieve: null,
 			achieve_detail: null,
-			is_me: false
+			is_me: false,
+			tabIndex: 0
 		},
 		onLoad(options) {
 			this.setData({
@@ -142,6 +146,8 @@
 			$.Wui.content('content-pkPlayer-basic').bindLoad(this.loadBasicStat);
 			$.Wui.content('content-pkPlayer-play').bindLoad(this.loadPlayStat);
 			$.Wui.content('content-pkPlayer-achieve').bindLoad(this.loadAchieve);
+			if (options.tab)
+				this.setData({ tabIndex: options.tab });
 		},
 		async onShow() {
 			let player = await Player.get(this.data.match, this.data.player_id);
@@ -179,6 +185,18 @@
 	.page__tab {
 		flex: 1;
 		overflow: hidden;
+	}
+	
+	.page__banner {
+		
+		.__status {
+			text-align: right;
+		}
+		
+		.__nickname {
+			font-size: 0.8em;
+			color: @color__subDesc;
+		}
 	}
 	
 	.stat-panel {

@@ -82,7 +82,7 @@
 						<view wx:for="{{Play.getParticipant(play, index).detail.basic_effects}}"
 						      wx:for-index="identifier" wx:for-item="effect" wx:key="identifier"
 						      class="effect_item">
-							<image class="__effect-image" src="/images/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
+							<image class="__effect-image" src="/images/pk/basic_{{identifier}}.png" mode="aspectFill"></image>
 							<text class="__effect-name">{{basicItems[identifier].item_name}}</text>
 							<app-pk-dstate class="__dstate" wx:if="{{effect.dstate}}" dstate="{{effect.dstate}}"></app-pk-dstate>
 						</view>
@@ -145,14 +145,6 @@
 					basicItems: Item.getNewestOfMatch(play.match, 'play_pk'),
 					extraItems: Item.getNewestOfMatch(play.match, 'shop')
 				});
-			},
-			getShareTitle() {
-				let playerNameA = this.data.play.participants[this.data.play.player_ids[0]].player.name;
-				let playerNameB = this.data.play.participants[this.data.play.player_ids[1]].player.name;
-				let playType = this.data.match.detail.type_table[this.data.play.type].name;
-				let scoreA = this.data.play.participants[this.data.play.player_ids[0]].detail.score;
-				let scoreB = this.data.play.participants[this.data.play.player_ids[1]].detail.score;
-				return `【${playType}】${playerNameA} VS ${playerNameB}：比分${scoreA}:${scoreB}`;
 			}
 		},
 	}
@@ -182,6 +174,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		font-size: 0.8em;
 	}
 	.__player-state {
 		font-size: 0.8em;
@@ -205,6 +198,7 @@
 				display: flex;
 				justify-content: start;
 				align-items: center;
+				padding: 5*@px;
 				
 				.__effect-image {
 					width: 1.5em;
@@ -217,8 +211,7 @@
 				}
 				
 				.__dstate {
-					margin-left: 3px;
-					width: 3.8em
+				
 				}
 			}
 		}
