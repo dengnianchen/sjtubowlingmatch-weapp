@@ -12,7 +12,15 @@
 		"minified": true,
 		"newFeature": true,
 		"autoAudits": false,
-		"checkSiteMap": false
+		"checkInvalidKey": true,
+		"checkSiteMap": false,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		},
+		"nodeModules": true
 	},
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},

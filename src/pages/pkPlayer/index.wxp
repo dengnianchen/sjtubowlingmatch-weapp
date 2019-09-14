@@ -23,6 +23,7 @@
 							<view>本赛季共进行{{basic_stat.all['Total']}}场PK（其中常规赛{{basic_stat.all['Normal']}}场）</view>
 							<view>本周已进行{{basic_stat.this_week['Total']}}场PK（其中常规赛{{basic_stat.this_week['Normal']}}场）</view>
 						</view>
+						<ff-canvas id="radar-dom" canvas-id="radar" opts="{{ opts }}" style="width:600rpx;height:600rpx"></ff-canvas>
 					</wui-content>
 					<wui-content id="content-pkPlayer-play">
 						<view class="play-stat">
@@ -108,6 +109,160 @@
 	import PkStatistics from '../../models/PkStatistics';
 	import Match from '../../models/Match';
 	import PlayerAchieve from '../../models/PlayerAchieve';
+	import F2 from '../../common/component/f2-canvas/f2';
+	
+	
+	let chart = null;
+	
+	
+	
+	function initChart(canvas, width, height) {
+		
+		const data = [
+			
+			{ name: '超大盘能力', value: 6.5 },
+			
+			{ name: '抗跌能力', value: 9.5 },
+			
+			{ name: '稳定能力', value: 9 },
+			
+			{ name: '绝对收益能力', value: 6 },
+			
+			{ name: '选证择时能力', value: 6 },
+			
+			{ name: '风险回报能力', value: 8 }
+		
+		];
+		
+		
+		
+		const chart = new F2.Chart({
+			
+			el: canvas,
+			
+			width,
+			
+			height
+			
+		});
+		
+		
+		
+		chart.source(data, {
+			
+			value: {
+				
+				min: 0,
+				
+				max: 10
+				
+			}
+			
+		});
+		
+		chart.coord('polar');
+		
+		chart.tooltip(false); // 关闭 tooltip
+		
+		chart.axis('value', {
+			
+			grid: {
+				
+				lineDash: null
+				
+			},
+			
+			label: null,
+			
+			line: null
+			
+		});
+		
+		chart.axis('name', {
+			
+			grid: {
+				
+				lineDash: null
+				
+			}
+			
+		});
+		
+		chart.area()
+		
+		.position('name*value')
+		
+		.color('#FE5C5B')
+		
+		.style({
+			
+			fillOpacity: 0.2
+			
+		})
+		
+		.animate({
+			
+			appear: {
+				
+				animation: 'groupWaveIn'
+				
+			}
+			
+		});
+		
+		chart.line()
+		
+		.position('name*value')
+		
+		.color('#FE5C5B')
+		
+		.size(1)
+		
+		.animate({
+			
+			appear: {
+				
+				animation: 'groupWaveIn'
+				
+			}
+			
+		});
+		
+		chart.point().position('name*value').color('#FE5C5B').animate({
+			
+			appear: {
+				
+				delay: 300
+				
+			}
+			
+		});
+		
+		
+		
+		chart.guide().text({
+			
+			position: ['50%', '50%'],
+			
+			content: '73',
+			
+			style: {
+				
+				fontSize: 32,
+				
+				fontWeight: 'bold',
+				
+				fill: '#FE5C5B'
+				
+			}
+			
+		});
+		
+		chart.render();
+		
+		return chart;
+		
+	}
 	
 	export default {
 		auth: true,
@@ -125,6 +280,7 @@
 				'wxc-tab-panel': '@minui/wxc-tab/panel',
 				'wxc-progress': '@minui/wxc-progress',
 				'wxc-mask': '@minui/wxc-mask',
+				"ff-canvas": "../../common/component/f2-canvas"
 			},
 		},
 		data: {
@@ -136,7 +292,10 @@
 			player_achieve: null,
 			achieve_detail: null,
 			is_me: false,
-			tabIndex: 0
+			tabIndex: 0,
+			opts: {
+				onInit: initChart
+			}
 		},
 		onLoad(options) {
 			this.setData({
