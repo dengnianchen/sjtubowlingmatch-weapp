@@ -84,7 +84,7 @@
 					"id": 4,
 					"name": "PK PLAYER",
 					"pathName": "pages/pkPlayer/index",
-					"query": "match=pk_2019autumn&id=81&tab=1",
+					"query": "match=pk_2019autumn&id=81",
 					"scene": null
 				}
 			]

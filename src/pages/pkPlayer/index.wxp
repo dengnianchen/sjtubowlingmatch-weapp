@@ -18,16 +18,16 @@
 				 tab-index="{{tabIndex}}">
 			<wxc-tab-panel tab-index="0" component-id="tab-pkPlayer" label="数据统计">
 				<view class="stat-panel">
-					<wui-content id="content-pkPlayer-basic">
+					<wui-content id="content-pkPlayer-stat">
 						<view class="basic-stat">
-							<view>本赛季共进行{{basic_stat.all['Total']}}场PK（其中常规赛{{basic_stat.all['Normal']}}场）</view>
-							<view>本周已进行{{basic_stat.this_week['Total']}}场PK（其中常规赛{{basic_stat.this_week['Normal']}}场）</view>
+							<view>本赛季共进行{{stat.basic.all['Total']}}场PK（其中常规赛{{stat.basic.all['Normal']}}场）</view>
+							<view>本周已进行{{stat.basic.this_week['Total']}}场PK（其中常规赛{{stat.basic.this_week['Normal']}}场）</view>
 						</view>
-						<ff-canvas id="radar-dom" canvas-id="radar" opts="{{ opts }}" style="width:600rpx;height:600rpx"></ff-canvas>
-					</wui-content>
-					<wui-content id="content-pkPlayer-play">
+						<view class="radar-panel">
+							<ff-canvas class="radar" id="radar-player" canvas-id="radar" opts="{{ opts }}"></ff-canvas>
+						</view>
 						<view class="play-stat">
-							<view wx:for="{{play_stat}}" wx:key="label"
+							<view wx:for="{{stat.play}}" wx:key="label"
 							      wx:for-index="label" wx:for-item="value"
 							      class="__data-item">
 								<view class="__label">{{label}}：</view>
@@ -114,155 +114,83 @@
 	
 	let chart = null;
 	
-	
-	
 	function initChart(canvas, width, height) {
-		
 		const data = [
-			
-			{ name: '超大盘能力', value: 6.5 },
-			
-			{ name: '抗跌能力', value: 9.5 },
-			
-			{ name: '稳定能力', value: 9 },
-			
-			{ name: '绝对收益能力', value: 6 },
-			
-			{ name: '选证择时能力', value: 6 },
-			
-			{ name: '风险回报能力', value: 8 }
-		
+			{ name: '上分', value: 0 },
+			{ name: '输出', value: 0 },
+			{ name: '精准', value: 0 },
+			{ name: '分屏', value: 0 },
+			{ name: '搞事', value: 0 }
 		];
 		
-		
-		
 		const chart = new F2.Chart({
-			
 			el: canvas,
-			
 			width,
-			
 			height
-			
 		});
-		
-		
 		
 		chart.source(data, {
-			
 			value: {
-				
 				min: 0,
-				
 				max: 10
-				
 			}
-			
 		});
-		
 		chart.coord('polar');
-		
 		chart.tooltip(false); // 关闭 tooltip
-		
 		chart.axis('value', {
-			
 			grid: {
-				
 				lineDash: null
-				
 			},
-			
 			label: null,
-			
 			line: null
-			
 		});
-		
 		chart.axis('name', {
-			
 			grid: {
-				
 				lineDash: null
-				
 			}
-			
 		});
-		
 		chart.area()
-		
 		.position('name*value')
-		
 		.color('#FE5C5B')
-		
 		.style({
-			
 			fillOpacity: 0.2
-			
 		})
-		
 		.animate({
-			
 			appear: {
-				
 				animation: 'groupWaveIn'
-				
 			}
-			
 		});
-		
 		chart.line()
-		
 		.position('name*value')
-		
 		.color('#FE5C5B')
-		
 		.size(1)
-		
 		.animate({
-			
 			appear: {
-				
 				animation: 'groupWaveIn'
-				
 			}
-			
 		});
-		
 		chart.point().position('name*value').color('#FE5C5B').animate({
-			
 			appear: {
-				
 				delay: 300
-				
 			}
-			
 		});
 		
-		
-		
+		/*
 		chart.guide().text({
-			
 			position: ['50%', '50%'],
-			
 			content: '73',
-			
 			style: {
-				
 				fontSize: 32,
-				
 				fontWeight: 'bold',
-				
 				fill: '#FE5C5B'
-				
 			}
-			
 		});
+		*/
 		
 		chart.render();
-		
 		return chart;
-		
 	}
+	
 	
 	export default {
 		auth: true,
@@ -287,8 +215,7 @@
 			match: null,
 			player_id: null,
 			player: null,
-			basic_stat: null,
-			play_stat: null,
+			stat: null,
 			player_achieve: null,
 			achieve_detail: null,
 			is_me: false,
@@ -302,8 +229,7 @@
 				match: Match.get(options.match),
 				player_id: options.id
 			});
-			$.Wui.content('content-pkPlayer-basic').bindLoad(this.loadBasicStat);
-			$.Wui.content('content-pkPlayer-play').bindLoad(this.loadPlayStat);
+			$.Wui.content('content-pkPlayer-stat').bindLoad(this.loadStat);
 			$.Wui.content('content-pkPlayer-achieve').bindLoad(this.loadAchieve);
 			if (options.tab)
 				this.setData({ tabIndex: options.tab });
@@ -311,17 +237,28 @@
 		async onShow() {
 			let player = await Player.get(this.data.match, this.data.player_id);
 			this.setData({ player, is_me: player.user_id === $.AppData.me.id });
-			$.Wui.content('content-pkPlayer-basic').load();
-			$.Wui.content('content-pkPlayer-play').load();
+			$.Wui.content('content-pkPlayer-stat').load();
 			$.Wui.content('content-pkPlayer-achieve').load();
 		},
-		async loadBasicStat() {
-			let basic_stat = await PkStatistics.getBasic(this.data.player);
-			this.setData({ basic_stat });
-		},
-		async loadPlayStat() {
-			let play_stat = await PkStatistics.getPlay(this.data.player);
-			this.setData({ play_stat });
+		async loadStat() {
+			let stat = await PkStatistics.getStat(this.data.player);
+			this.setData({ stat });
+			let chartData = [];
+			for (let key in stat.chart) {
+				if (!stat.chart.hasOwnProperty(key))
+					continue;
+				chartData.push({
+					name: key,
+					value: stat.chart[key]
+				});
+			}
+			let chart = this.selectComponent("#radar-player").chart;
+			chart.changeData(chartData, {
+				value: {
+					min: 0,
+					max: 10
+				}
+			});
 		},
 		async loadAchieve() {
 			let player_achieve = await PlayerAchieve.get(this.data.player);
@@ -336,6 +273,11 @@
 
 <style lang="less">
 	@import "../../style.less";
+	
+	ff-canvas {
+		width: 100%;
+		height: 100%;
+	}
 	
 	.page {
 		.fix-page;
@@ -385,6 +327,11 @@
 				text-align: right;
 			}
 		}
+	}
+	
+	.radar-panel {
+		width: 600px;
+		height: 600px;
 	}
 	
 	.achieves-panel {

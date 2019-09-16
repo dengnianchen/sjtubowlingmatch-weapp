@@ -9,6 +9,8 @@
 	"author": "Deng Nianchen",
 	"license": "MIT",
 	"dependencies": {
+		"@antv/f2-canvas": "~1.0.5",
+		"@antv/wx-f2": "~1.1.4",
 		"@minui/wxc-avatar": "^1.0.5",
 		"@minui/wxc-button": "^1.0.2",
 		"@minui/wxc-dialog": "^1.0.10",
@@ -27,9 +29,7 @@
 		"@yapple/wui-panel": "^1.0.7",
 		"@yapple/wui-submit": "^1.0.1",
 		"md5": "^2.2.1",
-		"welib": "git+https://github.com/dengnianchen/welib.git",
-		"@antv/f2-canvas": "~1.0.5",
-		"@antv/wx-f2": "~1.1.4"
+		"welib": "git+https://github.com/dengnianchen/welib.git"
 	},
 	"devDependencies": {
 		"babel-preset-env": "^1.6.1",
