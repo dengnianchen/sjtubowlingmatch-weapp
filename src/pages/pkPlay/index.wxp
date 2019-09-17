@@ -49,7 +49,7 @@
 					<view wx:for="{{play.players[player_id].effects}}" wx:key="identifier"
 					      wx:for-index="identifier" wx:for-item="effect"
 					      class="__effect-item">
-						<image class="__image" src="/images/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
+						<image class="__image" src="{{$.config.cstorUrl}}/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
 						{{effect.item_name}}
 					</view>
 				</block>

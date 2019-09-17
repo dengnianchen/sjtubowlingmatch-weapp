@@ -239,6 +239,7 @@
 		&__content-wrap {
 			//width: 100%;
 			display: flex;
+			flex: 1;
 			overflow: hidden;
 		}
 		&__content {

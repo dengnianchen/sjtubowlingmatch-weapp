@@ -18,7 +18,7 @@
 				 tab-index="{{tabIndex}}">
 			<wxc-tab-panel tab-index="0" component-id="tab-pkPlayer" label="数据统计">
 				<view class="stat-panel">
-					<wui-content id="content-pkPlayer-stat">
+					<wui-content id="content-pkPlayer-stat" wui-style="stretch:true">
 						<view class="__top-part">
 							<view class="basic-stat">
 								<view class="__head-line">本赛季共参与</view>
@@ -44,7 +44,7 @@
 			</wxc-tab-panel>
 			<wxc-tab-panel tab-index="1" component-id="tab-pkPlayer" label="成就">
 				<view class="achieves-panel">
-					<wui-content id="content-pkPlayer-achieve">
+					<wui-content id="content-pkPlayer-achieve" wui-style="stretch:true">
 						<view class="achieve-points">成就点数：{{player_achieve.points}}点</view>
 						<wui-abnor wx:if="{{!is_me && !player_achieve.points}}" error="无成就"></wui-abnor>
 						<view wx:else class="achieves-grid">
@@ -55,7 +55,7 @@
 								      bindtap="onAchieveItemClick"
 								      data-index="{{index}}">
 									<view class="__image"
-									      style="background-image: url('https://sinacloud.net/sjtubowling/match/pk/achieve_{{achieve.identifier}}.png');background-position: -{{achieve.level + 1}}em 0;"
+									      style="background-image: url('{{$.config.cstorUrl}}/pk/achieve_{{achieve.identifier}}.png');background-position: -{{achieve.level + 1}}em 0;"
 									      mode="aspectFill">
 										<view wx:if="{{achieve.level < 0}}" class="__image-lock">
 											<wui-icon name="fas fa-lock"></wui-icon>

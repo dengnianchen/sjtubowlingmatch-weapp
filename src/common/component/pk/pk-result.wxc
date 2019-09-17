@@ -82,14 +82,14 @@
 						<view wx:for="{{Play.getParticipant(play, index).detail.basic_effects}}"
 						      wx:for-index="identifier" wx:for-item="effect" wx:key="identifier"
 						      class="effect_item">
-							<image class="__effect-image" src="/images/pk/basic_{{identifier}}.png" mode="aspectFill"></image>
+							<image class="__effect-image" src="{{cstorUrl}}/pk/basic_{{identifier}}.png" mode="aspectFill"></image>
 							<text class="__effect-name">{{basicItems[identifier].item_name}}</text>
 							<app-pk-dstate class="__dstate" wx:if="{{effect.dstate}}" dstate="{{effect.dstate}}"></app-pk-dstate>
 						</view>
 						<view wx:for="{{Play.getParticipant(play, index).detail.extra_effects}}"
 						      wx:for-index="identifier" wx:for-item="effect" wx:key="identifier"
 						      class="effect_item">
-							<image class="__effect-image" src="/images/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
+							<image class="__effect-image" src="{{cstorUrl}}/pk/shop_{{identifier}}.png" mode="aspectFill"></image>
 							<text class="__effect-name">{{extraItems[identifier].item_name}}</text>
 							<app-pk-dstate class="__dstate" wx:if="{{effect.dstate}}" dstate="{{effect.dstate}}"></app-pk-dstate>
 						</view>
@@ -121,7 +121,8 @@
 		data: {
 			play: null,
 			basicItems: null,
-			extraItems: null
+			extraItems: null,
+			cstorUrl: null
 		},
 		lifetimes: {
 			ready() {
@@ -133,7 +134,8 @@
 						'accepted': $.AppData.style.successColor,
 						'player_refused': $.AppData.style.dangerColor,
 						'refused': $.AppData.style.dangerColor
-					}
+					},
+					cstorUrl: $.AppData.config.cstorUrl
 				})
 			}
 		},

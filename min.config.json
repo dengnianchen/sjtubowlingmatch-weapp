@@ -7,7 +7,7 @@
   },
   "compilers": {
     "babel": {
-      "sourceMaps": "inline",
+      "sourceMaps": false,
       "presets": [[ "env", {
         "targets": {
           "node": "current"

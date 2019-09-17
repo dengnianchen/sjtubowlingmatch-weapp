@@ -28,7 +28,7 @@
 						<view class="shop_list">
 							<view wx:for="{{items}}" wx:key="index" class="__item"
 							      bindtap="onItemClicked" data-id="{{item.id}}">
-								<image class="__image" src="/images/pk/shop_{{item.identifier}}.png" mode="aspectFill"></image>
+								<image class="__image" src="{{$.config.cstorUrl}}/pk/shop_{{item.identifier}}.png" mode="aspectFill"></image>
 								<view class="__name">{{item.item_name}}</view>
 								<app-pk-cost class="__cost" cost="{{item.detail['cost']}}" affordable="{{buyCheck[item.id].affordable}}"></app-pk-cost>
 							</view>
@@ -50,7 +50,7 @@
 	<wxc-mask status="{{itemDetail?'show':'hide'}}" content-align="cc">
 		<view class="item-detail">
 			<view class="__banner">
-				<image class="__image" src="/images/pk/shop_{{itemDetail.identifier}}.png" mode="aspectFill"></image>
+				<image class="__image" src="{{$.config.cstorUrl}}/pk/shop_{{itemDetail.identifier}}.png" mode="aspectFill"></image>
 				<view class="__basic">
 					<view class="__title">
 						<text class="__title-text">{{itemDetail.item_name}}</text>

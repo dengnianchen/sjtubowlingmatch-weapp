@@ -1,7 +1,7 @@
 <template>
 	<form bindsubmit="_onItemClicked" report-submit="{{true}}">
 		<button class="fake-button list list--{{mode}}" form-type="submit">
-			<image class="__image" src="/images/pk/shop_{{buy.item.identifier}}.png" mode="aspectFill"></image>
+			<image class="__image" src="{{cstorUrl}}/pk/shop_{{buy.item.identifier}}.png" mode="aspectFill"></image>
 			<view class="__name">{{buy.item.item_name}}</view>
 			<view class="__time">{{buy_time}}</view>
 		</button>
@@ -29,6 +29,13 @@
 			}
 		},
 		data: { },
+		lifetimes: {
+			ready() {
+				this.setData({
+					cstorUrl: $.AppData.config.cstorUrl
+				});
+			}
+		},
 		methods: {
 			_onItemClicked(e) {
 				$.Http.submit(e);

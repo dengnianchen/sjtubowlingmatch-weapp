@@ -8,19 +8,22 @@
 	"setting": {
 		"urlCheck": true,
 		"es6": false,
+		"enhance": false,
 		"postcss": true,
 		"minified": true,
 		"newFeature": true,
+		"nodeModules": true,
 		"autoAudits": false,
+		"uglifyFileName": false,
 		"checkInvalidKey": true,
 		"checkSiteMap": false,
-		"uploadWithSourceMap": true,
+		"uploadWithSourceMap": false,
 		"babelSetting": {
 			"ignore": [],
 			"disablePlugins": [],
 			"outputPath": ""
 		},
-		"nodeModules": true
+		"bundle": false
 	},
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
@@ -84,7 +87,7 @@
 					"id": 4,
 					"name": "PK PLAYER",
 					"pathName": "pages/pkPlayer/index",
-					"query": "match=pk_2019autumn&id=81",
+					"query": "match=pk_2019autumn&id=80",
 					"scene": null
 				}
 			]

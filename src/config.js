@@ -3,9 +3,11 @@
  */
 const host = 'https://sjtubowling.applinzi.com/test_match';
 const storageUrl = 'http://sjtubowling-public.stor.sinaapp.com';
+const cstorUrl = 'https://sinacloud.net/sjtubowling/match';
 
 module.exports = {
 	storageUrl,
+	cstorUrl,
 	host,
 	// Welib配置
 	welib: {
