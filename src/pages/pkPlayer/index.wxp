@@ -19,12 +19,17 @@
 			<wxc-tab-panel tab-index="0" component-id="tab-pkPlayer" label="数据统计">
 				<view class="stat-panel">
 					<wui-content id="content-pkPlayer-stat">
-						<view class="basic-stat">
-							<view>本赛季共进行{{stat.basic.all['Total']}}场PK（其中常规赛{{stat.basic.all['Normal']}}场）</view>
-							<view>本周已进行{{stat.basic.this_week['Total']}}场PK（其中常规赛{{stat.basic.this_week['Normal']}}场）</view>
-						</view>
-						<view class="radar-panel">
-							<ff-canvas class="radar" id="radar-player" canvas-id="radar" opts="{{ opts }}"></ff-canvas>
+						<view class="__top-part">
+							<view class="basic-stat">
+								<view class="__head-line">本赛季共参与</view>
+								<view class="__content-line">{{stat.basic.all['Total']}}场约战（常规赛{{stat.basic.all['Normal']}}场）</view>
+								<view class="__head-line">本周已参与</view>
+								<view class="__content-line">{{stat.basic.this_week['Total']}}场约战（常规赛{{stat.basic.this_week['Normal']}}场）</view>
+								<view class="__split-line"></view>
+							</view>
+							<view class="radar-panel">
+								<ff-canvas class="radar" id="radar-player" canvas-id="radar" opts="{{ opts }}"></ff-canvas>
+							</view>
 						</view>
 						<view class="play-stat">
 							<view wx:for="{{stat.play}}" wx:key="label"
@@ -302,11 +307,37 @@
 	
 	.stat-panel {
 		padding: 20*@px;
+		
+		.__top-part {
+			display: flex;
+			
+			.basic-stat {
+				padding: 0.5em 0;
+				flex: 1;
+				
+				.__head-line {
+					font-weight: bold;
+					line-height: 2em;
+				}
+				
+				.__content-line {
+					margin-bottom: 0.5em;
+					line-height: 2em;
+				}
+				
+				.__split-line {
+					height: 1em;
+					border-bottom: solid 1px @color__splitLine2;
+				}
+			}
+			
+			.radar-panel {
+				width: 350px;
+				height: 300px;
+			}
+		}
 	}
 	
-	.basic-stat {
-		padding: 0.5em 0;
-	}
 	.play-stat {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
@@ -327,11 +358,6 @@
 				text-align: right;
 			}
 		}
-	}
-	
-	.radar-panel {
-		width: 600px;
-		height: 600px;
 	}
 	
 	.achieves-panel {

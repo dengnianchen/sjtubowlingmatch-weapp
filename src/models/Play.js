@@ -84,7 +84,7 @@ class Play extends $.Model {
 		match = $.Model.id(match);
 		if (!filters)
 			return await $.Http.request(`/${match}/play`, {}, {}, PlayBrief);
-		return await $.Http.request(`/${match}/play`, { filters }, {}, PlayBrief);
+		return await $.Http.request(`/${match}/play`, filters, {}, PlayBrief);
 	}
 	
 	/**
