@@ -26,7 +26,7 @@ class Share extends $.Model {
 	 */
 	static buy(buyInfo) {
 		let title = '';
-		let imageUrl = `/images/pk/shop_${buyInfo.item.identifier}.png`;
+		let imageUrl = `https://imgx.sinacloud.net/sjtubowling/c_pad,h_400,w_500,g_center/match/pk/shop_${buyInfo.item.identifier}.png`;
 		let path = Page.current().getPath();
 		switch (buyInfo.item.identifier) {
 			case 'Meme':

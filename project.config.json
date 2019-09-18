@@ -2,7 +2,7 @@
 	"miniprogramRoot": "dist/",
 	"description": "项目配置文件。",
 	"compileType": "miniprogram",
-	"libVersion": "2.7.7",
+	"libVersion": "2.5.2",
 	"appid": "wx911ebd4ae04d3ba1",
 	"projectname": "%E4%B8%8A%E6%B5%B7%E4%BA%A4%E9%80%9A%E5%A4%A7%E5%AD%A6%E4%BF%9D%E9%BE%84%E8%B5%9B%E4%BA%8B%E4%B8%AD%E5%BF%83",
 	"setting": {

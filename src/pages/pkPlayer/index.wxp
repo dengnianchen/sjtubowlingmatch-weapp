@@ -17,8 +17,8 @@
 		         animate="{{true}}"
 				 tab-index="{{tabIndex}}">
 			<wxc-tab-panel tab-index="0" component-id="tab-pkPlayer" label="数据统计">
-				<view class="stat-panel">
-					<wui-content id="content-pkPlayer-stat" wui-style="stretch:true">
+				<wui-content id="content-pkPlayer-stat" wui-style="stretch:true">
+					<view class="stat-panel">
 						<view class="__top-part">
 							<view class="basic-stat">
 								<view class="__head-line">本赛季共参与</view>
@@ -39,12 +39,12 @@
 								<view class="__value">{{value}}</view>
 							</view>
 						</view>
-					</wui-content>
-				</view>
+					</view>
+				</wui-content>
 			</wxc-tab-panel>
 			<wxc-tab-panel tab-index="1" component-id="tab-pkPlayer" label="成就">
-				<view class="achieves-panel">
-					<wui-content id="content-pkPlayer-achieve" wui-style="stretch:true">
+				<wui-content id="content-pkPlayer-achieve" wui-style="stretch:true">
+					<view class="achieves-panel">
 						<view class="achieve-points">成就点数：{{player_achieve.points}}点</view>
 						<wui-abnor wx:if="{{!is_me && !player_achieve.points}}" error="无成就"></wui-abnor>
 						<view wx:else class="achieves-grid">
@@ -73,8 +73,8 @@
 								</view>
 							</block>
 						</view>
-					</wui-content>
-				</view>
+					</view>
+				</wui-content>
 			</wxc-tab-panel>
 		</app-tab>
 	</view>
@@ -201,6 +201,7 @@
 		auth: true,
 		config: {
 			navigationBarTitleText: '选手信息',
+			enablePullDownRefresh: true,
 			usingComponents: {
 				'app-avatar': '../../common/component/avatar',
 				'app-pk-player-state': '../../common/component/pk-player-state',

@@ -116,6 +116,7 @@
 		auth: true,
 		config: {
 			navigationBarTitleText: '道具商店',
+			enablePullDownRefresh: true,
 			usingComponents: {
 				'wxc-notice': '@minui/wxc-notice',
 				'wxc-button': '@minui/wxc-button',

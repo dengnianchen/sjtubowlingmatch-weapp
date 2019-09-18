@@ -141,7 +141,7 @@
 	<wui-dialog id="dialog-inherit-promote" title="继承段位" confirm-btn="继承" cancel-btn="再想想">
 		<app-pk-player-state match="{{lastSeasonMatch}}" state="{{playerLastSeason.state}}"></app-pk-player-state>
 		<text>↓</text>
-		<app-pk-player-state state="{{inheritCalc}}"></app-pk-player-state>
+		<app-pk-player-state match="{{match}}" state="{{inheritCalc}}"></app-pk-player-state>
 	</wui-dialog>
 	<wui-dialog id="dialog-inherit-success" title="成功继承段位">
 		当前段位：
@@ -247,7 +247,8 @@
 			// 如需要，获取当前用户在上赛季中的选手信息（用于判断段位继承）
 			let playerLastSeason = (playerMe && playerMe.state) ? null :
 				await Player.getInMatch(Match.get('pk')[1], $.AppData.me);
-			
+			if (playerLastSeason && !playerLastSeason.state)
+				playerLastSeason = null;
 			this.setData({
 				match, playerLastSeason,
 				player: playerMe,
