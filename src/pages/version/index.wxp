@@ -1,6 +1,6 @@
 <template>
 	<wui-panel wx:for="{{versions}}" wx:key="index"
-	           title="版本号：{{item.id}}" wui-style="bottom-margin:true">
+	           title="版本号：{{item.id}}" wui-style="bottom-margin:true;right-padding:true">
 		<text>{{item.content}}</text>
 	</wui-panel>
 </template>
@@ -22,4 +22,7 @@
 </script>
 
 <style>
+	.page {
+		font-size: 0.8em;
+	}
 </style>

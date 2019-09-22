@@ -61,7 +61,6 @@
 				</view>
 			</wui-field>
 			<wui-field type="custom" label="比赛日期">{{play.play_date}}</wui-field>
-			<wui-field type="custom" label="裁判">{{play.judge.name}}</wui-field>
 			<wui-field type="custom" label="当前状态">
 				<text style="color:{{playStatusColor[play.status]}}">{{play.status_names[play.status]}}</text>
 			</wui-field>

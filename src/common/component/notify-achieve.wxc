@@ -4,6 +4,7 @@
 			<view class="__image" style="background-image: url('https://sinacloud.net/sjtubowling/match/pk/achieve_{{item.identifier}}.png');background-position: -{{level + 1}}em 0;"></view>
 			<view class="__name">{{item.item_name}}</view>
 			<view class="__level">（{{levelName}}）</view>
+			<view class="__desc">{{desc}}</view>
 		</view>
 	</wui-dialog>
 </template>
@@ -38,7 +39,8 @@
 					levelName = '隐藏成就';
 				else if (item.detail['targets'].length === level + 1)
 					levelName = '最高级';
-				this.setData({ item, level, levelName, host: $.AppData.config.host });
+				let desc = item.description.replace('$', item.detail['targets'][level]);
+				this.setData({ item, level, levelName, desc, host: $.AppData.config.host });
 				$.AppData.share = Share.achieve(item, level, player);
 				return $.Wui.Dialog.show('#notify-dialog', this);
 			}
@@ -67,6 +69,12 @@
 		
 		.__level {
 		
+		}
+		
+		.__desc {
+			font-size: 0.9em;
+			color: @color__desc;
+			text-align: center;
 		}
 		
 		.__share-btn {

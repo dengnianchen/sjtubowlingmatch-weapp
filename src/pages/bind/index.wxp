@@ -1,77 +1,93 @@
 <template>
-	<view class="bind-title">欢迎来到上海交通大学保龄赛事中心</view>
-	<wui-form wx:if="{{register}}" id="form-register"
-	          disabled="{{bindInProcess}}"
-	          bindsubmit="doRegister">
-		<view class="bind-subtitle">首次使用需注册赛事中心账号</view>
-		<wui-panel>
-			<wui-field name="name" type="text"
-			           label="真实姓名"
-			           placeholder="请输入真实姓名，长度不超过20个字符"
-			           maxlength="20"
-			           require="{{true}}"
-			></wui-field>
-			<wui-field name="password" type="password"
-			           label="密码"
-			           placeholder="密码长度应介于6至20个字符之间"
-			           maxlength="20"
-			           require="{{true}}"
-			           disabled="{{bindInProcess}}"
-			></wui-field>
-			<wui-field name="repassword" type="password"
-			           label="确认密码"
-			           placeholder="请再次输入密码"
-			           maxlength="20"
-			           require="{{true}}"
-			           validate="eqpassword"
-			           exclude-on-submit="{{true}}"
-			></wui-field>
-			<wui-field name="gender" type="picker"
-			           label="性别"
-			           placeholder="请选择性别"
-			           require="{{true}}"
-			           range="{{ [ '未知', '男', '女' ] }}"
-			           skipfirst="{{true}}"
-			></wui-field>
-		</wui-panel>
-		<view style="text-align: center">
-			<wxc-button size="large" value="注册账号" loading="{{bindInProcess}}"
-			            type="{{bindInProcess?'disabled':'primary'}}"
-			            open-type='getUserInfo'
-			            bindgetuserinfo='doLoginAndRegister'
-			></wxc-button>
+	<view class="bind-title" wx:if="{{me}}">{{me.name}}，欢迎回来！</view>
+	<view class="bind-title" wx:else>游客你好，欢迎光临！</view>
+	<block wx:if="{{me}}">
+		<wui-form id="form-auth"
+		          disabled="{{inProcess}}">
+			<view class="bind-subtitle">当前授权已失效，需要重新获得授权才能更新头像哦！</view>
+			<view style="text-align: center">
+				<wxc-button size="large" value="授权" loading="{{inProcess}}"
+				            type="{{inProcess?'disabled':'primary'}}"
+				            open-type='getUserInfo'
+				            bindgetuserinfo='doAuthLogin'
+				></wxc-button>
+			</view>
+		</wui-form>
+	</block>
+	<block wx:else>
+		<wui-form wx:if="{{register}}" id="form-register"
+		          disabled="{{inProcess}}"
+		          bindsubmit="doRegister">
+			<view class="bind-subtitle">首次使用需注册账号哦！</view>
+			<wui-panel>
+				<wui-field name="name" type="text"
+				           label="真实姓名"
+				           placeholder="请输入真实姓名，长度不超过20个字符"
+				           maxlength="20"
+				           require="{{true}}"
+				></wui-field>
+				<wui-field name="password" type="password"
+				           label="密码"
+				           placeholder="密码长度应介于6至20个字符之间"
+				           maxlength="20"
+				           require="{{true}}"
+				           disabled="{{inProcess}}"
+				></wui-field>
+				<wui-field name="repassword" type="password"
+				           label="确认密码"
+				           placeholder="请再次输入密码"
+				           maxlength="20"
+				           require="{{true}}"
+				           validate="eqpassword"
+				           exclude-on-submit="{{true}}"
+				></wui-field>
+				<wui-field name="gender" type="picker"
+				           label="性别"
+				           placeholder="请选择性别"
+				           require="{{true}}"
+				           range="{{ [ '未知', '男', '女' ] }}"
+				           skipfirst="{{true}}"
+				></wui-field>
+			</wui-panel>
+			<view style="text-align: center">
+				<wxc-button size="large" value="注册账号" loading="{{inProcess}}"
+				            type="{{inProcess?'disabled':'primary'}}"
+				            open-type='getUserInfo'
+				            bindgetuserinfo='doLoginAndRegister'
+				></wxc-button>
+			</view>
+		</wui-form>
+		<wui-form wx:else id="form-bind"
+		          validate-on-blur="{{false}}"
+		          disabled="{{inProcess}}"
+		          bindsubmit="doBind">
+			<view class="bind-subtitle">已有账号？快快绑定吧！</view>
+			<wui-panel>
+				<wui-field id="field-name" name="name" type="text"
+				           label="姓名"
+				           placeholder="请输入账号姓名"
+				           require="{{true}}"
+				></wui-field>
+				<wui-field id="field-password" name="password" type="password"
+				           label="密码"
+				           placeholder="请输入账号密码"
+				           maxlength="20"
+				           require="{{true}}"
+				></wui-field>
+			</wui-panel>
+			<view style="text-align: center">
+				<wxc-button size="large" value="绑定账号" loading="{{inProcess}}"
+				            type="{{inProcess?'disabled':'primary'}}"
+				            open-type='getUserInfo'
+				            bindgetuserinfo='doLoginAndBind'
+				
+				></wxc-button>
+			</view>
+		</wui-form>
+		<view class="bind-foot" bindtap="switchRegisterOrBind">
+			{{register ? '绑定现有账号' : '注册新账号' }}
 		</view>
-	</wui-form>
-	<wui-form wx:else id="form-bind"
-	          validate-on-blur="{{false}}"
-	          disabled="{{bindInProcess}}"
-	          bindsubmit="doBind">
-		<view class="bind-subtitle">登陆并绑定赛事中心账号</view>
-		<wui-panel>
-			<wui-field id="field-name" name="name" type="text"
-			           label="姓名"
-			           placeholder="请输入账号姓名"
-			           require="{{true}}"
-			></wui-field>
-			<wui-field id="field-password" name="password" type="password"
-			           label="密码"
-			           placeholder="请输入账号密码"
-			           maxlength="20"
-			           require="{{true}}"
-			></wui-field>
-		</wui-panel>
-		<view style="text-align: center">
-			<wxc-button size="large" value="绑定账号" loading="{{bindInProcess}}"
-			            type="{{bindInProcess?'disabled':'primary'}}"
-			            open-type='getUserInfo'
-			            bindgetuserinfo='doLoginAndBind'
-			
-			></wxc-button>
-		</view>
-	</wui-form>
-	<view class="bind-foot" bindtap="switchRegisterOrBind">
-		{{register ? '绑定现有账号' : '注册新账号' }}
-	</view>
+	</block>
 </template>
 
 <script>
@@ -100,75 +116,73 @@
 		
 		data: {
 			skipTemplate: true,
-			wxAuth: false,
-			bindInProcess: false,
+			inProcess: false,
 			register: true
 		},
 		
 		async onLoad(options) {
-			this.setData(options);
-			try {
-				await $.Http.login();
-				if (User.current) // 若当前微信已绑定用户，则直接回到来源页面
-					this._redirectBack();
-				else
-					this.setData({ wxAuth: true });
-			} catch (ex) {
-				// 登录微信账号失败，后续将使用授权登录方式
-				console.error(ex);
-				this.setData({ wxAuth: false });
+			this.fromPage = options.from;
+			if (!options.wxAuth) {
+				try {
+					// 尝试非授权登录，检查是否为老用户授权失效的情况
+					await $.Http.login();
+					if (User.current)
+						this.setData({ me: User.current });
+				} catch (ex) {
+					console.warn(ex);
+				}
 			}
-			this.selectComponent('#form-register').setCustomValidators(customValidators);
+			if (!this.data.me)
+				this.selectComponent('#form-register').setCustomValidators(customValidators);
 		},
 		
 		/**
-		 * 尝试授权登录，然后执行微信与球馆用户的绑定操作
+		 * 尝试授权登录，然后执行新用户注册操作
 		 */
 		async doLoginAndRegister() {
-			this.setData({ bindInProcess: true });
-			
-			if (this.data.wxAuth) {
-				// 已经成功登录，仅执行绑定操作
-				if (!this.selectComponent('#form-register').submit())
-					this.setData({ bindInProcess: false });
-			} else {
+			this.setData({ inProcess: true });
+			try {
 				// 进行授权方式登录（若未曾收授权，用户会收到授权提示）
-				try {
-					await $.Http.login(true);
-					this.setData({ wxAuth: true });
-					// 执行绑定操作
-					if (!this.selectComponent('#form-register').submit())
-						this.setData({ bindInProcess: false });
-				} catch (ex) {
-					$.Modal.showError('登录错误', ex);
-					this.setData({ bindInProcess: false });
-				}
+				await $.Http.login(true);
+				// 执行绑定操作
+				if (!this.selectComponent('#form-register').submit())
+					this.setData({ inProcess: false });
+			} catch (ex) {
+				$.Modal.showError('登录错误', ex);
+				this.setData({ inProcess: false });
 			}
-			
 		},
 		
 		/**
 		 * 尝试授权登录，然后执行微信与球馆用户的绑定操作
 		 */
 		async doLoginAndBind() {
-			this.setData({ bindInProcess: true });
-			
-			if (this.data.wxAuth) {
-				// 已经成功登录，仅执行绑定操作
-				this.selectComponent('#form-bind').submit();
-			} else {
+			this.setData({ inProcess: true });
+			try {
 				// 进行授权方式登录（若未曾收授权，用户会收到授权提示）
-				try {
-					await $.Http.login(true);
-					this.setData({ wxAuth: true });
-					// 执行绑定操作
-					this.selectComponent('#form-bind').submit();
-				} catch (ex) {
-					$.Modal.showError('登录错误', ex);
-					this.setData({ bindInProcess: false });
-				}
+				await $.Http.login(true);
+				this.setData({ wxAuth: true });
+				// 执行绑定操作
+				this.selectComponent('#form-bind').submit();
+			} catch (ex) {
+				$.Modal.showError('登录错误', ex);
+				this.setData({ inProcess: false });
 			}
-			
+		},
+		
+		/**
+		 * 尝试授权登录，成功后返回原页面
+		 */
+		async doAuthLogin() {
+			this.setData({ inProcess: true });
+			try {
+				// 进行授权方式登录（若未曾收授权，用户会收到授权提示）
+				await $.Http.login(true);
+				this._redirectBack();
+			} catch (ex) {
+				$.Modal.showError('授权失败', ex);
+				this.setData({ inProcess: false });
+			}
 		},
 		
 		/**
@@ -189,7 +203,7 @@
 				this._redirectBack();
 			} catch (ex) {
 				$.Modal.showError('绑定失败', ex);
-				this.setData({ bindInProcess: false });
+				this.setData({ inProcess: false });
 			}
 		},
 		
@@ -206,7 +220,7 @@
 				this._redirectBack();
 			} catch (ex) {
 				$.Modal.showError('注册失败', ex);
-				this.setData({ bindInProcess: false });
+				this.setData({ inProcess: false });
 			}
 		},
 		
@@ -222,7 +236,7 @@
 		 */
 		_redirectBack() {
 			wx.reLaunch({
-				url: decodeURIComponent(this.data.from),
+				url: decodeURIComponent(this.fromPage),
 			});
 		}
 		

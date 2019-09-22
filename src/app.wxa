@@ -32,7 +32,7 @@
 				backgroundTextStyle: 'dark',
 				backgroundColor: '#efefef',
 				navigationBarBackgroundColor: '#ffffff',
-				navigationBarTitleText: '上海交通大学保龄赛事中心',
+				navigationBarTitleText: '保保开赛',
 				navigationBarTextStyle: 'black',
 			},
 			networkTimeout: {
@@ -68,9 +68,9 @@
 		 * @author Deng Nianchen
 		 */
 		async beforePageLoad(page) {
-			let redirectToBind = async () => await Page.redirectTo({
+			let redirectToBind = async (wxAuth) => await Page.redirectTo({
 				url: '../bind/index',
-				data: { from: page.getPath() }
+				data: { from: page.getPath(), wxAuth }
 			});
 			
 			// 1. 尝试登陆并获取绑定的用户信息
@@ -78,15 +78,15 @@
 			//    若登陆失败或当前微信账号没有绑定赛事中心账号，则跳转到登陆绑定页面
 			if (page.auth && !$.AppData.me) {
 				try {
-					await $.Http.login();
+					await $.Http.login(true);
 				} catch (ex) {
 					if (ex.is($.Err.LOGIN_FAIL))
-						await redirectToBind();
+						await redirectToBind(false);
 					return false;
 				}
 				$.AppData.me = User.current;
 				if (!$.AppData.me) {
-					await redirectToBind();
+					await redirectToBind(true);
 					return false;
 				}
 			}

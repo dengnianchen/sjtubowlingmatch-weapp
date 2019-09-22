@@ -56,16 +56,9 @@
 			</view>
 		</view>
 		<view class="__submit-panel">
-			<wui-field class="__judge-picker" type="custom" label="裁判">
-				<view class="__picker" bindtap="onSelectJudgeClicked">
-					<text wx:if="{{play.judge}}" class="__picker-label">{{play.judge.name}}</text>
-					<text wx:else class="__picker-label" style="color:#999">请选择裁判</text>
-					<wui-icon name="fa fa-angle-right" color="#c2c2c2"></wui-icon>
-				</view>
-			</wui-field>
 			<wxc-button size="large"
 			            type="primary"
-			            btn-style="width:100%;height:3em;line-height:3em;font-size:1em"
+			            btn-style="width:100%;height:4em;line-height:4em;font-size:1em"
 			            bind:submit="onSubmitButtonClicked"
 			>提交</wxc-button>
 		</view>
@@ -196,14 +189,9 @@
 				$.Modal.showError('提交成绩失败', '球局尚未完成录入，请完成录入后重试');
 				return;
 			}
-			if (!this.data.play.judge) {
-				$.Modal.showError('提交成绩失败', '请选择裁判后重试');
-				return;
-			}
 			$.Modal.showBusy('正在提交…');
 			try {
-				let play_id = await PkPlay.play(this.data.play.type, games,
-					this.data.play.judge);
+				let play_id = await PkPlay.play(this.data.play.type, games, -1);
 				wx.removeStorageSync('pk');
 				await $.Modal.showSuccess('操作成功');
 				Page.redirectTo({
