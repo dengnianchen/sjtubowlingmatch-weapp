@@ -55,7 +55,7 @@
 								      bindtap="onAchieveItemClick"
 								      data-index="{{index}}">
 									<view class="__image"
-									      style="background-image: url('{{$.config.cstorUrl}}/pk/achieve_{{achieve.identifier}}.png');background-position: -{{achieve.level + 1}}em 0;"
+									      style="background-image: url('{{$.config.cstorUrl}}/pk/thumb/achieve_{{achieve.identifier}}.png');background-position: -{{achieve.level + 1}}em 0;"
 									      mode="aspectFill">
 										<view wx:if="{{achieve.level < 0}}" class="__image-lock">
 											<wui-icon name="fas fa-lock"></wui-icon>
@@ -81,7 +81,10 @@
 	
 	<wxc-mask status="{{achieve_detail?'show':'hide'}}" content-align="cc">
 		<view class="achieve-detail">
-			<view class="__image" style="background-image: url('https://sinacloud.net/sjtubowling/match/pk/achieve_{{achieve_detail.identifier}}.png');background-position: -{{achieve_detail.level + 1}}em 0;">
+			<button wx:if="{{is_me}}" class="fake-button __share-btn" open-type="share">
+				<wui-icon name="fa fa-share-square"></wui-icon>
+			</button>
+			<view class="__image" style="background-image: url('https://sinacloud.net/sjtubowling/match/pk/thumb/achieve_{{achieve_detail.identifier}}.png');background-position: -{{achieve_detail.level + 1}}em 0;">
 				<wui-icon wx:if="{{achieve_detail.level < 0}}" class="__image-lock" name="fas fa-lock"></wui-icon>
 			</view>
 			<view class="__title">{{achieve_detail.name}}</view>
@@ -115,7 +118,8 @@
 	import Match from '../../models/Match';
 	import PlayerAchieve from '../../models/PlayerAchieve';
 	import F2 from '../../common/component/f2-canvas/f2';
-	
+	import Share from '../../models/Share';
+	import Item from '../../models/Item';
 	
 	let chart = null;
 	
@@ -273,7 +277,16 @@
 		onAchieveItemClick(e) {
 			let index = parseInt(e.currentTarget.dataset['index']);
 			this.setData({ achieve_detail: this.data.player_achieve.getDetail(index) });
-		}
+			if (this.data.is_me)
+				$.AppData.share = Share.achieve(
+					Item.get(this.data.player_achieve.detail[index].id),
+						this.data.player_achieve.detail[index].level,
+						this.data.player);
+		},
+		onShareAppMessage(e) {
+			console.log(e);
+			return $.AppData.share;
+		},
 	};
 </script>
 
@@ -418,14 +431,22 @@
 	}
 	
 	.achieve-detail {
+		position: relative;
 		width: 600*@px;
 		border-radius: 10*@px;
 		background: white;
 		padding: 30*@px;
 		.cc;
 		
+		.__share-btn {
+			position: absolute;
+			top: 15*@px;
+			right: 15*@px;
+			font-size: @fontSize__title;
+		}
+		
 		.__image {
-			font-size: 240*@px;
+			font-size: 450*@px;
 			width: 1em;
 			height: 1em;
 			background-size: auto 100%;
@@ -438,7 +459,7 @@
 		}
 		
 		.__title {
-			font-size: @fontSize__subTitle;
+			font-size: @fontSize__title;
 		}
 		
 		.__level {

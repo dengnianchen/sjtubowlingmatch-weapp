@@ -14,8 +14,8 @@ class Share extends $.Model {
 		else if (item.detail['targets'].length === level + 1)
 			levelName = '最高级';
 		return {
-			title: `获得成就：${item.item_name}（${levelName}）`,
-			imageUrl: `https://imgx.sinacloud.net/sjtubowling/c_crop,w_512,h_512,x_${512 * (level + 1)}--c_pad,h_400,w_500,g_center/match/pk/achieve_${item.identifier}.png`,
+			title: `晒一晒我获得的成就：${item.item_name}（${levelName}）`,
+			imageUrl: `https://imgx.sinacloud.net/sjtubowling/c_crop,w_256,h_256,x_${256 * (level + 1)}--c_pad,h_400,w_500,g_center/match/pk/thumb/achieve_${item.identifier}.png`,
 			path: `/pages/pkPlayer/index?match=${item.match}&id=${player.id}&tab=1`
 		}
 	}
