@@ -65,10 +65,10 @@
 				<text style="color:{{playStatusColor[play.status]}}">{{play.status_names[play.status]}}</text>
 			</wui-field>
 		</wui-panel>
-		<wui-panel title="第一局：{{Play.getParticipant(play, 0).player.name}}先手，{{Game.formatScore(play.games[0])}} : {{Game.formatScore(play.games[1])}}">
+		<wui-panel title="第一局：{{Play.getParticipantNameById(play, play.games[0].player_id)}}先手，{{Game.formatScore(play.games[0])}} : {{Game.formatScore(play.games[1])}}">
 			<app-game games="{{[ play.games[0], play.games[1] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
-		<wui-panel title="第二局：{{Play.getParticipant(play, 1).player.name}}先手，{{Game.formatScore(play.games[2])}} : {{Game.formatScore(play.games[3])}}">
+		<wui-panel title="第二局：{{Play.getParticipantNameById(play, play.games[2].player_id)}}先手，{{Game.formatScore(play.games[2])}} : {{Game.formatScore(play.games[3])}}">
 			<app-game games="{{[ play.games[2], play.games[3] ]}}" editable="{{false}}"></app-game>
 		</wui-panel>
 		<wui-panel title="场内效果">

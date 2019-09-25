@@ -9,7 +9,13 @@ var getParticipantName = function(_this, index) {
 	return p ? (p.player.nick ? '【' + p.player.nick + '】' : p.player.name) : null;
 };
 
+var getParticipantNameById = function(_this, id) {
+	var p = _this ? _this.participants[id.toString()] : null;
+	return p ? (p.player.nick ? '【' + p.player.nick + '】' : p.player.name) : null;
+};
+
 module.exports = {
 	getParticipant: getParticipant,
-	getParticipantName: getParticipantName
+	getParticipantName: getParticipantName,
+	getParticipantNameById: getParticipantNameById
 };

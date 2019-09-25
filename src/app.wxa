@@ -19,6 +19,7 @@
 	const style = require('./style');
 	const config = require('./config');
 	const enums = require('./enums');
+	const versions = require('./versions');
 	
 	export default {
 		config: {
@@ -93,6 +94,8 @@
 		},
 		
 		async onLaunch() {
+			$.AppData.lastVersion = wx.getStorageSync('version');
+			wx.setStorageSync('version', versions[0].id);
 			Match.loadAll();
 			Item.loadAll();
 		},
