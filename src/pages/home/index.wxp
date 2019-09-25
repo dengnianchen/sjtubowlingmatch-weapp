@@ -21,7 +21,7 @@
 			<view class="__dot"></view>{{match.name}}
 		</wxc-button>
 	</view>
-	<view class="home-version" bindtap="_onVersionClicked">当前版本：{{currentVersion.id}}</view>
+	<view class="home-version" bindtap="_onVersionClicked">当前版本：{{currentVersion.id}}{{$.isTest?'（测试版本）':''}}</view>
 	<view class="home-co" bindtap="_onVersionClicked">上海交通大学中路保龄球馆@2019</view>
 	<view class="home-author" bindtap="_onVersionClicked">程序设计by苹果 / 界面设计by小白</view>
 </template>

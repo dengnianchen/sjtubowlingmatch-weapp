@@ -5,6 +5,7 @@
 		<page></page>
 	</view>
 	<wui-dialog id="dialog-common"></wui-dialog>
+	<wui-dialog id="dialog-update-info" title="版本已更新~" content="{{$.updateInfo}}"></wui-dialog>
 </template>
 
 <script>
@@ -15,11 +16,39 @@
 	const Match = require('./models/Match');
 	const Item = require('./models/Item');
 	const User = require('./models/User');
+	const Version = require('./models/Version');
 	
 	const style = require('./style');
 	const config = require('./config');
 	const enums = require('./enums');
 	const versions = require('./versions');
+	
+	let launchInitialized = false;
+	
+	async function InitializeApp() {
+		// 当前小程序的版本号
+		let clientVersion = new Version(versions[0].id);
+		// 上次启动的版本号，用以判断是否首次使用新版本
+		let lastLoginVersionId = wx.getStorageSync('version');
+		let lastLoginVersion = lastLoginVersionId ?
+			new Version(lastLoginVersionId) : null;
+		// 当前服务器端的版本号，用以判断小程序是否为测试版
+		let serverVersion = await Version.getServerVersion();
+		if (!wx.getStorageSync('forceDeploy') &&
+			Version.compare(clientVersion, serverVersion) > 0) {
+			// 若客户端版本高于服务器端版本，则切换使用测试服务器（test_match）
+			// forceDeploy可指定是否强制使用线上服务器
+			$.AppData.isTest = true;
+			$.Http._initial({ host: $.AppData.config.testHost });
+		}
+		if (lastLoginVersion && Version.compare(lastLoginVersion, clientVersion) < 0) {
+			// 若上次启动的版本号低于当前版本号，则认为当前为新版本的首次使用
+			$.AppData.updateInfo = versions[0].content;
+		}
+		wx.setStorageSync('version', clientVersion.id);
+		await Match.loadAll();
+		await Item.loadAll();
+	}
 	
 	export default {
 		config: {
@@ -69,6 +98,10 @@
 		 * @author Deng Nianchen
 		 */
 		async beforePageLoad(page) {
+			if (!launchInitialized) {
+				await InitializeApp();
+				launchInitialized = true;
+			}
 			let redirectToBind = async (wxAuth) => await Page.redirectTo({
 				url: '../bind/index',
 				data: { from: page.getPath(), wxAuth }
@@ -91,13 +124,11 @@
 					return false;
 				}
 			}
-		},
-		
-		async onLaunch() {
-			$.AppData.lastVersion = wx.getStorageSync('version');
-			wx.setStorageSync('version', versions[0].id);
-			Match.loadAll();
-			Item.loadAll();
+			
+			// 2. 若有更新内容提示，则显示对话框
+			if ($.AppData.updateInfo)
+				page.selectComponent('#dialog-update-info').show();
+			
 		},
 		
 		onShow() { },

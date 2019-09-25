@@ -199,7 +199,7 @@
 			},
 			gridMenuItemStyle: `
 				width: 250rpx;
-				height: 250rpx;
+				height: 200rpx;
 				display: flex;
 				flex-direction: column;
 				align-items: center;

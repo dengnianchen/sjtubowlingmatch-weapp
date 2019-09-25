@@ -210,11 +210,10 @@
 			display: inline-block;
 			overflow: hidden;
 			white-space: nowrap;
-			padding: 30px 0 0 0;
+			padding: 30px 0 5px 0;
 			color: @color__desc;
 			font-size: @fontSize__desc;
 			box-sizing: border-box;
-			height: 74px;
 			border-top: 3px solid @color__splitLine;
 			border-right: 3px solid @color__splitLine;
 			&--active {

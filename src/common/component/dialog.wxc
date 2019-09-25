@@ -7,10 +7,10 @@
 					<wui-icon name="fa fa-share-square"></wui-icon>
 				</button>
 			</view>
-			<view class="__content">
+			<scroll-view scroll-y="{{true}}" class="__content">
 				<text wx:if="{{content}}" class="__content__text" decode="{{true}}">{{content}}</text>
 				<slot></slot>
-			</view>
+			</scroll-view>
 			<view class="__btns">
 				<slot wx:if="{{customBtns}}" name="btns"></slot>
 				<block wx:else>
@@ -184,8 +184,10 @@
 		align-items: stretch;
 		padding: 42*@px 50*@px;
 		box-sizing: border-box;
+		max-height: 80vmax;
 		
 		.__title {
+			flex-shrink: 0;
 			display: flex;
 			align-items: center;
 			margin-bottom: 42*@px;
@@ -218,9 +220,11 @@
 		
 		.__content {
 			font-size: @fontSize__text;
+			overflow: hidden;
 		}
 		
 		.__btns {
+			flex-shrink: 0;
 			display: flex;
 			flex-flow: row nowrap;
 			justify-content: flex-end;
